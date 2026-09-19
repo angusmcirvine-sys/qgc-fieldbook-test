@@ -29,6 +29,10 @@ textarea{min-height:110px;resize:vertical}
 .small{font-size:12px;color:var(--muted)}.badge{display:inline-block;padding:4px 8px;border-radius:999px;background:#edf3df;color:#38501f;font-size:10px;font-weight:900}
 .todo{display:flex;gap:9px;align-items:flex-start;padding:9px 0;border-bottom:1px solid #edf0ed}
 .todo input{width:20px;height:20px;margin-top:1px}.todo span{flex:1}.works li{margin:7px 0}
+.todoScope{font-size:9px;font-weight:900;letter-spacing:.04em;padding:3px 6px;border-radius:999px;background:#eef1ee;color:#58635c;white-space:nowrap}
+.presetActions{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin-top:10px}
+.presetActions .btn{padding:10px 6px;font-size:11px}
+@media(max-width:420px){.presetActions{grid-template-columns:1fr}.presetActions .btn{width:100%}}
 .empty{text-align:center;color:var(--muted);padding:24px 8px}.kpi{font-size:26px;font-weight:900;color:var(--g)}
 .notice{padding:10px;border-radius:10px;background:#f4f7e9;color:#465728;font-size:12px}
 pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#f7f8f6;border:1px solid var(--line);border-radius:10px;padding:11px;font:12px/1.5 ui-monospace,SFMono-Regular,monospace}
@@ -126,8 +130,26 @@ End_EVENT</pre>
 <div class="section">To Dos</div>
 <div class="card">
 <div class="actions"><button class="btn alt" onclick="addTodo()">+ Add To Do</button></div>
-<div class="small" style="margin:9px 0">Check an item when completed. It immediately moves into the invoice description. Unchecked items remain To Dos.</div>
+<div class="small" style="margin:9px 0">Check an item when completed. It immediately moves into the invoice description. Persistent To Dos return next visit; Today-only work does not.</div>
 <div id="todoList"></div>
+</div>
+
+<div class="section">Preset tasks</div>
+<div class="card">
+<label>Standard QGC task</label>
+<select id="presetTask"></select>
+<div style="margin-top:9px">
+<label>Optional location / detail</label>
+<input id="presetDetail" placeholder="e.g. rear garden beds, driveway edge">
+</div>
+<div class="presetActions">
+<button class="btn alt" onclick="applyPreset('todo')">+ To Do</button>
+<button class="btn light" onclick="applyPreset('today')">Work Today</button>
+<button class="btn" onclick="applyPreset('description')">+ Description</button>
+</div>
+<div class="small" style="margin-top:9px">
+<strong>To Do</strong> carries forward until completed. <strong>Work Today</strong> exists only for this visit. <strong>Description</strong> records the work as completed immediately.
+</div>
 </div>
 
 <div class="section">Invoice description · completed today</div>
@@ -199,6 +221,23 @@ try{state=JSON.parse(localStorage.getItem(KEY)||'null')}catch(e){}
 if(!state)state={date:isoDate(new Date()),jobs:[],active:null,lastDraft:'',routeCache:{}};
 if(!state.jobs)state.jobs=[];
 if(!state.routeCache)state.routeCache={};
+
+var PRESET_TASKS=[
+  'Brush cut edges',
+  'Brush cut inaccessible areas',
+  'Mow lawn and remove grass clippings',
+  'Ride-on mower service',
+  'Weed spray applied to',
+  'Cut and shape hedges',
+  'Cut back and reduce',
+  'Leaf blow and clear hard surfaces',
+  'Leaf blow and clear garden beds',
+  'Leaf blow and clear pathways',
+  'Collect waste material and remove',
+  'Apply fertiliser to',
+  'Apply seaweed tonic to',
+  'Remove waste to disposal'
+];
 
 function save(){localStorage.setItem(KEY,JSON.stringify(state))}
 function esc(s){return String(s||'').replace(/[&<>"']/g,function(m){return({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])})}
@@ -293,9 +332,12 @@ window.loadCalendar=function(){
   state.date=d;
   events.forEach(function(e,i){
     var old=findExisting(e);
-    var todos=old&&old.todos?old.todos.filter(function(t){return !t.done}):[];
+    var todos=old&&old.todos?old.todos.filter(function(t){
+      if(!t.scope)t.scope='property';
+      return !t.done && t.scope!=='today';
+    }):[];
     e.todos.forEach(function(t){
-      if(!todos.some(function(x){return x.text.toLowerCase()===t.toLowerCase()}))todos.push({id:'t_'+Date.now()+'_'+Math.random(),text:t,done:false});
+      if(!todos.some(function(x){return x.text.toLowerCase()===t.toLowerCase()}))todos.push({id:'t_'+Date.now()+'_'+Math.random(),text:t,done:false,scope:'property'});
     });
     var notes=old&&old.siteNotes?old.siteNotes.slice():[];
     e.siteNotes.forEach(function(n){if(notes.indexOf(n)<0)notes.push(n)});
@@ -344,6 +386,7 @@ function renderJob(){
   document.getElementById('jobPanel').style.display=j?'block':'none';
   if(!j)return;
   if(!j.todos)j.todos=[];if(!j.completedWorks)j.completedWorks=[];if(!j.siteNotes)j.siteNotes=[];
+  j.todos.forEach(function(t){if(!t.scope)t.scope='property'});
   document.getElementById('jobTitle').textContent=j.title||'Untitled job';
   document.getElementById('jobAddress').textContent=j.address||'No address imported';
   document.getElementById('jobStatus').textContent=j.completed?'Completed':'Active';
@@ -358,7 +401,8 @@ function renderJob(){
 
   var todos=j.todos.filter(function(t){return !t.done});
   document.getElementById('todoList').innerHTML=todos.length?todos.map(function(t){
-    return '<label class="todo"><input type="checkbox" onchange="finishTodo(\''+t.id+'\')"><span>'+esc(t.text)+'</span></label>';
+    var label=t.scope==='today'?'<span class="todoScope">TODAY</span>':'';
+    return '<label class="todo"><input type="checkbox" onchange="finishTodo(\''+t.id+'\')"><span>'+esc(t.text)+'</span>'+label+'</label>';
   }).join(''):'<div class="small" style="padding:10px 0">No unchecked To Dos remain for this visit.</div>';
 
   document.getElementById('worksList').innerHTML=j.completedWorks.map(function(w,i){
@@ -381,7 +425,7 @@ function renderJob(){
 window.addTodo=function(){
   var j=activeJob();if(!j)return;
   var t=prompt('Add To Do');
-  if(t&&t.trim()){j.todos.push({id:'t_'+Date.now(),text:t.trim(),done:false});save();renderJob()}
+  if(t&&t.trim()){j.todos.push({id:'t_'+Date.now(),text:t.trim(),done:false,scope:'property'});save();renderJob()}
 };
 window.finishTodo=function(id){
   var j=activeJob(),t=j&&j.todos.find(function(x){return x.id===id});if(!t)return;
@@ -391,13 +435,35 @@ window.undoWork=function(i){
   var j=activeJob();if(!j)return;
   var text=j.completedWorks.splice(i,1)[0];
   var t=j.todos.find(function(x){return x.text===text&&x.done});
-  if(t)t.done=false;else j.todos.push({id:'t_'+Date.now(),text:text,done:false});
+  if(t)t.done=false;else j.todos.push({id:'t_'+Date.now(),text:text,done:false,scope:'property'});
   save();renderJob();
 };
 window.appendSiteNote=function(){
   var j=activeJob();if(!j)return;
   var n=prompt('Append site note');
   if(n&&n.trim()){j.siteNotes.push(n.trim());save();renderJob()}
+};
+
+function presetText(){
+  var base=document.getElementById('presetTask').value||'';
+  var detail=(document.getElementById('presetDetail').value||'').trim();
+  if(!detail)return base;
+  if(/\b(to|in|at|on|around|throughout)$/i.test(base))return base+' '+detail;
+  return base+' — '+detail;
+}
+window.applyPreset=function(mode){
+  var j=activeJob();if(!j)return;
+  var text=presetText().trim();if(!text)return;
+  if(mode==='description'){
+    if(!j.completedWorks.some(function(x){return x.toLowerCase()===text.toLowerCase()}))j.completedWorks.push(text);
+  }else{
+    var scope=mode==='today'?'today':'property';
+    var existing=j.todos.find(function(x){return !x.done && x.text.toLowerCase()===text.toLowerCase()});
+    if(existing)existing.scope=scope;
+    else j.todos.push({id:'t_'+Date.now()+'_'+Math.random(),text:text,done:false,scope:scope});
+  }
+  document.getElementById('presetDetail').value='';
+  save();renderJob();
 };
 
 function setRouteStatus(msg,bad){
@@ -488,6 +554,7 @@ window.copyJobPreview=async function(){
 window.completeJob=async function(){
   var j=activeJob();if(!j)return;
   syncFields(j);
+  j.todos=j.todos.filter(function(t){return t.done || t.scope!=='today'});
   if(j.waste!=='none'&&!j.dumpKm){
     await autoDumpKm(false);syncFields(j);
     if(!j.dumpKm){alert('Green waste is selected. Confirm dump km before completing the job.');return}
@@ -533,6 +600,8 @@ document.getElementById('waste').addEventListener('change',async function(){
   refreshJobPreview();
 });
 
+var presetSelect=document.getElementById('presetTask');
+if(presetSelect)presetSelect.innerHTML=PRESET_TASKS.map(function(t){return '<option value="'+esc(t)+'">'+esc(t)+'</option>'}).join('');
 document.getElementById('draftText').textContent=state.lastDraft||'Complete a job to create a draft.';
 renderToday();
 if(location.hash==='#calendar-import'){
