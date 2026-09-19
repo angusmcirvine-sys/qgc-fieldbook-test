@@ -6,27 +6,39 @@
 <meta name="theme-color" content="#173d2c">
 <title>QGC Fieldbook</title>
 <style>
-:root{--g:#173d2c;--g2:#245740;--lime:#b8d36b;--bg:#f4f6f1;--card:#fff;--ink:#16221c;--muted:#66716a;--line:#dce3dc;--done:#e8ece8}
-*{box-sizing:border-box}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--ink)}
+:root{--g:#173d2c;--lime:#b8d36b;--bg:#f4f6f1;--card:#fff;--ink:#16221c;--muted:#66716a;--line:#dce3dc;--done:#e8ece8}
+*{box-sizing:border-box}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--ink)}
 header{position:sticky;top:0;z-index:20;background:var(--g);color:#fff;padding:14px 16px 10px;box-shadow:0 1px 8px #0002}
 .brand{display:flex;justify-content:space-between;gap:12px;align-items:center}.brand strong{font-size:17px}.brand small{opacity:.8}
-nav{display:flex;gap:6px;overflow:auto;margin-top:12px}nav button{border:0;border-radius:999px;padding:8px 12px;background:#ffffff18;color:#fff;font-weight:700;white-space:nowrap}nav button.active{background:var(--lime);color:#18311f}
-main{max-width:720px;margin:auto;padding:14px 14px 90px}.page{display:none}.page.active{display:block}
+nav{display:flex;gap:6px;overflow:auto;margin-top:12px}
+nav button{border:0;border-radius:999px;padding:8px 12px;background:#ffffff18;color:#fff;font-weight:700;white-space:nowrap}
+nav button.active{background:var(--lime);color:#18311f}
+main{max-width:720px;margin:auto;padding:14px 14px 90px}
+.page{display:none}.page.active{display:block}
 .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;margin:10px 0;box-shadow:0 2px 7px #0000000b}
-.card.done{background:var(--done);opacity:.62}.row{display:flex;gap:10px;align-items:center;justify-content:space-between}.grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
-label{display:block;font-size:11px;font-weight:800;color:var(--muted);margin-bottom:5px}input,textarea,select{width:100%;font:inherit;padding:11px;border:1px solid #cdd6cf;border-radius:10px;background:#fff}
-textarea{min-height:110px;resize:vertical}.btn{border:0;border-radius:11px;padding:11px 13px;font-weight:800;background:var(--g);color:#fff}.btn.alt{background:#e9efe9;color:var(--g)}.btn.light{background:#fff;border:1px solid var(--line);color:var(--g)}.btn:disabled{opacity:.45}
-.actions{display:flex;gap:8px;flex-wrap:wrap}.section{font-size:12px;text-transform:uppercase;letter-spacing:.07em;color:var(--g);font-weight:900;margin:18px 2px 7px}
-.small{font-size:12px;color:var(--muted)}.badge{display:inline-block;padding:4px 8px;border-radius:999px;background:#edf3df;color:#38501f;font-size:10px;font-weight:900}.next{outline:2px solid var(--lime)}
-.todo{display:flex;gap:9px;align-items:flex-start;padding:9px 0;border-bottom:1px solid #edf0ed}.todo input{width:20px;height:20px;margin-top:1px}.todo span{flex:1}.works li{margin:7px 0}.empty{text-align:center;color:var(--muted);padding:24px 8px}
-.kpi{font-size:26px;font-weight:900;color:var(--g)}.notice{padding:10px;border-radius:10px;background:#f4f7e9;color:#465728;font-size:12px}.danger{background:#fff0ef;color:#842e28}
-pre{white-space:pre-wrap;background:#f7f8f6;border:1px solid var(--line);border-radius:10px;padding:11px;font:12px/1.5 ui-monospace,SFMono-Regular,monospace}
+.card.done{background:var(--done);opacity:.62}.next{outline:2px solid var(--lime)}
+.row{display:flex;gap:10px;align-items:center;justify-content:space-between}.grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+label{display:block;font-size:11px;font-weight:800;color:var(--muted);margin-bottom:5px}
+input,textarea,select{width:100%;font:inherit;padding:11px;border:1px solid #cdd6cf;border-radius:10px;background:#fff}
+textarea{min-height:110px;resize:vertical}
+.btn{border:0;border-radius:11px;padding:11px 13px;font-weight:800;background:var(--g);color:#fff}
+.btn.alt{background:#e9efe9;color:var(--g)}.btn.light{background:#fff;border:1px solid var(--line);color:var(--g)}
+.btn:disabled{opacity:.45}.actions{display:flex;gap:8px;flex-wrap:wrap}
+.section{font-size:12px;text-transform:uppercase;letter-spacing:.07em;color:var(--g);font-weight:900;margin:18px 2px 7px}
+.small{font-size:12px;color:var(--muted)}.badge{display:inline-block;padding:4px 8px;border-radius:999px;background:#edf3df;color:#38501f;font-size:10px;font-weight:900}
+.todo{display:flex;gap:9px;align-items:flex-start;padding:9px 0;border-bottom:1px solid #edf0ed}
+.todo input{width:20px;height:20px;margin-top:1px}.todo span{flex:1}.works li{margin:7px 0}
+.empty{text-align:center;color:var(--muted);padding:24px 8px}.kpi{font-size:26px;font-weight:900;color:var(--g)}
+.notice{padding:10px;border-radius:10px;background:#f4f7e9;color:#465728;font-size:12px}
+pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#f7f8f6;border:1px solid var(--line);border-radius:10px;padding:11px;font:12px/1.5 ui-monospace,SFMono-Regular,monospace}
+details summary{font-weight:900;cursor:pointer}
 @media(max-width:520px){.grid{grid-template-columns:1fr}.brand small{display:none}}
 </style>
 </head>
 <body>
 <header>
-<div class="brand"><div><strong>Queenstown Garden Company</strong><div><small>FIELD BOOK · iPHONE CALENDAR TEST</small></div></div><span class="badge">EMPTY BUILD</span></div>
+<div class="brand"><div><strong>Queenstown Garden Company</strong><div><small>FIELD BOOK · iPHONE TEST</small></div></div><span class="badge">TEST</span></div>
 <nav>
 <button class="active" data-page="today">Today</button>
 <button data-page="import">Calendar</button>
@@ -34,11 +46,15 @@ pre{white-space:pre-wrap;background:#f7f8f6;border:1px solid var(--line);border-
 <button data-page="draft">Xero draft</button>
 </nav>
 </header>
+
 <main>
 <section id="today" class="page active">
 <div class="section">Selected day</div>
 <div class="card">
-<div class="row"><div><div class="small">Calendar date</div><div id="dayTitle" class="kpi"></div></div><button class="btn alt" onclick="showPage('import')">Load calendar</button></div>
+<div class="row">
+<div><div class="small">Calendar date</div><div id="dayTitle" class="kpi"></div></div>
+<button class="btn alt" onclick="showPage('import')">Load calendar</button>
+</div>
 </div>
 <div id="todayList"></div>
 </section>
@@ -47,54 +63,32 @@ pre{white-space:pre-wrap;background:#f7f8f6;border:1px solid var(--line);border-
 <div class="section">iPhone Calendar</div>
 <div class="card">
 <div class="grid">
-<div><label>Date</label><input id="dateText" type="date" aria-label="Choose calendar date"></div>
+<div><label>Date</label><input id="dateText" type="date"></div>
 <div><label>Calendar</label><select id="calendarName"><option>Truck 1</option></select></div>
 </div>
 <div class="actions" style="margin-top:10px">
 <button class="btn light" onclick="setDateOffset(0)">Today</button>
 <button class="btn light" onclick="setDateOffset(1)">Tomorrow</button>
-<button class="btn light" onclick="shiftDate(-1)">− 1 day</button>
-<button class="btn light" onclick="shiftDate(1)">+ 1 day</button>
+<button class="btn light" onclick="shiftDate(-1)">−1 day</button>
+<button class="btn light" onclick="shiftDate(1)">+1 day</button>
 </div>
 <div class="actions" style="margin-top:10px">
 <button class="btn" onclick="runShortcut()">Run Truck 1 Calendar</button>
 <button class="btn alt" onclick="pasteClipboard()">Paste Calendar Result</button>
 </div>
-<div id="shortcutStatus" class="notice" style="margin-top:10px"><strong>One-time setup required:</strong> the iPhone Shortcut named <b>QGC Truck 1 Import</b> must exist before Run Calendar can read Apple Calendar.</div>
+<div id="shortcutStatus" class="notice" style="margin-top:10px">Use your <b>QGC Truck 1 Import</b> Shortcut, then paste its result here.</div>
 </div>
 
-<details class="card" open>
-<summary style="font-weight:900;cursor:pointer">One-time iPhone Shortcut setup</summary>
-<div class="small" style="margin-top:10px">Safari cannot directly read the iPhone Calendar database. The Shortcut gets permission to read Truck 1, creates the event text, copies it, then returns here.</div>
-<ol class="small" style="line-height:1.55;padding-left:20px">
-<li>Tap <b>Create Shortcut</b> and name it <b>QGC Truck 1 Import</b>.</li>
-<li>Add <b>Get Dates from Input</b>. Its input is the selected date sent by Fieldbook.</li>
-<li>Add <b>Adjust Date</b> → Add → 1 → Day.</li>
-<li>Add <b>Find Calendar Events</b>. Filter: Calendar is <b>Truck 1</b>; Start Date is between the selected date and adjusted date. Sort by Start Date, oldest first.</li>
-<li>Add <b>Repeat with Each</b> Calendar Event.</li>
-<li>Inside Repeat, get Event <b>Title</b>, <b>Start Date</b>, <b>End Date</b>, <b>Location</b> and <b>Notes</b>. Format start/end as <b>HH:mm</b>.</li>
-<li>Add a Text action inside Repeat using the block shown below, then <b>Add to Variable</b> named <b>EventBlocks</b>.</li>
-<li>After Repeat, add a Text action with the header plus <b>EventBlocks</b>, then <b>Copy to Clipboard</b>.</li>
-<li>Add <b>Open URLs</b> with <b>https://angusmcirvine-sys.github.io/qgc-fieldbook-test/#calendar-import</b>.</li>
-</ol>
-<div class="actions">
-<button class="btn" onclick="createShortcut()">Create Shortcut</button>
-<button class="btn alt" onclick="loadTestCalendar()">Test Fieldbook parser</button>
-</div>
-<pre>Inside Repeat:
-EVENT
-TITLE: [Event Title]
-START: [formatted Start Date]
-END: [formatted End Date]
-ADDRESS: [Event Location]
-NOTES: [Event Notes]
-END_EVENT
-
-After Repeat:
-QGC_CALENDAR_V1
-DATE: [Shortcut Input]
-CALENDAR: Truck 1
-[EventBlocks]</pre>
+<details class="card">
+<summary>Shortcut format</summary>
+<pre>EVENT
+TITLE: [Name]
+START: [Start Date]
+END: [End Date]
+ADDRESS: [Location]
+NOTES: [Notes]
+End_EVENT</pre>
+<div class="small">The current Shortcut can fetch Today. We can wire the selected date into it after this workflow is stable.</div>
 </details>
 
 <div class="card">
@@ -106,30 +100,19 @@ CALENDAR: Truck 1
 </div>
 <div id="previewBox" class="notice" style="margin-top:10px">No calendar data loaded.</div>
 </div>
-
-<div class="card">
-<div class="small"><strong>Expected Shortcut structure</strong></div>
-<pre>QGC_CALENDAR_V1
-DATE: 2026-09-20
-CALENDAR: Truck 1
-EVENT
-TITLE: Property / client
-START: 08:00
-END: 10:00
-ADDRESS: Full address
-NOTES: 2 personnel
-TO DO: Cut and shape hedges
-SITE NOTE: Access via lower gate
-END_EVENT</pre>
-</div>
 </section>
 
 <section id="job" class="page">
 <div id="jobEmpty" class="card empty">Choose a job from Today.</div>
 <div id="jobPanel" style="display:none">
+
 <div class="card">
-<div class="row"><div><h2 id="jobTitle" style="margin:0"></h2><div id="jobAddress" class="small"></div></div><span id="jobStatus" class="badge"></span></div>
+<div class="row">
+<div><h2 id="jobTitle" style="margin:0"></h2><div id="jobAddress" class="small"></div></div>
+<span id="jobStatus" class="badge"></span>
 </div>
+</div>
+
 <div class="section">Personnel & time</div>
 <div class="card">
 <div class="grid">
@@ -143,15 +126,21 @@ END_EVENT</pre>
 <div class="section">To Dos</div>
 <div class="card">
 <div class="actions"><button class="btn alt" onclick="addTodo()">+ Add To Do</button></div>
-<div class="small" style="margin:9px 0">Check an item when completed. It immediately moves into the invoice description. Anything unchecked stays as a To Do for the next visit.</div>
+<div class="small" style="margin:9px 0">Check an item when completed. It immediately moves into the invoice description. Unchecked items remain To Dos.</div>
 <div id="todoList"></div>
 </div>
 
 <div class="section">Invoice description · completed today</div>
-<div class="card"><ul id="worksList" class="works"></ul><div id="noWorks" class="small">No completed works yet.</div></div>
+<div class="card">
+<ul id="worksList" class="works"></ul>
+<div id="noWorks" class="small">No completed works yet.</div>
+</div>
 
 <div class="section">Protected site notes</div>
-<div class="card"><div id="siteNotes"></div><div class="actions" style="margin-top:10px"><button class="btn alt" onclick="appendSiteNote()">Append site note</button></div></div>
+<div class="card">
+<div id="siteNotes"></div>
+<div class="actions" style="margin-top:10px"><button class="btn alt" onclick="appendSiteNote()">Append site note</button></div>
+</div>
 
 <div class="section">Charges / visit actuals</div>
 <div class="card">
@@ -167,24 +156,35 @@ END_EVENT</pre>
 <button class="btn alt" type="button" onclick="autoDumpKm(true)">Auto km</button>
 <button class="btn light" type="button" onclick="openDumpRoute()">Open route</button>
 </div>
-<div class="small" style="margin-top:8px">Prototype routing uses OpenStreetMap-based geocoding/routing. The client address is sent to that mapping service for this calculation. The km field remains editable.</div>
+<div class="small" style="margin-top:8px">For this test, automatic routing uses OpenStreetMap-based services. The job address is sent to that service. You can always type the km manually.</div>
+</div>
+
+<div class="section">Review Xero draft before completion</div>
+<div class="card">
+<div class="small" style="margin-bottom:8px"><strong>Nothing is sent from this screen.</strong> This is the exact draft text that will be saved/exported if you complete the job.</div>
+<pre id="jobDraftPreview">No active job.</pre>
+<div class="actions">
+<button class="btn alt" onclick="refreshJobPreview()">Refresh preview</button>
+<button class="btn light" onclick="copyJobPreview()">Copy preview</button>
+</div>
 </div>
 
 <div class="actions">
 <button id="completeBtn" class="btn" onclick="completeJob()">Complete Job</button>
 <button class="btn light" onclick="showPage('today')">Back to Today</button>
 </div>
+
 </div>
 </section>
 
 <section id="draft" class="page">
-<div class="section">Xero draft output</div>
+<div class="section">Saved Xero draft</div>
 <div class="card">
 <pre id="draftText">Complete a job to create a draft.</pre>
 <div class="actions">
 <button class="btn" onclick="copyDraft()">Copy draft</button>
 <button class="btn alt" onclick="exportDraft()">Export .txt</button>
-<button class="btn light" onclick="alert('Xero API connection will replace this placeholder later.')">Send to Xero · later</button>
+<button class="btn light" onclick="alert('Xero connection is not enabled yet.')">Send to Xero · later</button>
 </div>
 </div>
 </section>
@@ -193,597 +193,352 @@ END_EVENT</pre>
 <script>
 (function(){
 var KEY='qgcFieldbookHttpsV1Empty';
+var DUMP_ADDRESS='110 Glenda Drive, Frankton, Queenstown 9300, New Zealand';
 var state;
 try{state=JSON.parse(localStorage.getItem(KEY)||'null')}catch(e){}
-if(!state)state={date:isoDate(new Date()),jobs:[],active:null,lastDraft:''};
+if(!state)state={date:isoDate(new Date()),jobs:[],active:null,lastDraft:'',routeCache:{}};
+if(!state.jobs)state.jobs=[];
 if(!state.routeCache)state.routeCache={};
+
 function save(){localStorage.setItem(KEY,JSON.stringify(state))}
 function esc(s){return String(s||'').replace(/[&<>"']/g,function(m){return({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])})}
 function isoDate(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
-function dateObj(s){var m=String(s||'').trim().match(/^(\d{4})-(\d{2})-(\d{2})$/);if(m)return new Date(+m[1],+m[2]-1,+m[3]);m=String(s||'').trim().match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);if(m)return new Date(+m[3],+m[2]-1,+m[1]);return null}
+function dateObj(s){var m=String(s||'').trim().match(/^(\d{4})-(\d{2})-(\d{2})$/);if(m)return new Date(+m[1],+m[2]-1,+m[3]);return null}
 function pretty(s){var d=dateObj(s);return d?new Intl.DateTimeFormat('en-NZ',{weekday:'short',day:'numeric',month:'short',year:'numeric'}).format(d):s}
-function showPage(id){document.querySelectorAll('.page').forEach(function(x){x.classList.toggle('active',x.id===id)});document.querySelectorAll('nav button').forEach(function(x){x.classList.toggle('active',x.dataset.page===id)});window.scrollTo(0,0)}
-window.showPage=showPage;
-document.querySelectorAll('nav button').forEach(function(b){b.onclick=function(){showPage(b.dataset.page)}});
-function setDateField(s){state.date=s;save();document.getElementById('dateText').value=s;renderToday()}
-function formatNZ(s){var d=dateObj(s);return d?String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0')+'/'+d.getFullYear():s}
-window.setDateOffset=function(n){var d=new Date();d.setHours(12,0,0,0);d.setDate(d.getDate()+n);setDateField(isoDate(d))}
-window.shiftDate=function(n){var d=dateObj(document.getElementById('dateText').value)||dateObj(state.date)||new Date();d.setDate(d.getDate()+n);setDateField(isoDate(d))}
-function selectedIso(){var v=document.getElementById('dateText').value;var d=dateObj(v);if(!d){alert('Choose a date first.');return null}return isoDate(d)}
-window.runShortcut=function(){var d=selectedIso();if(!d)return;document.getElementById('shortcutStatus').innerHTML='<strong>Opening Shortcuts…</strong> If iOS says the shortcut cannot be found, complete the one-time setup below first.';var name='QGC Truck 1 Import';var url='shortcuts://run-shortcut?name='+encodeURIComponent(name)+'&input=text&text='+encodeURIComponent(d);location.href=url}
-window.createShortcut=function(){location.href='shortcuts://create-shortcut'}
-window.pasteClipboard=async function(){try{document.getElementById('calendarText').value=await navigator.clipboard.readText();previewImport();document.getElementById('shortcutStatus').innerHTML='<strong>Calendar result received.</strong> Review the preview, then tap Load into Today.'}catch(e){alert('iPhone blocked automatic clipboard reading. Tap the Calendar data box, choose Paste, then Preview.')}}
-window.loadTestCalendar=function(){var d=selectedIso()||state.date;document.getElementById('calendarText').value='QGC_CALENDAR_V1\nDATE: '+d+'\nCALENDAR: Truck 1\nEVENT\nTITLE: Test Garden Visit\nSTART: 08:00\nEND: 09:30\nADDRESS: 1 Test Street, Queenstown\nNOTES: 2 personnel\nTO DO: Mow lawn and remove grass clippings\nSITE NOTE: Synthetic parser test only\nEND_EVENT';previewImport();document.getElementById('shortcutStatus').innerHTML='<strong>Parser test loaded.</strong> Tap Load into Today. This contains no client data.'}
 function normaliseImportedTime(v){
   v=String(v||'').trim();
   var m=v.match(/\b(\d{1,2}):(\d{2})\s*(AM|PM)?\b/i);
-  if(m){
-    var h=+m[1],min=m[2],ap=(m[3]||'').toUpperCase();
-    if(ap){if(ap==='PM'&&h<12)h+=12;if(ap==='AM'&&h===12)h=0}
-    return String(h).padStart(2,'0')+':'+min;
+  if(!m)return v;
+  var h=+m[1],min=m[2],ap=(m[3]||'').toUpperCase();
+  if(ap==='PM'&&h<12)h+=12;
+  if(ap==='AM'&&h===12)h=0;
+  return String(h).padStart(2,'0')+':'+min;
+}
+function hours(a,b){
+  if(!a||!b)return 0;
+  var x=a.split(':').map(Number),y=b.split(':').map(Number);
+  if(x.length<2||y.length<2||isNaN(x[0])||isNaN(y[0]))return 0;
+  return Math.max(0,(y[0]*60+y[1]-x[0]*60-x[1])/60);
+}
+function showPage(id){
+  document.querySelectorAll('.page').forEach(function(x){x.classList.toggle('active',x.id===id)});
+  document.querySelectorAll('nav button').forEach(function(x){x.classList.toggle('active',x.dataset.page===id)});
+  window.scrollTo(0,0);
+}
+window.showPage=showPage;
+document.querySelectorAll('nav button').forEach(function(b){b.onclick=function(){showPage(b.dataset.page)}});
+
+function setDateField(s){state.date=s;save();document.getElementById('dateText').value=s;renderToday()}
+window.setDateOffset=function(n){var d=new Date();d.setHours(12,0,0,0);d.setDate(d.getDate()+n);setDateField(isoDate(d))}
+window.shiftDate=function(n){var d=dateObj(document.getElementById('dateText').value)||dateObj(state.date)||new Date();d.setDate(d.getDate()+n);setDateField(isoDate(d))}
+function selectedIso(){var v=document.getElementById('dateText').value;var d=dateObj(v);if(!d){alert('Choose a date first.');return null}return isoDate(d)}
+
+window.runShortcut=function(){
+  var d=selectedIso();if(!d)return;
+  document.getElementById('shortcutStatus').innerHTML='<strong>Opening Shortcuts…</strong>';
+  location.href='shortcuts://run-shortcut?name='+encodeURIComponent('QGC Truck 1 Import')+'&input=text&text='+encodeURIComponent(d);
+};
+window.pasteClipboard=async function(){
+  try{
+    document.getElementById('calendarText').value=await navigator.clipboard.readText();
+    previewImport();
+    document.getElementById('shortcutStatus').innerHTML='<strong>Calendar result received.</strong> Review, then Load into Today.';
+  }catch(e){
+    alert('iPhone blocked automatic clipboard reading. Tap the Calendar data box and use Paste.');
   }
-  return v;
-}
+};
+
 function parseCalendar(txt){
-var events=[];var lines=String(txt||'').replace(/\r/g,'').split('\n');var cur=null;var date=null;var lastField=null;
-lines.forEach(function(raw){
-var line=raw.trim();if(!line)return;
-if(/^DATE:/i.test(line)){date=line.replace(/^DATE:\s*/i,'').trim();return}
-if(/^EVENT$/i.test(line)){cur={title:'',start:'',end:'',address:'',notes:[],todos:[],siteNotes:[],personnel:2};return}
-if(/^END_EVENT$/i.test(line)){if(cur&&cur.title)events.push(cur);cur=null;lastField=null;return}
-if(!cur)return;
-if(/^TITLE:/i.test(line)){cur.title=line.replace(/^TITLE:\s*/i,'').trim();lastField='title'}
-else if(/^START:/i.test(line)){cur.start=normaliseImportedTime(line.replace(/^START:\s*/i,''));lastField='start'}
-else if(/^END:/i.test(line)){cur.end=normaliseImportedTime(line.replace(/^END:\s*/i,''));lastField='end'}
-else if(/^ADDRESS:/i.test(line)){cur.address=line.replace(/^ADDRESS:\s*/i,'').trim();lastField='address'}
-else if(/^TO DO:/i.test(line)){cur.todos.push(line.replace(/^TO DO:\s*/i,'').trim());lastField='todo'}
-else if(/^SITE NOTE:/i.test(line)){cur.siteNotes.push(line.replace(/^SITE NOTE:\s*/i,'').trim());lastField='siteNote'}
-else if(/^NOTES:/i.test(line)){var n=line.replace(/^NOTES:\s*/i,'').trim();cur.notes.push(n);var p=n.match(/(\d+)\s*(?:personnel|people|staff)/i);if(p)cur.personnel=+p[1];lastField='notes'}
-else if(lastField==='notes'){cur.notes.push(line);var p2=line.match(/(\d+)\s*(?:personnel|people|staff)/i);if(p2)cur.personnel=+p2[1];if(/^[-•]\s*/.test(line))cur.todos.push(line.replace(/^[-•]\s*/,''))}
-});
-if(cur&&cur.title)events.push(cur);
-return {date:date,events:events}
+  var events=[],cur=null,lastField=null;
+  String(txt||'').replace(/\r/g,'').split('\n').forEach(function(raw){
+    var line=raw.trim();
+    if(!line)return;
+    if(/^EVENT$/i.test(line)){cur={title:'',start:'',end:'',address:'',notes:[],todos:[],siteNotes:[],personnel:2};lastField=null;return}
+    if(/^END_EVENT$/i.test(line)){if(cur&&cur.title)events.push(cur);cur=null;lastField=null;return}
+    if(!cur)return;
+    if(/^TITLE:/i.test(line)){cur.title=line.replace(/^TITLE:\s*/i,'').trim();lastField='title'}
+    else if(/^START:/i.test(line)){cur.start=normaliseImportedTime(line.replace(/^START:\s*/i,''));lastField='start'}
+    else if(/^END:/i.test(line)){cur.end=normaliseImportedTime(line.replace(/^END:\s*/i,''));lastField='end'}
+    else if(/^ADDRESS:/i.test(line)){cur.address=line.replace(/^ADDRESS:\s*/i,'').trim();lastField='address'}
+    else if(/^TO DO:/i.test(line)){cur.todos.push(line.replace(/^TO DO:\s*/i,'').trim());lastField='todo'}
+    else if(/^SITE NOTE:/i.test(line)){cur.siteNotes.push(line.replace(/^SITE NOTE:\s*/i,'').trim());lastField='siteNote'}
+    else if(/^NOTES:/i.test(line)){
+      var n=line.replace(/^NOTES:\s*/i,'').trim();cur.notes.push(n);lastField='notes';
+      var p=n.match(/(\d+)\s*(?:personnel|people|staff)/i);if(p)cur.personnel=+p[1];
+    }else if(lastField==='notes'){
+      cur.notes.push(line);
+      var p2=line.match(/(\d+)\s*(?:personnel|people|staff)/i);if(p2)cur.personnel=+p2[1];
+      if(/^[-•]\s*/.test(line))cur.todos.push(line.replace(/^[-•]\s*/,''));
+    }
+  });
+  if(cur&&cur.title)events.push(cur);
+  return events;
 }
-window.previewImport=function(){var p=parseCalendar(document.getElementById('calendarText').value);document.getElementById('previewBox').innerHTML=p.events.length?'<strong>'+p.events.length+' event(s)</strong><br>'+p.events.map(function(e){return esc(e.start+'–'+e.end+' · '+e.title)}).join('<br>'):'No EVENT blocks found. Use the Shortcut format shown below.'}
-function findExisting(e){return state.jobs.find(function(j){return (e.address&&j.address&&e.address.toLowerCase()===j.address.toLowerCase())||j.title.toLowerCase()===e.title.toLowerCase()})}
+
+window.previewImport=function(){
+  var e=parseCalendar(document.getElementById('calendarText').value);
+  document.getElementById('previewBox').innerHTML=e.length?'<strong>'+e.length+' event(s)</strong><br>'+e.map(function(x){return esc((x.start||'?')+'–'+(x.end||'?')+' · '+x.title)}).join('<br>'):'No EVENT blocks found.';
+};
+
+function findExisting(e){
+  return state.jobs.find(function(j){
+    return (e.address&&j.address&&e.address.toLowerCase()===j.address.toLowerCase()) ||
+           (j.title&&e.title&&j.title.toLowerCase()===e.title.toLowerCase());
+  });
+}
 window.loadCalendar=function(){
-var d=selectedIso();if(!d)return;var p=parseCalendar(document.getElementById('calendarText').value);if(!p.events.length){alert('No calendar events found.');return}
-state.date=d;
-p.events.forEach(function(e,i){
-var old=findExisting(e);var id=old?old.id:'job_'+Date.now()+'_'+i;
-var existingTodos=old?old.todos.filter(function(t){return !t.done}):[];
-e.todos.forEach(function(t){if(!existingTodos.some(function(x){return x.text.toLowerCase()===t.toLowerCase()}))existingTodos.push({id:'t_'+Date.now()+'_'+Math.random(),text:t,done:false})});
-var notes=old?old.siteNotes.slice():[];
-e.siteNotes.forEach(function(n){if(notes.indexOf(n)<0)notes.push(n)});
-var job={id:id,title:e.title,address:e.address,date:d,start:e.start,end:e.end,personnel:e.personnel||2,todos:existingTodos,completedWorks:[],siteNotes:notes,waste:'none',dumpKm:0,rideOn:0,spray:0,completed:false};
-if(old){Object.keys(job).forEach(function(k){old[k]=job[k]})}else state.jobs.push(job)
-});
-save();renderToday();showPage('today')
+  var d=selectedIso();if(!d)return;
+  var events=parseCalendar(document.getElementById('calendarText').value);
+  if(!events.length){alert('No calendar events found.');return}
+  state.date=d;
+  events.forEach(function(e,i){
+    var old=findExisting(e);
+    var todos=old&&old.todos?old.todos.filter(function(t){return !t.done}):[];
+    e.todos.forEach(function(t){
+      if(!todos.some(function(x){return x.text.toLowerCase()===t.toLowerCase()}))todos.push({id:'t_'+Date.now()+'_'+Math.random(),text:t,done:false});
+    });
+    var notes=old&&old.siteNotes?old.siteNotes.slice():[];
+    e.siteNotes.forEach(function(n){if(notes.indexOf(n)<0)notes.push(n)});
+    var job={
+      id:old?old.id:'job_'+Date.now()+'_'+i,
+      title:e.title,address:e.address,date:d,start:e.start,end:e.end,personnel:e.personnel||2,
+      todos:todos,completedWorks:[],siteNotes:notes,waste:'none',dumpKm:0,rideOn:0,spray:0,completed:false
+    };
+    if(old){Object.keys(job).forEach(function(k){old[k]=job[k]})}else state.jobs.push(job);
+  });
+  save();renderToday();showPage('today');
+};
+
+function jobsForDay(){
+  return state.jobs.filter(function(j){return j.date===state.date}).sort(function(a,b){return String(a.start||'').localeCompare(String(b.start||''))});
 }
-function jobsForDay(){return state.jobs.filter(function(j){return j.date===state.date}).sort(function(a,b){return (a.start||'').localeCompare(b.start||'')})}
 function renderToday(){
-document.getElementById('dayTitle').textContent=pretty(state.date);document.getElementById('dateText').value=state.date;
-var arr=jobsForDay();var box=document.getElementById('todayList');
-if(!arr.length){box.innerHTML='<div class="card empty">No jobs loaded for this date.<br><br><button class="btn" onclick="showPage(\'import\')">Load from iPhone Calendar</button></div>';return}
-var first=arr.find(function(j){return !j.completed});
-box.innerHTML=arr.map(function(j){
-var cls='card'+(j.completed?' done':'')+(first&&first.id===j.id?' next':'');
-return '<div class="'+cls+'"><div class="row"><div><h3 style="margin:0">'+esc(j.title)+'</h3><div class="small">'+esc((j.start||'')+'–'+(j.end||'')+' · '+j.personnel+' personnel')+'</div><div class="small">'+esc(j.address||'No address')+'</div></div><span class="badge">'+(j.completed?'COMPLETED':(first&&first.id===j.id?'NEXT JOB':'READY'))+'</span></div><div class="actions" style="margin-top:11px"><button class="btn '+(j.completed?'light':'')+'" onclick="openJob(\''+j.id+'\')" '+(j.completed?'disabled':'')+'>'+(j.completed?'Completed':'Open job')+'</button></div></div>'
-}).join('')
+  document.getElementById('dayTitle').textContent=pretty(state.date);
+  document.getElementById('dateText').value=state.date;
+  var arr=jobsForDay(),box=document.getElementById('todayList');
+  if(!arr.length){
+    box.innerHTML='<div class="card empty">No jobs loaded for this date.<br><br><button class="btn" onclick="showPage(\'import\')">Load from iPhone Calendar</button></div>';
+    return;
+  }
+  var first=arr.find(function(j){return !j.completed});
+  box.innerHTML=arr.map(function(j){
+    var cls='card'+(j.completed?' done':'')+(first&&first.id===j.id?' next':'');
+    return '<div class="'+cls+'"><div class="row"><div><h3 style="margin:0">'+esc(j.title)+'</h3><div class="small">'+esc((j.start||'')+'–'+(j.end||'')+' · '+j.personnel+' personnel')+'</div><div class="small">'+esc(j.address||'No address')+'</div></div><span class="badge">'+(j.completed?'COMPLETED':(first&&first.id===j.id?'NEXT JOB':'READY'))+'</span></div><div class="actions" style="margin-top:11px"><button class="btn '+(j.completed?'light':'')+'" onclick="openJob(\''+j.id+'\')" '+(j.completed?'disabled':'')+'>'+(j.completed?'Completed':'Open job')+'</button></div></div>';
+  }).join('');
 }
+
 window.openJob=function(id){state.active=id;save();renderJob();showPage('job')}
 function activeJob(){return state.jobs.find(function(j){return j.id===state.active})}
+function syncFields(j){
+  j.personnel=+document.getElementById('personnel').value||1;
+  j.start=document.getElementById('startTime').value;
+  j.end=document.getElementById('endTime').value;
+  j.waste=document.getElementById('waste').value;
+  j.dumpKm=+document.getElementById('dumpKm').value||0;
+  j.rideOn=+document.getElementById('rideOn').value||0;
+  j.spray=+document.getElementById('spray').value||0;
+}
 function renderJob(){
-var j=activeJob();document.getElementById('jobEmpty').style.display=j?'none':'block';document.getElementById('jobPanel').style.display=j?'block':'none';if(!j)return;
-document.getElementById('jobTitle').textContent=j.title;document.getElementById('jobAddress').textContent=j.address||'';document.getElementById('jobStatus').textContent=j.completed?'Completed':'Active';
-document.getElementById('personnel').value=j.personnel;document.getElementById('jobDate').value=pretty(j.date);document.getElementById('startTime').value=j.start;document.getElementById('endTime').value=j.end;
-document.getElementById('waste').value=j.waste||'none';document.getElementById('dumpKm').value=j.dumpKm||'';document.getElementById('rideOn').value=j.rideOn||0;document.getElementById('spray').value=j.spray||0;
-var todos=j.todos.filter(function(t){return !t.done});document.getElementById('todoList').innerHTML=todos.length?todos.map(function(t){return '<label class="todo"><input type="checkbox" onchange="finishTodo(\''+t.id+'\')"><span>'+esc(t.text)+'</span></label>'}).join(''):'<div class="small" style="padding:10px 0">No unchecked To Dos remain for this visit.</div>';
-document.getElementById('worksList').innerHTML=j.completedWorks.map(function(w,i){return '<li>'+esc(w)+' <button class="btn light" style="padding:3px 7px" onclick="undoWork('+i+')">Undo</button></li>'}).join('');
-document.getElementById('noWorks').style.display=j.completedWorks.length?'none':'block';
-document.getElementById('siteNotes').innerHTML=j.siteNotes.length?j.siteNotes.map(function(n){return '<div class="notice" style="margin:6px 0">'+esc(n)+'</div>'}).join(''):'<div class="small">No site notes.</div>';
-if(j.waste&&j.waste!=='none'&&j.dumpKm){
-  setRouteStatus(Number(j.dumpKm).toFixed(1)+' km one way · 
-function syncFields(j){j.personnel=+document.getElementById('personnel').value||1;j.start=document.getElementById('startTime').value;j.end=document.getElementById('endTime').value;j.waste=document.getElementById('waste').value;j.dumpKm=+document.getElementById('dumpKm').value||0;j.rideOn=+document.getElementById('rideOn').value||0;j.spray=+document.getElementById('spray').value||0}
+  var j=activeJob();
+  document.getElementById('jobEmpty').style.display=j?'none':'block';
+  document.getElementById('jobPanel').style.display=j?'block':'none';
+  if(!j)return;
+  if(!j.todos)j.todos=[];if(!j.completedWorks)j.completedWorks=[];if(!j.siteNotes)j.siteNotes=[];
+  document.getElementById('jobTitle').textContent=j.title||'Untitled job';
+  document.getElementById('jobAddress').textContent=j.address||'No address imported';
+  document.getElementById('jobStatus').textContent=j.completed?'Completed':'Active';
+  document.getElementById('personnel').value=j.personnel||2;
+  document.getElementById('jobDate').value=pretty(j.date);
+  document.getElementById('startTime').value=j.start||'';
+  document.getElementById('endTime').value=j.end||'';
+  document.getElementById('waste').value=j.waste||'none';
+  document.getElementById('dumpKm').value=j.dumpKm||'';
+  document.getElementById('rideOn').value=j.rideOn||0;
+  document.getElementById('spray').value=j.spray||0;
 
-var DUMP_ADDRESS='110 Glenda Drive, Frankton, Queenstown 9300, New Zealand';
+  var todos=j.todos.filter(function(t){return !t.done});
+  document.getElementById('todoList').innerHTML=todos.length?todos.map(function(t){
+    return '<label class="todo"><input type="checkbox" onchange="finishTodo(\''+t.id+'\')"><span>'+esc(t.text)+'</span></label>';
+  }).join(''):'<div class="small" style="padding:10px 0">No unchecked To Dos remain for this visit.</div>';
+
+  document.getElementById('worksList').innerHTML=j.completedWorks.map(function(w,i){
+    return '<li>'+esc(w)+' <button class="btn light" style="padding:3px 7px" onclick="undoWork('+i+')">Undo</button></li>';
+  }).join('');
+  document.getElementById('noWorks').style.display=j.completedWorks.length?'none':'block';
+
+  document.getElementById('siteNotes').innerHTML=j.siteNotes.length?j.siteNotes.map(function(n){
+    return '<div class="notice" style="margin:6px 0">'+esc(n)+'</div>';
+  }).join(''):'<div class="small">No site notes.</div>';
+
+  if(j.waste&&j.waste!=='none'&&j.dumpKm){
+    setRouteStatus(Number(j.dumpKm).toFixed(1)+' km one way · $'+(Number(j.dumpKm)*2).toFixed(2)+' at $2/km',false);
+  }else{
+    setRouteStatus('Select Green Waste to calculate the one-way route to 110 Glenda Drive.',false);
+  }
+  refreshJobPreview();
+}
+
+window.addTodo=function(){
+  var j=activeJob();if(!j)return;
+  var t=prompt('Add To Do');
+  if(t&&t.trim()){j.todos.push({id:'t_'+Date.now(),text:t.trim(),done:false});save();renderJob()}
+};
+window.finishTodo=function(id){
+  var j=activeJob(),t=j&&j.todos.find(function(x){return x.id===id});if(!t)return;
+  t.done=true;j.completedWorks.push(t.text);save();renderJob();
+};
+window.undoWork=function(i){
+  var j=activeJob();if(!j)return;
+  var text=j.completedWorks.splice(i,1)[0];
+  var t=j.todos.find(function(x){return x.text===text&&x.done});
+  if(t)t.done=false;else j.todos.push({id:'t_'+Date.now(),text:text,done:false});
+  save();renderJob();
+};
+window.appendSiteNote=function(){
+  var j=activeJob();if(!j)return;
+  var n=prompt('Append site note');
+  if(n&&n.trim()){j.siteNotes.push(n.trim());save();renderJob()}
+};
 
 function setRouteStatus(msg,bad){
-  var e=document.getElementById('routeStatus');
-  if(!e)return;
-  e.textContent=msg;
-  e.style.color=bad?'#842e28':'#66716a';
+  var e=document.getElementById('routeStatus');if(!e)return;
+  e.textContent=msg;e.style.color=bad?'#842e28':'#66716a';
 }
-
-function normaliseRouteAddress(address){
-  var q=String(address||'').trim();
-  if(!q)return '';
-  if(!/(queenstown|frankton|arrowtown|lake hayes|arthurs point|fernhill|new zealand)/i.test(q)){
-    q+=', Queenstown, New Zealand';
-  }else if(!/new zealand/i.test(q)){
-    q+=', New Zealand';
-  }
+function routeAddress(a){
+  var q=String(a||'').trim();if(!q)return '';
+  if(!/new zealand/i.test(q))q+=', New Zealand';
   return q;
 }
-
 async function geocodeAddress(address){
-  var q=normaliseRouteAddress(address);
+  var q=routeAddress(address);
   if(!q)throw new Error('No address');
   var key='geo:'+q.toLowerCase();
   if(state.routeCache[key])return state.routeCache[key];
-  var url='https://photon.komoot.io/api/?limit=1&lang=en&lat=-45.0312&lon=168.6626&q='+encodeURIComponent(q);
-  var res=await fetch(url,{headers:{'Accept':'application/json'}});
+  var url='https://photon.komoot.io/api/?limit=1&lat=-45.0312&lon=168.6626&q='+encodeURIComponent(q);
+  var res=await fetch(url);
   if(!res.ok)throw new Error('Address lookup failed');
   var data=await res.json();
   if(!data.features||!data.features.length)throw new Error('Address not found');
   var c=data.features[0].geometry.coordinates;
-  var point={lon:+c[0],lat:+c[1]};
-  state.routeCache[key]=point;
-  save();
-  return point;
+  var p={lon:+c[0],lat:+c[1]};
+  state.routeCache[key]=p;save();return p;
 }
-
-async function autoDumpKm(showFailure){
-  var j=activeJob();
-  if(!j)return false;
+window.autoDumpKm=async function(showFailure){
+  var j=activeJob();if(!j)return false;
   syncFields(j);
-  if(j.waste==='none'){
-    setRouteStatus('Select Green Waste to calculate the one-way route to 110 Glenda Drive.',false);
-    return false;
-  }
+  if(j.waste==='none'){setRouteStatus('Select Green Waste first.',true);return false}
   if(!j.address){
-    setRouteStatus('No property address was imported from the Calendar Location field. Add/confirm the address before calculating km.',true);
+    setRouteStatus('No address was imported from the Calendar Location field.',true);
     if(showFailure)alert('No property address was imported from Calendar.');
     return false;
   }
   setRouteStatus('Calculating '+j.address+' → 110 Glenda Drive…',false);
   try{
-    var origin=await geocodeAddress(j.address);
-    var dest=await geocodeAddress(DUMP_ADDRESS);
-    var routeUrl='https://router.project-osrm.org/route/v1/driving/'+origin.lon+','+origin.lat+';'+dest.lon+','+dest.lat+'?overview=false&alternatives=false&steps=false';
-    var rr=await fetch(routeUrl,{headers:{'Accept':'application/json'}});
-    if(!rr.ok)throw new Error('Routing service failed');
-    var route=await rr.json();
-    if(route.code!=='Ok'||!route.routes||!route.routes.length)throw new Error('No driving route found');
-    var km=Math.round((route.routes[0].distance/1000)*10)/10;
-    j.dumpKm=km;
-    j.dumpKmSource='auto';
+    var o=await geocodeAddress(j.address),d=await geocodeAddress(DUMP_ADDRESS);
+    var url='https://router.project-osrm.org/route/v1/driving/'+o.lon+','+o.lat+';'+d.lon+','+d.lat+'?overview=false';
+    var res=await fetch(url),data=await res.json();
+    if(!res.ok||data.code!=='Ok'||!data.routes||!data.routes.length)throw new Error('Route failed');
+    var km=Math.round((data.routes[0].distance/1000)*10)/10;
+    j.dumpKm=km;j.dumpKmSource='auto';
     document.getElementById('dumpKm').value=km.toFixed(1);
     save();
-    setRouteStatus(km.toFixed(1)+' km one way · 
-window.addTodo=function(){var j=activeJob();if(!j)return;var t=prompt('Add To Do');if(t&&t.trim()){j.todos.push({id:'t_'+Date.now(),text:t.trim(),done:false});save();renderJob()}}
-window.finishTodo=function(id){var j=activeJob();var t=j.todos.find(function(x){return x.id===id});if(!t)return;t.done=true;j.completedWorks.push(t.text);save();renderJob()}
-window.undoWork=function(i){var j=activeJob();var text=j.completedWorks.splice(i,1)[0];var t=j.todos.find(function(x){return x.text===text&&x.done});if(t)t.done=false;else j.todos.push({id:'t_'+Date.now(),text:text,done:false});save();renderJob()}
-window.appendSiteNote=function(){var j=activeJob();if(!j)return;var n=prompt('Append site note');if(n&&n.trim()){j.siteNotes.push(n.trim());save();renderJob()}}
-function hours(a,b){if(!a||!b)return 0;var x=a.split(':').map(Number),y=b.split(':').map(Number);return Math.max(0,(y[0]*60+y[1]-x[0]*60-x[1])/60)}
+    setRouteStatus(km.toFixed(1)+' km one way · $'+(km*2).toFixed(2)+' at $2/km · to 110 Glenda Drive',false);
+    refreshJobPreview();
+    return true;
+  }catch(e){
+    setRouteStatus('Auto km could not resolve this route. Use Open route or enter km manually.',true);
+    if(showFailure)alert('Auto km could not resolve this route. Use Open route or enter km manually.');
+    return false;
+  }
+};
+window.openDumpRoute=function(){
+  var j=activeJob();if(!j||!j.address){alert('No property address is available.');return}
+  window.open('https://maps.apple.com/?saddr='+encodeURIComponent(routeAddress(j.address))+'&daddr='+encodeURIComponent(DUMP_ADDRESS)+'&dirflg=d','_blank');
+};
+
 function buildDraft(j){
-var visit=hours(j.start,j.end);var team=visit*j.personnel;var waste=j.waste!=='none';var lines=[];
-lines.push('Personnel: '+j.personnel);lines.push('Time: '+j.start+'–'+j.end);lines.push('Labour: '+team.toFixed(2)+' hrs');
-if(j.rideOn)lines.push('Ride-on: '+Number(j.rideOn).toFixed(2)+' hrs');
-if(waste){lines.push('Green waste: '+j.waste);lines.push('Waste run: 0.50 hr');lines.push('Dump travel: '+Number(j.dumpKm||0).toFixed(1)+' km × $2.00/km = $'+(Number(j.dumpKm||0)*2).toFixed(2)+' · to 110 Glenda Drive')}
-if(j.spray)lines.push('Spray: '+j.spray+' × 15 L application');
-lines.push('');lines.push('Description of works:');
-if(j.completedWorks.length)j.completedWorks.forEach(function(w){lines.push('- '+w)});else lines.push('- No completed works recorded');
-return lines.join('\n')
+  var visit=hours(j.start,j.end),team=visit*j.personnel,waste=j.waste!=='none',lines=[];
+  lines.push('Personnel: '+j.personnel);
+  lines.push('Time: '+(j.start||'')+'–'+(j.end||''));
+  lines.push('Labour: '+team.toFixed(2)+' hrs');
+  if(j.rideOn)lines.push('Ride-on: '+Number(j.rideOn).toFixed(2)+' hrs');
+  if(waste){
+    lines.push('Green waste: '+j.waste);
+    lines.push('Waste run: 0.50 hr');
+    lines.push('Dump travel: '+Number(j.dumpKm||0).toFixed(1)+' km × $2.00/km = $'+(Number(j.dumpKm||0)*2).toFixed(2)+' · to 110 Glenda Drive');
+  }
+  if(j.spray)lines.push('Spray: '+j.spray+' × 15 L application');
+  lines.push('');
+  lines.push('Description of works:');
+  if(j.completedWorks.length)j.completedWorks.forEach(function(w){lines.push('- '+w)});
+  else lines.push('- No completed works recorded');
+  return lines.join('\n');
 }
+window.refreshJobPreview=function(){
+  var j=activeJob(),el=document.getElementById('jobDraftPreview');
+  if(!el)return;if(!j){el.textContent='No active job.';return}
+  syncFields(j);save();el.textContent=buildDraft(j);
+};
+window.copyJobPreview=async function(){
+  var el=document.getElementById('jobDraftPreview');if(!el)return;
+  try{await navigator.clipboard.writeText(el.textContent);alert('Draft preview copied')}
+  catch(e){alert('Select the preview text and copy manually.')}
+};
+
 window.completeJob=async function(){
-var j=activeJob();if(!j)return;syncFields(j);
-if(j.waste!=='none'&&!j.dumpKm){
-  await autoDumpKm(false);
+  var j=activeJob();if(!j)return;
   syncFields(j);
-  if(!j.dumpKm){alert('Green waste is selected. Auto km could not resolve the route, so confirm km manually before completing the job.');return}
-}
-j.completed=true;j.lastDraft=buildDraft(j);state.lastDraft=j.lastDraft;save();document.getElementById('draftText').textContent=state.lastDraft;renderToday();showPage('today')
-}
-window.copyDraft=async function(){if(!state.lastDraft)return;try{await navigator.clipboard.writeText(state.lastDraft);alert('Draft copied')}catch(e){alert('Select the draft text and copy manually.')}}
-window.exportDraft=function(){if(!state.lastDraft)return;var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([state.lastDraft],{type:'text/plain'}));a.download='QGC-Xero-draft.txt';a.click();setTimeout(function(){URL.revokeObjectURL(a.href)},500)}
-document.getElementById('dateText').addEventListener('change',function(){var d=dateObj(this.value);if(d){state.date=isoDate(d);save();renderToday()}});
-document.getElementById('personnel').addEventListener('change',function(){var j=activeJob();if(j){syncFields(j);save()}});
-['startTime','endTime','rideOn','spray'].forEach(function(id){document.getElementById(id).addEventListener('change',function(){var j=activeJob();if(j){syncFields(j);save()}})});
-document.getElementById('dumpKm').addEventListener('change',function(){var j=activeJob();if(j){syncFields(j);j.dumpKmSource='manual';save();if(j.dumpKm)setRouteStatus(Number(j.dumpKm).toFixed(1)+' km manual · 
-document.getElementById('draftText').textContent=state.lastDraft||'Complete a job to create a draft.';
-renderToday();
-if(location.hash==='#calendar-import'){showPage('import');var st=document.getElementById('shortcutStatus');if(st)st.innerHTML='<strong>Returned from Shortcuts.</strong> Tap Paste Calendar Result to bring the Truck 1 events into Fieldbook.'}
-})();
-</script>
-</body>
-</html>+(km*2).toFixed(2)+' at $2/km · to 110 Glenda Drive',false);
-    return true;
-  }catch(err){
-    setRouteStatus('Auto km could not resolve this address. Use Open route or enter km manually.',true);
-    if(showFailure)alert('Auto km could not resolve the route. You can open the route or enter the km manually.');
-    return false;
+  if(j.waste!=='none'&&!j.dumpKm){
+    await autoDumpKm(false);syncFields(j);
+    if(!j.dumpKm){alert('Green waste is selected. Confirm dump km before completing the job.');return}
   }
-}
-window.autoDumpKm=autoDumpKm;
-
-window.openDumpRoute=function(){
-  var j=activeJob();
-  if(!j||!j.address){alert('No property address is available for this job.');return}
-  var url='https://maps.apple.com/?saddr='+encodeURIComponent(normaliseRouteAddress(j.address))+'&daddr='+encodeURIComponent(DUMP_ADDRESS)+'&dirflg=d';
-  window.open(url,'_blank');
-}
-window.addTodo=function(){var j=activeJob();if(!j)return;var t=prompt('Add To Do');if(t&&t.trim()){j.todos.push({id:'t_'+Date.now(),text:t.trim(),done:false});save();renderJob()}}
-window.finishTodo=function(id){var j=activeJob();var t=j.todos.find(function(x){return x.id===id});if(!t)return;t.done=true;j.completedWorks.push(t.text);save();renderJob()}
-window.undoWork=function(i){var j=activeJob();var text=j.completedWorks.splice(i,1)[0];var t=j.todos.find(function(x){return x.text===text&&x.done});if(t)t.done=false;else j.todos.push({id:'t_'+Date.now(),text:text,done:false});save();renderJob()}
-window.appendSiteNote=function(){var j=activeJob();if(!j)return;var n=prompt('Append site note');if(n&&n.trim()){j.siteNotes.push(n.trim());save();renderJob()}}
-function hours(a,b){if(!a||!b)return 0;var x=a.split(':').map(Number),y=b.split(':').map(Number);return Math.max(0,(y[0]*60+y[1]-x[0]*60-x[1])/60)}
-function buildDraft(j){
-var visit=hours(j.start,j.end);var team=visit*j.personnel;var waste=j.waste!=='none';var lines=[];
-lines.push('Personnel: '+j.personnel);lines.push('Time: '+j.start+'–'+j.end);lines.push('Labour: '+team.toFixed(2)+' hrs');
-if(j.rideOn)lines.push('Ride-on: '+Number(j.rideOn).toFixed(2)+' hrs');
-if(waste){lines.push('Green waste: '+j.waste);lines.push('Waste run: 0.50 hr');lines.push('Dump travel: '+Number(j.dumpKm||0).toFixed(1)+' km × $2.00/km = $'+(Number(j.dumpKm||0)*2).toFixed(2)+' · to 110 Glenda Drive')}
-if(j.spray)lines.push('Spray: '+j.spray+' × 15 L application');
-lines.push('');lines.push('Description of works:');
-if(j.completedWorks.length)j.completedWorks.forEach(function(w){lines.push('- '+w)});else lines.push('- No completed works recorded');
-return lines.join('\n')
-}
-window.completeJob=function(){
-var j=activeJob();if(!j)return;syncFields(j);if(j.waste!=='none'&&!j.dumpKm){alert('Green waste is selected. Confirm dump km before completing the job.');return}
-j.completed=true;j.lastDraft=buildDraft(j);state.lastDraft=j.lastDraft;save();document.getElementById('draftText').textContent=state.lastDraft;renderToday();showPage('today')
-}
-window.copyDraft=async function(){if(!state.lastDraft)return;try{await navigator.clipboard.writeText(state.lastDraft);alert('Draft copied')}catch(e){alert('Select the draft text and copy manually.')}}
-window.exportDraft=function(){if(!state.lastDraft)return;var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([state.lastDraft],{type:'text/plain'}));a.download='QGC-Xero-draft.txt';a.click();setTimeout(function(){URL.revokeObjectURL(a.href)},500)}
-document.getElementById('dateText').addEventListener('change',function(){var d=dateObj(this.value);if(d){state.date=isoDate(d);save();renderToday()}});
-document.getElementById('personnel').addEventListener('change',function(){var j=activeJob();if(j){syncFields(j);save()}});
-['startTime','endTime','waste','dumpKm','rideOn','spray'].forEach(function(id){document.getElementById(id).addEventListener('change',function(){var j=activeJob();if(j){syncFields(j);save()}})});
-document.getElementById('draftText').textContent=state.lastDraft||'Complete a job to create a draft.';
-renderToday();
-if(location.hash==='#calendar-import'){showPage('import');var st=document.getElementById('shortcutStatus');if(st)st.innerHTML='<strong>Returned from Shortcuts.</strong> Tap Paste Calendar Result to bring the Truck 1 events into Fieldbook.'}
-})();
-</script>
-</body>
-</html>+(Number(j.dumpKm)*2).toFixed(2)+' at $2/km · to 110 Glenda Drive',false);
-}else if(j.waste&&j.waste!=='none'){
-  setRouteStatus('Green Waste selected. Tap Auto km to calculate '+(j.address||'the property address')+' → 110 Glenda Drive.',false);
-}else{
-  setRouteStatus('Select Green Waste to calculate the one-way route to 110 Glenda Drive.',false);
-}
-}
-function syncFields(j){j.personnel=+document.getElementById('personnel').value||1;j.start=document.getElementById('startTime').value;j.end=document.getElementById('endTime').value;j.waste=document.getElementById('waste').value;j.dumpKm=+document.getElementById('dumpKm').value||0;j.rideOn=+document.getElementById('rideOn').value||0;j.spray=+document.getElementById('spray').value||0}
-
-var DUMP_ADDRESS='110 Glenda Drive, Frankton, Queenstown 9300, New Zealand';
-
-function setRouteStatus(msg,bad){
-  var e=document.getElementById('routeStatus');
-  if(!e)return;
-  e.textContent=msg;
-  e.style.color=bad?'#842e28':'#66716a';
-}
-
-function normaliseRouteAddress(address){
-  var q=String(address||'').trim();
-  if(!q)return '';
-  if(!/(queenstown|frankton|arrowtown|lake hayes|arthurs point|fernhill|new zealand)/i.test(q)){
-    q+=', Queenstown, New Zealand';
-  }else if(!/new zealand/i.test(q)){
-    q+=', New Zealand';
-  }
-  return q;
-}
-
-async function geocodeAddress(address){
-  var q=normaliseRouteAddress(address);
-  if(!q)throw new Error('No address');
-  var key='geo:'+q.toLowerCase();
-  if(state.routeCache[key])return state.routeCache[key];
-  var url='https://photon.komoot.io/api/?limit=1&lang=en&lat=-45.0312&lon=168.6626&q='+encodeURIComponent(q);
-  var res=await fetch(url,{headers:{'Accept':'application/json'}});
-  if(!res.ok)throw new Error('Address lookup failed');
-  var data=await res.json();
-  if(!data.features||!data.features.length)throw new Error('Address not found');
-  var c=data.features[0].geometry.coordinates;
-  var point={lon:+c[0],lat:+c[1]};
-  state.routeCache[key]=point;
+  j.completed=true;j.lastDraft=buildDraft(j);state.lastDraft=j.lastDraft;
   save();
-  return point;
-}
+  document.getElementById('draftText').textContent=state.lastDraft;
+  renderToday();showPage('today');
+};
 
-async function autoDumpKm(showFailure){
-  var j=activeJob();
-  if(!j)return false;
-  syncFields(j);
-  if(j.waste==='none'){
-    setRouteStatus('Select Green Waste to calculate the one-way route to 110 Glenda Drive.',false);
-    return false;
-  }
-  if(!j.address){
-    setRouteStatus('No property address was imported from the Calendar Location field. Add/confirm the address before calculating km.',true);
-    if(showFailure)alert('No property address was imported from Calendar.');
-    return false;
-  }
-  setRouteStatus('Calculating '+j.address+' → 110 Glenda Drive…',false);
-  try{
-    var origin=await geocodeAddress(j.address);
-    var dest=await geocodeAddress(DUMP_ADDRESS);
-    var routeUrl='https://router.project-osrm.org/route/v1/driving/'+origin.lon+','+origin.lat+';'+dest.lon+','+dest.lat+'?overview=false&alternatives=false&steps=false';
-    var rr=await fetch(routeUrl,{headers:{'Accept':'application/json'}});
-    if(!rr.ok)throw new Error('Routing service failed');
-    var route=await rr.json();
-    if(route.code!=='Ok'||!route.routes||!route.routes.length)throw new Error('No driving route found');
-    var km=Math.round((route.routes[0].distance/1000)*10)/10;
-    j.dumpKm=km;
-    j.dumpKmSource='auto';
-    document.getElementById('dumpKm').value=km.toFixed(1);
-    save();
-    setRouteStatus(km.toFixed(1)+' km one way · 
-window.addTodo=function(){var j=activeJob();if(!j)return;var t=prompt('Add To Do');if(t&&t.trim()){j.todos.push({id:'t_'+Date.now(),text:t.trim(),done:false});save();renderJob()}}
-window.finishTodo=function(id){var j=activeJob();var t=j.todos.find(function(x){return x.id===id});if(!t)return;t.done=true;j.completedWorks.push(t.text);save();renderJob()}
-window.undoWork=function(i){var j=activeJob();var text=j.completedWorks.splice(i,1)[0];var t=j.todos.find(function(x){return x.text===text&&x.done});if(t)t.done=false;else j.todos.push({id:'t_'+Date.now(),text:text,done:false});save();renderJob()}
-window.appendSiteNote=function(){var j=activeJob();if(!j)return;var n=prompt('Append site note');if(n&&n.trim()){j.siteNotes.push(n.trim());save();renderJob()}}
-function hours(a,b){if(!a||!b)return 0;var x=a.split(':').map(Number),y=b.split(':').map(Number);return Math.max(0,(y[0]*60+y[1]-x[0]*60-x[1])/60)}
-function buildDraft(j){
-var visit=hours(j.start,j.end);var team=visit*j.personnel;var waste=j.waste!=='none';var lines=[];
-lines.push('Personnel: '+j.personnel);lines.push('Time: '+j.start+'–'+j.end);lines.push('Labour: '+team.toFixed(2)+' hrs');
-if(j.rideOn)lines.push('Ride-on: '+Number(j.rideOn).toFixed(2)+' hrs');
-if(waste){lines.push('Green waste: '+j.waste);lines.push('Waste run: 0.50 hr');lines.push('Dump travel: '+Number(j.dumpKm||0).toFixed(1)+' km × $2.00/km = $'+(Number(j.dumpKm||0)*2).toFixed(2)+' · to 110 Glenda Drive')}
-if(j.spray)lines.push('Spray: '+j.spray+' × 15 L application');
-lines.push('');lines.push('Description of works:');
-if(j.completedWorks.length)j.completedWorks.forEach(function(w){lines.push('- '+w)});else lines.push('- No completed works recorded');
-return lines.join('\n')
-}
-window.completeJob=function(){
-var j=activeJob();if(!j)return;syncFields(j);if(j.waste!=='none'&&!j.dumpKm){alert('Green waste is selected. Confirm dump km before completing the job.');return}
-j.completed=true;j.lastDraft=buildDraft(j);state.lastDraft=j.lastDraft;save();document.getElementById('draftText').textContent=state.lastDraft;renderToday();showPage('today')
-}
-window.copyDraft=async function(){if(!state.lastDraft)return;try{await navigator.clipboard.writeText(state.lastDraft);alert('Draft copied')}catch(e){alert('Select the draft text and copy manually.')}}
-window.exportDraft=function(){if(!state.lastDraft)return;var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([state.lastDraft],{type:'text/plain'}));a.download='QGC-Xero-draft.txt';a.click();setTimeout(function(){URL.revokeObjectURL(a.href)},500)}
-document.getElementById('dateText').addEventListener('change',function(){var d=dateObj(this.value);if(d){state.date=isoDate(d);save();renderToday()}});
-document.getElementById('personnel').addEventListener('change',function(){var j=activeJob();if(j){syncFields(j);save()}});
-['startTime','endTime','waste','dumpKm','rideOn','spray'].forEach(function(id){document.getElementById(id).addEventListener('change',function(){var j=activeJob();if(j){syncFields(j);save()}})});
+window.copyDraft=async function(){
+  if(!state.lastDraft)return;
+  try{await navigator.clipboard.writeText(state.lastDraft);alert('Draft copied')}
+  catch(e){alert('Select the draft text and copy manually.')}
+};
+window.exportDraft=function(){
+  if(!state.lastDraft)return;
+  var a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([state.lastDraft],{type:'text/plain'}));
+  a.download='QGC-Xero-draft.txt';a.click();
+  setTimeout(function(){URL.revokeObjectURL(a.href)},500);
+};
+
+document.getElementById('dateText').addEventListener('change',function(){
+  var d=dateObj(this.value);if(d){state.date=isoDate(d);save();renderToday()}
+});
+['personnel','startTime','endTime','rideOn','spray'].forEach(function(id){
+  document.getElementById(id).addEventListener('change',function(){
+    var j=activeJob();if(j){syncFields(j);save();refreshJobPreview()}
+  });
+});
+document.getElementById('dumpKm').addEventListener('change',function(){
+  var j=activeJob();if(!j)return;
+  syncFields(j);j.dumpKmSource='manual';save();
+  if(j.dumpKm)setRouteStatus(Number(j.dumpKm).toFixed(1)+' km manual · $'+(Number(j.dumpKm)*2).toFixed(2)+' at $2/km',false);
+  refreshJobPreview();
+});
+document.getElementById('waste').addEventListener('change',async function(){
+  var j=activeJob();if(!j)return;
+  syncFields(j);save();
+  if(j.waste!=='none')await autoDumpKm(false);
+  else setRouteStatus('Select Green Waste to calculate the one-way route to 110 Glenda Drive.',false);
+  refreshJobPreview();
+});
+
 document.getElementById('draftText').textContent=state.lastDraft||'Complete a job to create a draft.';
 renderToday();
-if(location.hash==='#calendar-import'){showPage('import');var st=document.getElementById('shortcutStatus');if(st)st.innerHTML='<strong>Returned from Shortcuts.</strong> Tap Paste Calendar Result to bring the Truck 1 events into Fieldbook.'}
-})();
-</script>
-</body>
-</html>+(km*2).toFixed(2)+' at $2/km · to 110 Glenda Drive',false);
-    return true;
-  }catch(err){
-    setRouteStatus('Auto km could not resolve this address. Use Open route or enter km manually.',true);
-    if(showFailure)alert('Auto km could not resolve the route. You can open the route or enter the km manually.');
-    return false;
-  }
+if(location.hash==='#calendar-import'){
+  showPage('import');
+  document.getElementById('shortcutStatus').innerHTML='<strong>Returned from Shortcuts.</strong> Tap Paste Calendar Result, then Load into Today.';
 }
-window.autoDumpKm=autoDumpKm;
-
-window.openDumpRoute=function(){
-  var j=activeJob();
-  if(!j||!j.address){alert('No property address is available for this job.');return}
-  var url='https://maps.apple.com/?saddr='+encodeURIComponent(normaliseRouteAddress(j.address))+'&daddr='+encodeURIComponent(DUMP_ADDRESS)+'&dirflg=d';
-  window.open(url,'_blank');
-}
-window.addTodo=function(){var j=activeJob();if(!j)return;var t=prompt('Add To Do');if(t&&t.trim()){j.todos.push({id:'t_'+Date.now(),text:t.trim(),done:false});save();renderJob()}}
-window.finishTodo=function(id){var j=activeJob();var t=j.todos.find(function(x){return x.id===id});if(!t)return;t.done=true;j.completedWorks.push(t.text);save();renderJob()}
-window.undoWork=function(i){var j=activeJob();var text=j.completedWorks.splice(i,1)[0];var t=j.todos.find(function(x){return x.text===text&&x.done});if(t)t.done=false;else j.todos.push({id:'t_'+Date.now(),text:text,done:false});save();renderJob()}
-window.appendSiteNote=function(){var j=activeJob();if(!j)return;var n=prompt('Append site note');if(n&&n.trim()){j.siteNotes.push(n.trim());save();renderJob()}}
-function hours(a,b){if(!a||!b)return 0;var x=a.split(':').map(Number),y=b.split(':').map(Number);return Math.max(0,(y[0]*60+y[1]-x[0]*60-x[1])/60)}
-function buildDraft(j){
-var visit=hours(j.start,j.end);var team=visit*j.personnel;var waste=j.waste!=='none';var lines=[];
-lines.push('Personnel: '+j.personnel);lines.push('Time: '+j.start+'–'+j.end);lines.push('Labour: '+team.toFixed(2)+' hrs');
-if(j.rideOn)lines.push('Ride-on: '+Number(j.rideOn).toFixed(2)+' hrs');
-if(waste){lines.push('Green waste: '+j.waste);lines.push('Waste run: 0.50 hr');lines.push('Dump travel: '+Number(j.dumpKm||0).toFixed(1)+' km × $2.00/km = $'+(Number(j.dumpKm||0)*2).toFixed(2)+' · to 110 Glenda Drive')}
-if(j.spray)lines.push('Spray: '+j.spray+' × 15 L application');
-lines.push('');lines.push('Description of works:');
-if(j.completedWorks.length)j.completedWorks.forEach(function(w){lines.push('- '+w)});else lines.push('- No completed works recorded');
-return lines.join('\n')
-}
-window.completeJob=function(){
-var j=activeJob();if(!j)return;syncFields(j);if(j.waste!=='none'&&!j.dumpKm){alert('Green waste is selected. Confirm dump km before completing the job.');return}
-j.completed=true;j.lastDraft=buildDraft(j);state.lastDraft=j.lastDraft;save();document.getElementById('draftText').textContent=state.lastDraft;renderToday();showPage('today')
-}
-window.copyDraft=async function(){if(!state.lastDraft)return;try{await navigator.clipboard.writeText(state.lastDraft);alert('Draft copied')}catch(e){alert('Select the draft text and copy manually.')}}
-window.exportDraft=function(){if(!state.lastDraft)return;var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([state.lastDraft],{type:'text/plain'}));a.download='QGC-Xero-draft.txt';a.click();setTimeout(function(){URL.revokeObjectURL(a.href)},500)}
-document.getElementById('dateText').addEventListener('change',function(){var d=dateObj(this.value);if(d){state.date=isoDate(d);save();renderToday()}});
-document.getElementById('personnel').addEventListener('change',function(){var j=activeJob();if(j){syncFields(j);save()}});
-['startTime','endTime','waste','dumpKm','rideOn','spray'].forEach(function(id){document.getElementById(id).addEventListener('change',function(){var j=activeJob();if(j){syncFields(j);save()}})});
-document.getElementById('draftText').textContent=state.lastDraft||'Complete a job to create a draft.';
-renderToday();
-if(location.hash==='#calendar-import'){showPage('import');var st=document.getElementById('shortcutStatus');if(st)st.innerHTML='<strong>Returned from Shortcuts.</strong> Tap Paste Calendar Result to bring the Truck 1 events into Fieldbook.'}
-})();
-</script>
-</body>
-</html>+(Number(j.dumpKm)*2).toFixed(2)+' at $2/km',false)}});
-document.getElementById('waste').addEventListener('change',function(){var j=activeJob();if(!j)return;syncFields(j);save();if(j.waste!=='none')autoDumpKm(false);else setRouteStatus('Select Green Waste to calculate the one-way route to 110 Glenda Drive.',false)});
-document.getElementById('draftText').textContent=state.lastDraft||'Complete a job to create a draft.';
-renderToday();
-if(location.hash==='#calendar-import'){showPage('import');var st=document.getElementById('shortcutStatus');if(st)st.innerHTML='<strong>Returned from Shortcuts.</strong> Tap Paste Calendar Result to bring the Truck 1 events into Fieldbook.'}
-})();
-</script>
-</body>
-</html>+(km*2).toFixed(2)+' at $2/km · to 110 Glenda Drive',false);
-    return true;
-  }catch(err){
-    setRouteStatus('Auto km could not resolve this address. Use Open route or enter km manually.',true);
-    if(showFailure)alert('Auto km could not resolve the route. You can open the route or enter the km manually.');
-    return false;
-  }
-}
-window.autoDumpKm=autoDumpKm;
-
-window.openDumpRoute=function(){
-  var j=activeJob();
-  if(!j||!j.address){alert('No property address is available for this job.');return}
-  var url='https://maps.apple.com/?saddr='+encodeURIComponent(normaliseRouteAddress(j.address))+'&daddr='+encodeURIComponent(DUMP_ADDRESS)+'&dirflg=d';
-  window.open(url,'_blank');
-}
-window.addTodo=function(){var j=activeJob();if(!j)return;var t=prompt('Add To Do');if(t&&t.trim()){j.todos.push({id:'t_'+Date.now(),text:t.trim(),done:false});save();renderJob()}}
-window.finishTodo=function(id){var j=activeJob();var t=j.todos.find(function(x){return x.id===id});if(!t)return;t.done=true;j.completedWorks.push(t.text);save();renderJob()}
-window.undoWork=function(i){var j=activeJob();var text=j.completedWorks.splice(i,1)[0];var t=j.todos.find(function(x){return x.text===text&&x.done});if(t)t.done=false;else j.todos.push({id:'t_'+Date.now(),text:text,done:false});save();renderJob()}
-window.appendSiteNote=function(){var j=activeJob();if(!j)return;var n=prompt('Append site note');if(n&&n.trim()){j.siteNotes.push(n.trim());save();renderJob()}}
-function hours(a,b){if(!a||!b)return 0;var x=a.split(':').map(Number),y=b.split(':').map(Number);return Math.max(0,(y[0]*60+y[1]-x[0]*60-x[1])/60)}
-function buildDraft(j){
-var visit=hours(j.start,j.end);var team=visit*j.personnel;var waste=j.waste!=='none';var lines=[];
-lines.push('Personnel: '+j.personnel);lines.push('Time: '+j.start+'–'+j.end);lines.push('Labour: '+team.toFixed(2)+' hrs');
-if(j.rideOn)lines.push('Ride-on: '+Number(j.rideOn).toFixed(2)+' hrs');
-if(waste){lines.push('Green waste: '+j.waste);lines.push('Waste run: 0.50 hr');lines.push('Dump travel: '+Number(j.dumpKm||0).toFixed(1)+' km × $2.00/km = $'+(Number(j.dumpKm||0)*2).toFixed(2)+' · to 110 Glenda Drive')}
-if(j.spray)lines.push('Spray: '+j.spray+' × 15 L application');
-lines.push('');lines.push('Description of works:');
-if(j.completedWorks.length)j.completedWorks.forEach(function(w){lines.push('- '+w)});else lines.push('- No completed works recorded');
-return lines.join('\n')
-}
-window.completeJob=function(){
-var j=activeJob();if(!j)return;syncFields(j);if(j.waste!=='none'&&!j.dumpKm){alert('Green waste is selected. Confirm dump km before completing the job.');return}
-j.completed=true;j.lastDraft=buildDraft(j);state.lastDraft=j.lastDraft;save();document.getElementById('draftText').textContent=state.lastDraft;renderToday();showPage('today')
-}
-window.copyDraft=async function(){if(!state.lastDraft)return;try{await navigator.clipboard.writeText(state.lastDraft);alert('Draft copied')}catch(e){alert('Select the draft text and copy manually.')}}
-window.exportDraft=function(){if(!state.lastDraft)return;var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([state.lastDraft],{type:'text/plain'}));a.download='QGC-Xero-draft.txt';a.click();setTimeout(function(){URL.revokeObjectURL(a.href)},500)}
-document.getElementById('dateText').addEventListener('change',function(){var d=dateObj(this.value);if(d){state.date=isoDate(d);save();renderToday()}});
-document.getElementById('personnel').addEventListener('change',function(){var j=activeJob();if(j){syncFields(j);save()}});
-['startTime','endTime','waste','dumpKm','rideOn','spray'].forEach(function(id){document.getElementById(id).addEventListener('change',function(){var j=activeJob();if(j){syncFields(j);save()}})});
-document.getElementById('draftText').textContent=state.lastDraft||'Complete a job to create a draft.';
-renderToday();
-if(location.hash==='#calendar-import'){showPage('import');var st=document.getElementById('shortcutStatus');if(st)st.innerHTML='<strong>Returned from Shortcuts.</strong> Tap Paste Calendar Result to bring the Truck 1 events into Fieldbook.'}
-})();
-</script>
-</body>
-</html>+(Number(j.dumpKm)*2).toFixed(2)+' at $2/km · to 110 Glenda Drive',false);
-}else if(j.waste&&j.waste!=='none'){
-  setRouteStatus('Green Waste selected. Tap Auto km to calculate '+(j.address||'the property address')+' → 110 Glenda Drive.',false);
-}else{
-  setRouteStatus('Select Green Waste to calculate the one-way route to 110 Glenda Drive.',false);
-}
-}
-function syncFields(j){j.personnel=+document.getElementById('personnel').value||1;j.start=document.getElementById('startTime').value;j.end=document.getElementById('endTime').value;j.waste=document.getElementById('waste').value;j.dumpKm=+document.getElementById('dumpKm').value||0;j.rideOn=+document.getElementById('rideOn').value||0;j.spray=+document.getElementById('spray').value||0}
-
-var DUMP_ADDRESS='110 Glenda Drive, Frankton, Queenstown 9300, New Zealand';
-
-function setRouteStatus(msg,bad){
-  var e=document.getElementById('routeStatus');
-  if(!e)return;
-  e.textContent=msg;
-  e.style.color=bad?'#842e28':'#66716a';
-}
-
-function normaliseRouteAddress(address){
-  var q=String(address||'').trim();
-  if(!q)return '';
-  if(!/(queenstown|frankton|arrowtown|lake hayes|arthurs point|fernhill|new zealand)/i.test(q)){
-    q+=', Queenstown, New Zealand';
-  }else if(!/new zealand/i.test(q)){
-    q+=', New Zealand';
-  }
-  return q;
-}
-
-async function geocodeAddress(address){
-  var q=normaliseRouteAddress(address);
-  if(!q)throw new Error('No address');
-  var key='geo:'+q.toLowerCase();
-  if(state.routeCache[key])return state.routeCache[key];
-  var url='https://photon.komoot.io/api/?limit=1&lang=en&lat=-45.0312&lon=168.6626&q='+encodeURIComponent(q);
-  var res=await fetch(url,{headers:{'Accept':'application/json'}});
-  if(!res.ok)throw new Error('Address lookup failed');
-  var data=await res.json();
-  if(!data.features||!data.features.length)throw new Error('Address not found');
-  var c=data.features[0].geometry.coordinates;
-  var point={lon:+c[0],lat:+c[1]};
-  state.routeCache[key]=point;
-  save();
-  return point;
-}
-
-async function autoDumpKm(showFailure){
-  var j=activeJob();
-  if(!j)return false;
-  syncFields(j);
-  if(j.waste==='none'){
-    setRouteStatus('Select Green Waste to calculate the one-way route to 110 Glenda Drive.',false);
-    return false;
-  }
-  if(!j.address){
-    setRouteStatus('No property address was imported from the Calendar Location field. Add/confirm the address before calculating km.',true);
-    if(showFailure)alert('No property address was imported from Calendar.');
-    return false;
-  }
-  setRouteStatus('Calculating '+j.address+' → 110 Glenda Drive…',false);
-  try{
-    var origin=await geocodeAddress(j.address);
-    var dest=await geocodeAddress(DUMP_ADDRESS);
-    var routeUrl='https://router.project-osrm.org/route/v1/driving/'+origin.lon+','+origin.lat+';'+dest.lon+','+dest.lat+'?overview=false&alternatives=false&steps=false';
-    var rr=await fetch(routeUrl,{headers:{'Accept':'application/json'}});
-    if(!rr.ok)throw new Error('Routing service failed');
-    var route=await rr.json();
-    if(route.code!=='Ok'||!route.routes||!route.routes.length)throw new Error('No driving route found');
-    var km=Math.round((route.routes[0].distance/1000)*10)/10;
-    j.dumpKm=km;
-    j.dumpKmSource='auto';
-    document.getElementById('dumpKm').value=km.toFixed(1);
-    save();
-    setRouteStatus(km.toFixed(1)+' km one way · 
-window.addTodo=function(){var j=activeJob();if(!j)return;var t=prompt('Add To Do');if(t&&t.trim()){j.todos.push({id:'t_'+Date.now(),text:t.trim(),done:false});save();renderJob()}}
-window.finishTodo=function(id){var j=activeJob();var t=j.todos.find(function(x){return x.id===id});if(!t)return;t.done=true;j.completedWorks.push(t.text);save();renderJob()}
-window.undoWork=function(i){var j=activeJob();var text=j.completedWorks.splice(i,1)[0];var t=j.todos.find(function(x){return x.text===text&&x.done});if(t)t.done=false;else j.todos.push({id:'t_'+Date.now(),text:text,done:false});save();renderJob()}
-window.appendSiteNote=function(){var j=activeJob();if(!j)return;var n=prompt('Append site note');if(n&&n.trim()){j.siteNotes.push(n.trim());save();renderJob()}}
-function hours(a,b){if(!a||!b)return 0;var x=a.split(':').map(Number),y=b.split(':').map(Number);return Math.max(0,(y[0]*60+y[1]-x[0]*60-x[1])/60)}
-function buildDraft(j){
-var visit=hours(j.start,j.end);var team=visit*j.personnel;var waste=j.waste!=='none';var lines=[];
-lines.push('Personnel: '+j.personnel);lines.push('Time: '+j.start+'–'+j.end);lines.push('Labour: '+team.toFixed(2)+' hrs');
-if(j.rideOn)lines.push('Ride-on: '+Number(j.rideOn).toFixed(2)+' hrs');
-if(waste){lines.push('Green waste: '+j.waste);lines.push('Waste run: 0.50 hr');lines.push('Dump travel: '+Number(j.dumpKm||0).toFixed(1)+' km × $2.00/km = $'+(Number(j.dumpKm||0)*2).toFixed(2)+' · to 110 Glenda Drive')}
-if(j.spray)lines.push('Spray: '+j.spray+' × 15 L application');
-lines.push('');lines.push('Description of works:');
-if(j.completedWorks.length)j.completedWorks.forEach(function(w){lines.push('- '+w)});else lines.push('- No completed works recorded');
-return lines.join('\n')
-}
-window.completeJob=function(){
-var j=activeJob();if(!j)return;syncFields(j);if(j.waste!=='none'&&!j.dumpKm){alert('Green waste is selected. Confirm dump km before completing the job.');return}
-j.completed=true;j.lastDraft=buildDraft(j);state.lastDraft=j.lastDraft;save();document.getElementById('draftText').textContent=state.lastDraft;renderToday();showPage('today')
-}
-window.copyDraft=async function(){if(!state.lastDraft)return;try{await navigator.clipboard.writeText(state.lastDraft);alert('Draft copied')}catch(e){alert('Select the draft text and copy manually.')}}
-window.exportDraft=function(){if(!state.lastDraft)return;var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([state.lastDraft],{type:'text/plain'}));a.download='QGC-Xero-draft.txt';a.click();setTimeout(function(){URL.revokeObjectURL(a.href)},500)}
-document.getElementById('dateText').addEventListener('change',function(){var d=dateObj(this.value);if(d){state.date=isoDate(d);save();renderToday()}});
-document.getElementById('personnel').addEventListener('change',function(){var j=activeJob();if(j){syncFields(j);save()}});
-['startTime','endTime','waste','dumpKm','rideOn','spray'].forEach(function(id){document.getElementById(id).addEventListener('change',function(){var j=activeJob();if(j){syncFields(j);save()}})});
-document.getElementById('draftText').textContent=state.lastDraft||'Complete a job to create a draft.';
-renderToday();
-if(location.hash==='#calendar-import'){showPage('import');var st=document.getElementById('shortcutStatus');if(st)st.innerHTML='<strong>Returned from Shortcuts.</strong> Tap Paste Calendar Result to bring the Truck 1 events into Fieldbook.'}
-})();
-</script>
-</body>
-</html>+(km*2).toFixed(2)+' at $2/km · to 110 Glenda Drive',false);
-    return true;
-  }catch(err){
-    setRouteStatus('Auto km could not resolve this address. Use Open route or enter km manually.',true);
-    if(showFailure)alert('Auto km could not resolve the route. You can open the route or enter the km manually.');
-    return false;
-  }
-}
-window.autoDumpKm=autoDumpKm;
-
-window.openDumpRoute=function(){
-  var j=activeJob();
-  if(!j||!j.address){alert('No property address is available for this job.');return}
-  var url='https://maps.apple.com/?saddr='+encodeURIComponent(normaliseRouteAddress(j.address))+'&daddr='+encodeURIComponent(DUMP_ADDRESS)+'&dirflg=d';
-  window.open(url,'_blank');
-}
-window.addTodo=function(){var j=activeJob();if(!j)return;var t=prompt('Add To Do');if(t&&t.trim()){j.todos.push({id:'t_'+Date.now(),text:t.trim(),done:false});save();renderJob()}}
-window.finishTodo=function(id){var j=activeJob();var t=j.todos.find(function(x){return x.id===id});if(!t)return;t.done=true;j.completedWorks.push(t.text);save();renderJob()}
-window.undoWork=function(i){var j=activeJob();var text=j.completedWorks.splice(i,1)[0];var t=j.todos.find(function(x){return x.text===text&&x.done});if(t)t.done=false;else j.todos.push({id:'t_'+Date.now(),text:text,done:false});save();renderJob()}
-window.appendSiteNote=function(){var j=activeJob();if(!j)return;var n=prompt('Append site note');if(n&&n.trim()){j.siteNotes.push(n.trim());save();renderJob()}}
-function hours(a,b){if(!a||!b)return 0;var x=a.split(':').map(Number),y=b.split(':').map(Number);return Math.max(0,(y[0]*60+y[1]-x[0]*60-x[1])/60)}
-function buildDraft(j){
-var visit=hours(j.start,j.end);var team=visit*j.personnel;var waste=j.waste!=='none';var lines=[];
-lines.push('Personnel: '+j.personnel);lines.push('Time: '+j.start+'–'+j.end);lines.push('Labour: '+team.toFixed(2)+' hrs');
-if(j.rideOn)lines.push('Ride-on: '+Number(j.rideOn).toFixed(2)+' hrs');
-if(waste){lines.push('Green waste: '+j.waste);lines.push('Waste run: 0.50 hr');lines.push('Dump travel: '+Number(j.dumpKm||0).toFixed(1)+' km × $2.00/km = $'+(Number(j.dumpKm||0)*2).toFixed(2)+' · to 110 Glenda Drive')}
-if(j.spray)lines.push('Spray: '+j.spray+' × 15 L application');
-lines.push('');lines.push('Description of works:');
-if(j.completedWorks.length)j.completedWorks.forEach(function(w){lines.push('- '+w)});else lines.push('- No completed works recorded');
-return lines.join('\n')
-}
-window.completeJob=function(){
-var j=activeJob();if(!j)return;syncFields(j);if(j.waste!=='none'&&!j.dumpKm){alert('Green waste is selected. Confirm dump km before completing the job.');return}
-j.completed=true;j.lastDraft=buildDraft(j);state.lastDraft=j.lastDraft;save();document.getElementById('draftText').textContent=state.lastDraft;renderToday();showPage('today')
-}
-window.copyDraft=async function(){if(!state.lastDraft)return;try{await navigator.clipboard.writeText(state.lastDraft);alert('Draft copied')}catch(e){alert('Select the draft text and copy manually.')}}
-window.exportDraft=function(){if(!state.lastDraft)return;var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([state.lastDraft],{type:'text/plain'}));a.download='QGC-Xero-draft.txt';a.click();setTimeout(function(){URL.revokeObjectURL(a.href)},500)}
-document.getElementById('dateText').addEventListener('change',function(){var d=dateObj(this.value);if(d){state.date=isoDate(d);save();renderToday()}});
-document.getElementById('personnel').addEventListener('change',function(){var j=activeJob();if(j){syncFields(j);save()}});
-['startTime','endTime','waste','dumpKm','rideOn','spray'].forEach(function(id){document.getElementById(id).addEventListener('change',function(){var j=activeJob();if(j){syncFields(j);save()}})});
-document.getElementById('draftText').textContent=state.lastDraft||'Complete a job to create a draft.';
-renderToday();
-if(location.hash==='#calendar-import'){showPage('import');var st=document.getElementById('shortcutStatus');if(st)st.innerHTML='<strong>Returned from Shortcuts.</strong> Tap Paste Calendar Result to bring the Truck 1 events into Fieldbook.'}
 })();
 </script>
 </body>
