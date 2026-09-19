@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#173d2c">
 <title>QGC Fieldbook</title>
 <style>
-:root{--g:#173d2c;--lime:#b8d36b;--bg:#f4f6f1;--card:#fff;--ink:#16221c;--muted:#66716a;--line:#dce3dc;--done:#e8ece8}
+:root{--g:#173d2c;--lime:#b8d36b;--bg:#f4f6f1;--card:#fff;--ink:#16221c;--muted:#66716a;--line:#dce3dc;--done:#e8ece8;--warn:#fff6df;--bad:#fff0ef}
 *{box-sizing:border-box}
 body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--ink)}
 header{position:sticky;top:0;z-index:20;background:var(--g);color:#fff;padding:14px 16px 10px;box-shadow:0 1px 8px #0002}
@@ -17,37 +17,39 @@ nav button.active{background:var(--lime);color:#18311f}
 main{max-width:720px;margin:auto;padding:14px 14px 90px}
 .page{display:none}.page.active{display:block}
 .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;margin:10px 0;box-shadow:0 2px 7px #0000000b}
-.card.done{background:var(--done);opacity:.62}.next{outline:2px solid var(--lime)}
-.row{display:flex;gap:10px;align-items:center;justify-content:space-between}.grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.card.done{background:var(--done);opacity:.65}.next{outline:2px solid var(--lime)}
+.row{display:flex;gap:10px;align-items:center;justify-content:space-between}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
 label{display:block;font-size:11px;font-weight:800;color:var(--muted);margin-bottom:5px}
 input,textarea,select{width:100%;font:inherit;padding:11px;border:1px solid #cdd6cf;border-radius:10px;background:#fff}
 textarea{min-height:110px;resize:vertical}
 .btn{border:0;border-radius:11px;padding:11px 13px;font-weight:800;background:var(--g);color:#fff}
-.btn.alt{background:#e9efe9;color:var(--g)}.btn.light{background:#fff;border:1px solid var(--line);color:var(--g)}
-.btn:disabled{opacity:.45}.actions{display:flex;gap:8px;flex-wrap:wrap}
+.btn.alt{background:#e9efe9;color:var(--g)}.btn.light{background:#fff;border:1px solid var(--line);color:var(--g)}.btn:disabled{opacity:.45}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
 .section{font-size:12px;text-transform:uppercase;letter-spacing:.07em;color:var(--g);font-weight:900;margin:18px 2px 7px}
-.small{font-size:12px;color:var(--muted)}.badge{display:inline-block;padding:4px 8px;border-radius:999px;background:#edf3df;color:#38501f;font-size:10px;font-weight:900}
-.todo{display:flex;gap:9px;align-items:flex-start;padding:9px 0;border-bottom:1px solid #edf0ed}
-.todo input{width:20px;height:20px;margin-top:1px}.todo span{flex:1}.works li{margin:7px 0}
+.small{font-size:12px;color:var(--muted)}
+.badge{display:inline-block;padding:4px 8px;border-radius:999px;background:#edf3df;color:#38501f;font-size:10px;font-weight:900}
+.todo{display:flex;gap:9px;align-items:flex-start;padding:9px 0;border-bottom:1px solid #edf0ed}.todo input{width:20px;height:20px;margin-top:1px}.todo span{flex:1}
 .todoScope{font-size:9px;font-weight:900;letter-spacing:.04em;padding:3px 6px;border-radius:999px;background:#eef1ee;color:#58635c;white-space:nowrap}
-.presetActions{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin-top:10px}
-.presetActions .btn{padding:10px 6px;font-size:11px}
-@media(max-width:420px){.presetActions{grid-template-columns:1fr}.presetActions .btn{width:100%}}
-.empty{text-align:center;color:var(--muted);padding:24px 8px}.kpi{font-size:26px;font-weight:900;color:var(--g)}
+.works li{margin:7px 0}.empty{text-align:center;color:var(--muted);padding:24px 8px}.kpi{font-size:26px;font-weight:900;color:var(--g)}
 .notice{padding:10px;border-radius:10px;background:#f4f7e9;color:#465728;font-size:12px}
+.notice.warn{background:var(--warn);color:#715313}.notice.bad{background:var(--bad);color:#842e28}
 pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#f7f8f6;border:1px solid var(--line);border-radius:10px;padding:11px;font:12px/1.5 ui-monospace,SFMono-Regular,monospace}
 details summary{font-weight:900;cursor:pointer}
-@media(max-width:520px){.grid{grid-template-columns:1fr}.brand small{display:none}}
+.presetActions{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin-top:10px}.presetActions .btn{padding:10px 6px;font-size:11px}
+.historyItem,.draftCard{border-top:1px solid #edf0ed;padding:10px 0}.historyItem:first-child,.draftCard:first-child{border-top:0;padding-top:0}
+.thumb{width:100%;max-height:240px;object-fit:contain;border:1px solid var(--line);border-radius:10px;background:#fafafa;display:none}
+@media(max-width:520px){.grid{grid-template-columns:1fr}.brand small{display:none}.presetActions{grid-template-columns:1fr}.presetActions .btn{width:100%}}
 </style>
 </head>
 <body>
 <header>
-<div class="brand"><div><strong>Queenstown Garden Company</strong><div><small>FIELD BOOK · iPHONE TEST</small></div></div><span class="badge">TEST</span></div>
+<div class="brand"><div><strong>Queenstown Garden Company</strong><div><small>FIELD BOOK · MOBILE TEST</small></div></div><span class="badge">v0.4</span></div>
 <nav>
 <button class="active" data-page="today">Today</button>
 <button data-page="import">Calendar</button>
 <button data-page="job">Job</button>
-<button data-page="draft">Xero draft</button>
+<button data-page="draft">Xero drafts</button>
 </nav>
 </header>
 
@@ -80,19 +82,12 @@ details summary{font-weight:900;cursor:pointer}
 <button class="btn" onclick="runShortcut()">Run Truck 1 Calendar</button>
 <button class="btn alt" onclick="pasteClipboard()">Paste Calendar Result</button>
 </div>
-<div id="shortcutStatus" class="notice" style="margin-top:10px">Use your <b>QGC Truck 1 Import</b> Shortcut, then paste its result here.</div>
+<div id="shortcutStatus" class="notice" style="margin-top:10px">Fieldbook passes the selected date to <b>QGC Truck 1 Import</b>. Your current Shortcut still needs its Calendar filter changed from <b>is today</b> to use the Shortcut input for full selected-date loading.</div>
 </div>
 
 <details class="card">
-<summary>Shortcut format</summary>
-<pre>EVENT
-TITLE: [Name]
-START: [Start Date]
-END: [End Date]
-ADDRESS: [Location]
-NOTES: [Notes]
-End_EVENT</pre>
-<div class="small">The current Shortcut can fetch Today. We can wire the selected date into it after this workflow is stable.</div>
+<summary>Selected-date Shortcut fix</summary>
+<div class="small" style="margin-top:9px">The website side is ready. On the iPhone Shortcut, replace the current <b>Start Date is today</b> filter with the selected date coming from Shortcut Input. A returned event whose actual date does not match the Fieldbook date will be blocked rather than loaded into the wrong day.</div>
 </details>
 
 <div class="card">
@@ -100,16 +95,46 @@ End_EVENT</pre>
 <textarea id="calendarText" placeholder="Paste Shortcut output here…"></textarea>
 <div class="actions" style="margin-top:10px">
 <button class="btn alt" onclick="previewImport()">Preview</button>
-<button class="btn" onclick="loadCalendar()">Load into Today</button>
+<button class="btn" onclick="loadCalendar()">Load selected date</button>
 </div>
 <div id="previewBox" class="notice" style="margin-top:10px">No calendar data loaded.</div>
 </div>
+
+<details class="card">
+<summary>Calendar Notes structure</summary>
+<div class="small" style="margin-top:9px">Fieldbook now understands headings inside Calendar Notes:</div>
+<pre>2 personnel
+
+TO DO:
+- Cut and shape hedges
+- Weed rear beds
+
+SITE NOTES:
+- Access via lower gate
+- Irrigation controller in garage</pre>
+<div class="small">Unclassified note lines are preserved as visit-only Calendar Notes so nothing is discarded.</div>
+</details>
+
+<details class="card">
+<summary>Screenshot fallback</summary>
+<div class="small" style="margin:9px 0">If the Shortcut is unavailable, choose a Calendar screenshot. OCR runs in the browser after loading the OCR library. Review the extracted text before loading anything.</div>
+<input id="shotFile" type="file" accept="image/*">
+<img id="shotPreview" class="thumb" alt="Calendar screenshot preview">
+<div class="actions" style="margin-top:10px">
+<button class="btn alt" onclick="runScreenshotOCR()">Read screenshot</button>
+<button class="btn light" onclick="previewScreenshotText()">Preview OCR events</button>
+<button class="btn" onclick="loadScreenshotEvents()">Load OCR events</button>
+</div>
+<div id="ocrStatus" class="notice" style="margin-top:10px">No screenshot selected.</div>
+<label style="margin-top:10px">OCR text — editable before loading</label>
+<textarea id="ocrText" placeholder="Recognised screenshot text appears here…"></textarea>
+<div id="ocrPreviewBox" class="notice" style="margin-top:10px">No OCR events previewed.</div>
+</details>
 </section>
 
 <section id="job" class="page">
 <div id="jobEmpty" class="card empty">Choose a job from Today.</div>
 <div id="jobPanel" style="display:none">
-
 <div class="card">
 <div class="row">
 <div><h2 id="jobTitle" style="margin:0"></h2><div id="jobAddress" class="small"></div></div>
@@ -130,7 +155,7 @@ End_EVENT</pre>
 <div class="section">To Dos</div>
 <div class="card">
 <div class="actions"><button class="btn alt" onclick="addTodo()">+ Add To Do</button></div>
-<div class="small" style="margin:9px 0">Check an item when completed. It immediately moves into the invoice description. Persistent To Dos return next visit; Today-only work does not.</div>
+<div class="small" style="margin:9px 0">Persistent To Dos return on the next visit until completed. TODAY items exist only for this visit.</div>
 <div id="todoList"></div>
 </div>
 
@@ -147,9 +172,7 @@ End_EVENT</pre>
 <button class="btn light" onclick="applyPreset('today')">Work Today</button>
 <button class="btn" onclick="applyPreset('description')">+ Description</button>
 </div>
-<div class="small" style="margin-top:9px">
-<strong>To Do</strong> carries forward until completed. <strong>Work Today</strong> exists only for this visit. <strong>Description</strong> records the work as completed immediately.
-</div>
+<div class="small" style="margin-top:9px"><strong>To Do</strong> carries forward. <strong>Work Today</strong> does not. <strong>Description</strong> records the task as completed immediately.</div>
 </div>
 
 <div class="section">Invoice description · completed today</div>
@@ -158,11 +181,19 @@ End_EVENT</pre>
 <div id="noWorks" class="small">No completed works yet.</div>
 </div>
 
+<div class="section">Calendar notes · this visit</div>
+<div class="card"><div id="calendarNotes"></div></div>
+
 <div class="section">Protected site notes</div>
 <div class="card">
 <div id="siteNotes"></div>
 <div class="actions" style="margin-top:10px"><button class="btn alt" onclick="appendSiteNote()">Append site note</button></div>
 </div>
+
+<details class="card">
+<summary>Property history</summary>
+<div id="historyList" style="margin-top:10px"></div>
+</details>
 
 <div class="section">Charges / visit actuals</div>
 <div class="card">
@@ -178,12 +209,11 @@ End_EVENT</pre>
 <button class="btn alt" type="button" onclick="autoDumpKm(true)">Auto km</button>
 <button class="btn light" type="button" onclick="openDumpRoute()">Open route</button>
 </div>
-<div class="small" style="margin-top:8px">For this test, automatic routing uses OpenStreetMap-based services. The job address is sent to that service. You can always type the km manually.</div>
 </div>
 
 <div class="section">Review Xero draft before completion</div>
 <div class="card">
-<div class="small" style="margin-bottom:8px"><strong>Nothing is sent from this screen.</strong> This is the exact draft text that will be saved/exported if you complete the job.</div>
+<div class="small" style="margin-bottom:8px"><strong>Nothing is sent from this screen.</strong> This is the exact draft text that will be saved if you complete the job now.</div>
 <pre id="jobDraftPreview">No active job.</pre>
 <div class="actions">
 <button class="btn alt" onclick="refreshJobPreview()">Refresh preview</button>
@@ -195,20 +225,21 @@ End_EVENT</pre>
 <button id="completeBtn" class="btn" onclick="completeJob()">Complete Job</button>
 <button class="btn light" onclick="showPage('today')">Back to Today</button>
 </div>
-
 </div>
 </section>
 
 <section id="draft" class="page">
-<div class="section">Saved Xero draft</div>
+<div class="section">Xero drafts · selected day</div>
 <div class="card">
-<pre id="draftText">Complete a job to create a draft.</pre>
+<div class="row">
+<div><div class="small">Draft date</div><div id="draftDayTitle" class="kpi"></div></div>
 <div class="actions">
-<button class="btn" onclick="copyDraft()">Copy draft</button>
-<button class="btn alt" onclick="exportDraft()">Export .txt</button>
-<button class="btn light" onclick="alert('Xero connection is not enabled yet.')">Send to Xero · later</button>
+<button class="btn alt" onclick="copyDayDrafts()">Copy day</button>
+<button class="btn light" onclick="exportDayDrafts()">Export day</button>
 </div>
 </div>
+</div>
+<div id="draftList"></div>
 </section>
 </main>
 
@@ -218,25 +249,26 @@ var KEY='qgcFieldbookHttpsV1Empty';
 var DUMP_ADDRESS='110 Glenda Drive, Frankton, Queenstown 9300, New Zealand';
 var state;
 try{state=JSON.parse(localStorage.getItem(KEY)||'null')}catch(e){}
-if(!state)state={date:isoDate(new Date()),jobs:[],active:null,lastDraft:'',routeCache:{}};
+if(!state)state={date:isoDate(new Date()),jobs:[],active:null,lastDraft:'',drafts:[],routeCache:{}};
 if(!state.jobs)state.jobs=[];
+if(!state.drafts)state.drafts=[];
 if(!state.routeCache)state.routeCache={};
 
 var PRESET_TASKS=[
-  'Brush cut edges',
-  'Brush cut inaccessible areas',
-  'Mow lawn and remove grass clippings',
-  'Ride-on mower service',
-  'Weed spray applied to',
-  'Cut and shape hedges',
-  'Cut back and reduce',
-  'Leaf blow and clear hard surfaces',
-  'Leaf blow and clear garden beds',
-  'Leaf blow and clear pathways',
-  'Collect waste material and remove',
-  'Apply fertiliser to',
-  'Apply seaweed tonic to',
-  'Remove waste to disposal'
+'Brush cut edges',
+'Brush cut inaccessible areas',
+'Mow lawn and remove grass clippings',
+'Ride-on mower service',
+'Weed spray applied to',
+'Cut and shape hedges',
+'Cut back and reduce',
+'Leaf blow and clear hard surfaces',
+'Leaf blow and clear garden beds',
+'Leaf blow and clear pathways',
+'Collect waste material and remove',
+'Apply fertiliser to',
+'Apply seaweed tonic to',
+'Remove waste to disposal'
 ];
 
 function save(){localStorage.setItem(KEY,JSON.stringify(state))}
@@ -244,70 +276,116 @@ function esc(s){return String(s||'').replace(/[&<>"']/g,function(m){return({'&':
 function isoDate(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
 function dateObj(s){var m=String(s||'').trim().match(/^(\d{4})-(\d{2})-(\d{2})$/);if(m)return new Date(+m[1],+m[2]-1,+m[3]);return null}
 function pretty(s){var d=dateObj(s);return d?new Intl.DateTimeFormat('en-NZ',{weekday:'short',day:'numeric',month:'short',year:'numeric'}).format(d):s}
-function normaliseImportedTime(v){
-  v=String(v||'').trim();
-  var m=v.match(/\b(\d{1,2}):(\d{2})\s*(AM|PM)?\b/i);
-  if(!m)return v;
-  var h=+m[1],min=m[2],ap=(m[3]||'').toUpperCase();
-  if(ap==='PM'&&h<12)h+=12;
-  if(ap==='AM'&&h===12)h=0;
-  return String(h).padStart(2,'0')+':'+min;
-}
 function hours(a,b){
   if(!a||!b)return 0;
   var x=a.split(':').map(Number),y=b.split(':').map(Number);
   if(x.length<2||y.length<2||isNaN(x[0])||isNaN(y[0]))return 0;
   return Math.max(0,(y[0]*60+y[1]-x[0]*60-x[1])/60);
 }
+function propertyKey(title,address){
+  return String(address||title||'unknown').trim().toLowerCase().replace(/\s+/g,' ');
+}
+function normaliseImportedTime(v){
+  v=String(v||'').trim();
+  var m=v.match(/\b(\d{1,2}):(\d{2})\s*(AM|PM)?\b/i);
+  if(!m)return v;
+  var h=+m[1],min=m[2],ap=(m[3]||'').toUpperCase();
+  if(ap==='PM'&&h<12)h+=12;if(ap==='AM'&&h===12)h=0;
+  return String(h).padStart(2,'0')+':'+min;
+}
+function extractImportedDate(v){
+  var s=String(v||'').trim();
+  var m=s.match(/\b(\d{4})-(\d{2})-(\d{2})\b/);if(m)return m[1]+'-'+m[2]+'-'+m[3];
+  m=s.match(/\b(\d{1,2})\/(\d{1,2})\/(\d{4})\b/);if(m)return m[3]+'-'+String(+m[2]).padStart(2,'0')+'-'+String(+m[1]).padStart(2,'0');
+  var cleaned=s.replace(/\bat\b/i,' ');
+  var d=new Date(cleaned);
+  return isNaN(d.getTime())?'':isoDate(d);
+}
+
+function migrate(){
+  state.jobs.forEach(function(j){
+    if(!j.propertyKey)j.propertyKey=propertyKey(j.title,j.address);
+    if(!j.todos)j.todos=[];
+    j.todos.forEach(function(t){if(!t.scope)t.scope='property'});
+    if(!j.completedWorks)j.completedWorks=[];
+    if(!j.siteNotes)j.siteNotes=[];
+    if(!j.calendarNotes)j.calendarNotes=[];
+    if(j.completed&&j.lastDraft&&!state.drafts.some(function(d){return d.jobId===j.id})){
+      state.drafts.push({id:'draft_'+j.id,jobId:j.id,propertyKey:j.propertyKey,date:j.date,title:j.title,address:j.address,text:j.lastDraft,completedAt:j.completedAt||'',start:j.start||''});
+    }
+  });
+  save();
+}
+migrate();
+
 function showPage(id){
   document.querySelectorAll('.page').forEach(function(x){x.classList.toggle('active',x.id===id)});
   document.querySelectorAll('nav button').forEach(function(x){x.classList.toggle('active',x.dataset.page===id)});
+  if(id==='draft')renderDrafts();
   window.scrollTo(0,0);
 }
 window.showPage=showPage;
 document.querySelectorAll('nav button').forEach(function(b){b.onclick=function(){showPage(b.dataset.page)}});
 
-function setDateField(s){state.date=s;save();document.getElementById('dateText').value=s;renderToday()}
+function setDateField(s){state.date=s;save();document.getElementById('dateText').value=s;renderToday();renderDrafts()}
 window.setDateOffset=function(n){var d=new Date();d.setHours(12,0,0,0);d.setDate(d.getDate()+n);setDateField(isoDate(d))}
 window.shiftDate=function(n){var d=dateObj(document.getElementById('dateText').value)||dateObj(state.date)||new Date();d.setDate(d.getDate()+n);setDateField(isoDate(d))}
 function selectedIso(){var v=document.getElementById('dateText').value;var d=dateObj(v);if(!d){alert('Choose a date first.');return null}return isoDate(d)}
 
 window.runShortcut=function(){
   var d=selectedIso();if(!d)return;
-  document.getElementById('shortcutStatus').innerHTML='<strong>Opening Shortcuts…</strong>';
+  document.getElementById('shortcutStatus').innerHTML='<strong>Opening Shortcuts…</strong> Selected date sent: '+pretty(d);
   location.href='shortcuts://run-shortcut?name='+encodeURIComponent('QGC Truck 1 Import')+'&input=text&text='+encodeURIComponent(d);
 };
 window.pasteClipboard=async function(){
   try{
     document.getElementById('calendarText').value=await navigator.clipboard.readText();
     previewImport();
-    document.getElementById('shortcutStatus').innerHTML='<strong>Calendar result received.</strong> Review, then Load into Today.';
-  }catch(e){
-    alert('iPhone blocked automatic clipboard reading. Tap the Calendar data box and use Paste.');
-  }
+    document.getElementById('shortcutStatus').innerHTML='<strong>Calendar result received.</strong> Review the preview, then load it.';
+  }catch(e){alert('iPhone blocked automatic clipboard reading. Tap the Calendar data box and choose Paste.')}
 };
 
+function pushUnique(arr,val){val=String(val||'').trim();if(val&&!arr.some(function(x){return x.toLowerCase()===val.toLowerCase()}))arr.push(val)}
+
 function parseCalendar(txt){
-  var events=[],cur=null,lastField=null;
+  var events=[],cur=null,mode=null;
   String(txt||'').replace(/\r/g,'').split('\n').forEach(function(raw){
     var line=raw.trim();
     if(!line)return;
-    if(/^EVENT$/i.test(line)){cur={title:'',start:'',end:'',address:'',notes:[],todos:[],siteNotes:[],personnel:2};lastField=null;return}
-    if(/^END_EVENT$/i.test(line)){if(cur&&cur.title)events.push(cur);cur=null;lastField=null;return}
+    if(/^EVENT$/i.test(line)){cur={title:'',startRaw:'',endRaw:'',start:'',end:'',date:'',address:'',todos:[],siteNotes:[],calendarNotes:[],personnel:2};mode=null;return}
+    if(/^END_EVENT$/i.test(line)){if(cur&&cur.title)events.push(cur);cur=null;mode=null;return}
     if(!cur)return;
-    if(/^TITLE:/i.test(line)){cur.title=line.replace(/^TITLE:\s*/i,'').trim();lastField='title'}
-    else if(/^START:/i.test(line)){cur.start=normaliseImportedTime(line.replace(/^START:\s*/i,''));lastField='start'}
-    else if(/^END:/i.test(line)){cur.end=normaliseImportedTime(line.replace(/^END:\s*/i,''));lastField='end'}
-    else if(/^ADDRESS:/i.test(line)){cur.address=line.replace(/^ADDRESS:\s*/i,'').trim();lastField='address'}
-    else if(/^TO DO:/i.test(line)){cur.todos.push(line.replace(/^TO DO:\s*/i,'').trim());lastField='todo'}
-    else if(/^SITE NOTE:/i.test(line)){cur.siteNotes.push(line.replace(/^SITE NOTE:\s*/i,'').trim());lastField='siteNote'}
-    else if(/^NOTES:/i.test(line)){
-      var n=line.replace(/^NOTES:\s*/i,'').trim();cur.notes.push(n);lastField='notes';
+
+    if(/^TITLE:/i.test(line)){cur.title=line.replace(/^TITLE:\s*/i,'').trim();mode=null;return}
+    if(/^START:/i.test(line)){
+      cur.startRaw=line.replace(/^START:\s*/i,'').trim();
+      cur.start=normaliseImportedTime(cur.startRaw);
+      cur.date=extractImportedDate(cur.startRaw)||cur.date;mode=null;return;
+    }
+    if(/^END:/i.test(line)){cur.endRaw=line.replace(/^END:\s*/i,'').trim();cur.end=normaliseImportedTime(cur.endRaw);mode=null;return}
+    if(/^ADDRESS:/i.test(line)){cur.address=line.replace(/^ADDRESS:\s*/i,'').trim();mode=null;return}
+    if(/^(TO\s*DO|TODO|TO\s*DOS):/i.test(line)){
+      var t=line.replace(/^(TO\s*DO|TODO|TO\s*DOS):\s*/i,'').trim();if(t)pushUnique(cur.todos,t);mode='todo';return;
+    }
+    if(/^SITE\s*NOTES?:/i.test(line)){
+      var sn=line.replace(/^SITE\s*NOTES?:\s*/i,'').trim();if(sn)pushUnique(cur.siteNotes,sn);mode='site';return;
+    }
+    if(/^NOTES:/i.test(line)){
+      var n=line.replace(/^NOTES:\s*/i,'').trim();
       var p=n.match(/(\d+)\s*(?:personnel|people|staff)/i);if(p)cur.personnel=+p[1];
-    }else if(lastField==='notes'){
-      cur.notes.push(line);
-      var p2=line.match(/(\d+)\s*(?:personnel|people|staff)/i);if(p2)cur.personnel=+p2[1];
-      if(/^[-•]\s*/.test(line))cur.todos.push(line.replace(/^[-•]\s*/,''));
+      if(n&&!/^(\d+)\s*(?:personnel|people|staff)$/i.test(n))pushUnique(cur.calendarNotes,n);
+      mode='notes';return;
+    }
+    var pp=line.match(/(\d+)\s*(?:personnel|people|staff)/i);if(pp)cur.personnel=+pp[1];
+    if(/^[-•]\s*/.test(line)){
+      var item=line.replace(/^[-•]\s*/,'').trim();
+      if(mode==='todo')pushUnique(cur.todos,item);
+      else if(mode==='site')pushUnique(cur.siteNotes,item);
+      else pushUnique(cur.calendarNotes,item);
+    }else{
+      if(mode==='todo')pushUnique(cur.todos,line);
+      else if(mode==='site')pushUnique(cur.siteNotes,line);
+      else pushUnique(cur.calendarNotes,line);
     }
   });
   if(cur&&cur.title)events.push(cur);
@@ -315,57 +393,68 @@ function parseCalendar(txt){
 }
 
 window.previewImport=function(){
+  var date=selectedIso();if(!date)return;
   var e=parseCalendar(document.getElementById('calendarText').value);
-  document.getElementById('previewBox').innerHTML=e.length?'<strong>'+e.length+' event(s)</strong><br>'+e.map(function(x){return esc((x.start||'?')+'–'+(x.end||'?')+' · '+x.title)}).join('<br>'):'No EVENT blocks found.';
+  if(!e.length){document.getElementById('previewBox').className='notice bad';document.getElementById('previewBox').textContent='No EVENT blocks found.';return}
+  var mismatch=e.filter(function(x){return x.date&&x.date!==date});
+  document.getElementById('previewBox').className='notice'+(mismatch.length?' bad':'');
+  document.getElementById('previewBox').innerHTML=
+    '<strong>'+e.length+' event(s)</strong><br>'+
+    e.map(function(x){return esc((x.start||'?')+'–'+(x.end||'?')+' · '+x.title+(x.date?' · '+x.date:''))}).join('<br>')+
+    (mismatch.length?'<br><br><strong>Date mismatch:</strong> Shortcut returned a different day. Import will be blocked.':'');
 };
 
-function findExisting(e){
-  return state.jobs.find(function(j){
-    return (e.address&&j.address&&e.address.toLowerCase()===j.address.toLowerCase()) ||
-           (j.title&&e.title&&j.title.toLowerCase()===e.title.toLowerCase());
+function latestPriorVisit(pk,date){
+  return state.jobs.filter(function(j){return j.propertyKey===pk&&j.date<date}).sort(function(a,b){return (b.date+(b.start||'')).localeCompare(a.date+(a.start||''))})[0]||null;
+}
+function sameVisit(e,date){
+  var pk=propertyKey(e.title,e.address);
+  return state.jobs.find(function(j){return j.date===date&&j.propertyKey===pk&&String(j.start||'')===String(e.start||'')})||null;
+}
+function makeVisitFromEvent(e,date){
+  var pk=propertyKey(e.title,e.address),prior=latestPriorVisit(pk,date);
+  var todos=[];
+  if(prior&&prior.todos)prior.todos.filter(function(t){return !t.done&&t.scope!=='today'}).forEach(function(t){
+    todos.push({id:'t_'+Date.now()+'_'+Math.random(),text:t.text,done:false,scope:'property'});
   });
+  e.todos.forEach(function(t){if(!todos.some(function(x){return x.text.toLowerCase()===t.toLowerCase()}))todos.push({id:'t_'+Date.now()+'_'+Math.random(),text:t,done:false,scope:'property'})});
+  var siteNotes=prior&&prior.siteNotes?prior.siteNotes.slice():[];
+  e.siteNotes.forEach(function(n){pushUnique(siteNotes,n)});
+  return {
+    id:'job_'+Date.now()+'_'+Math.random(),
+    propertyKey:pk,title:e.title,address:e.address,date:date,start:e.start,end:e.end,personnel:e.personnel||2,
+    todos:todos,completedWorks:[],siteNotes:siteNotes,calendarNotes:e.calendarNotes||[],
+    waste:'none',dumpKm:0,rideOn:0,spray:0,completed:false,source:'calendar'
+  };
 }
 window.loadCalendar=function(){
-  var d=selectedIso();if(!d)return;
+  var date=selectedIso();if(!date)return;
   var events=parseCalendar(document.getElementById('calendarText').value);
   if(!events.length){alert('No calendar events found.');return}
-  state.date=d;
-  events.forEach(function(e,i){
-    var old=findExisting(e);
-    var todos=old&&old.todos?old.todos.filter(function(t){
-      if(!t.scope)t.scope='property';
-      return !t.done && t.scope!=='today';
-    }):[];
-    e.todos.forEach(function(t){
-      if(!todos.some(function(x){return x.text.toLowerCase()===t.toLowerCase()}))todos.push({id:'t_'+Date.now()+'_'+Math.random(),text:t,done:false,scope:'property'});
-    });
-    var notes=old&&old.siteNotes?old.siteNotes.slice():[];
-    e.siteNotes.forEach(function(n){if(notes.indexOf(n)<0)notes.push(n)});
-    var job={
-      id:old?old.id:'job_'+Date.now()+'_'+i,
-      title:e.title,address:e.address,date:d,start:e.start,end:e.end,personnel:e.personnel||2,
-      todos:todos,completedWorks:[],siteNotes:notes,waste:'none',dumpKm:0,rideOn:0,spray:0,completed:false
-    };
-    if(old){Object.keys(job).forEach(function(k){old[k]=job[k]})}else state.jobs.push(job);
+  var mismatch=events.find(function(e){return e.date&&e.date!==date});
+  if(mismatch){alert('Import blocked: the Shortcut returned '+mismatch.date+' but Fieldbook is set to '+date+'. Change the Shortcut filter from “is today” to use Shortcut Input for selected-date loading.');return}
+  events.forEach(function(e){
+    var existing=sameVisit(e,date);
+    if(existing){
+      existing.title=e.title;existing.address=e.address;existing.end=e.end;existing.personnel=e.personnel||existing.personnel;existing.calendarNotes=e.calendarNotes||[];
+      e.todos.forEach(function(t){if(!existing.todos.some(function(x){return !x.done&&x.text.toLowerCase()===t.toLowerCase()}))existing.todos.push({id:'t_'+Date.now()+'_'+Math.random(),text:t,done:false,scope:'property'})});
+      e.siteNotes.forEach(function(n){pushUnique(existing.siteNotes,n)});
+    }else state.jobs.push(makeVisitFromEvent(e,date));
   });
-  save();renderToday();showPage('today');
+  state.date=date;save();renderToday();showPage('today');
 };
 
-function jobsForDay(){
-  return state.jobs.filter(function(j){return j.date===state.date}).sort(function(a,b){return String(a.start||'').localeCompare(String(b.start||''))});
-}
+function jobsForDay(){return state.jobs.filter(function(j){return j.date===state.date}).sort(function(a,b){return String(a.start||'').localeCompare(String(b.start||''))})}
 function renderToday(){
   document.getElementById('dayTitle').textContent=pretty(state.date);
   document.getElementById('dateText').value=state.date;
   var arr=jobsForDay(),box=document.getElementById('todayList');
-  if(!arr.length){
-    box.innerHTML='<div class="card empty">No jobs loaded for this date.<br><br><button class="btn" onclick="showPage(\'import\')">Load from iPhone Calendar</button></div>';
-    return;
-  }
+  if(!arr.length){box.innerHTML='<div class="card empty">No jobs loaded for this date.<br><br><button class="btn" onclick="showPage(\'import\')">Load from iPhone Calendar</button></div>';return}
   var first=arr.find(function(j){return !j.completed});
   box.innerHTML=arr.map(function(j){
+    var open=j.todos?j.todos.filter(function(t){return !t.done}).length:0;
     var cls='card'+(j.completed?' done':'')+(first&&first.id===j.id?' next':'');
-    return '<div class="'+cls+'"><div class="row"><div><h3 style="margin:0">'+esc(j.title)+'</h3><div class="small">'+esc((j.start||'')+'–'+(j.end||'')+' · '+j.personnel+' personnel')+'</div><div class="small">'+esc(j.address||'No address')+'</div></div><span class="badge">'+(j.completed?'COMPLETED':(first&&first.id===j.id?'NEXT JOB':'READY'))+'</span></div><div class="actions" style="margin-top:11px"><button class="btn '+(j.completed?'light':'')+'" onclick="openJob(\''+j.id+'\')" '+(j.completed?'disabled':'')+'>'+(j.completed?'Completed':'Open job')+'</button></div></div>';
+    return '<div class="'+cls+'"><div class="row"><div><h3 style="margin:0">'+esc(j.title)+'</h3><div class="small">'+esc((j.start||'')+'–'+(j.end||'')+' · '+j.personnel+' personnel')+'</div><div class="small">'+esc(j.address||'No address')+'</div><div class="small">'+open+' open task'+(open===1?'':'s')+'</div></div><span class="badge">'+(j.completed?'COMPLETED':(first&&first.id===j.id?'NEXT JOB':'READY'))+'</span></div><div class="actions" style="margin-top:11px"><button class="btn '+(j.completed?'light':'')+'" onclick="openJob(\''+j.id+'\')">'+(j.completed?'Review':'Open job')+'</button></div></div>';
   }).join('');
 }
 
@@ -385,7 +474,8 @@ function renderJob(){
   document.getElementById('jobEmpty').style.display=j?'none':'block';
   document.getElementById('jobPanel').style.display=j?'block':'none';
   if(!j)return;
-  if(!j.todos)j.todos=[];if(!j.completedWorks)j.completedWorks=[];if(!j.siteNotes)j.siteNotes=[];
+  if(!j.propertyKey)j.propertyKey=propertyKey(j.title,j.address);
+  if(!j.todos)j.todos=[];if(!j.completedWorks)j.completedWorks=[];if(!j.siteNotes)j.siteNotes=[];if(!j.calendarNotes)j.calendarNotes=[];
   j.todos.forEach(function(t){if(!t.scope)t.scope='property'});
   document.getElementById('jobTitle').textContent=j.title||'Untitled job';
   document.getElementById('jobAddress').textContent=j.address||'No address imported';
@@ -402,120 +492,98 @@ function renderJob(){
   var todos=j.todos.filter(function(t){return !t.done});
   document.getElementById('todoList').innerHTML=todos.length?todos.map(function(t){
     var label=t.scope==='today'?'<span class="todoScope">TODAY</span>':'';
-    return '<label class="todo"><input type="checkbox" onchange="finishTodo(\''+t.id+'\')"><span>'+esc(t.text)+'</span>'+label+'</label>';
+    return '<label class="todo"><input type="checkbox" onchange="finishTodo(\''+t.id+'\')" '+(j.completed?'disabled':'')+'><span>'+esc(t.text)+'</span>'+label+'</label>';
   }).join(''):'<div class="small" style="padding:10px 0">No unchecked To Dos remain for this visit.</div>';
 
   document.getElementById('worksList').innerHTML=j.completedWorks.map(function(w,i){
-    return '<li>'+esc(w)+' <button class="btn light" style="padding:3px 7px" onclick="undoWork('+i+')">Undo</button></li>';
+    return '<li>'+esc(w)+(j.completed?'':' <button class="btn light" style="padding:3px 7px" onclick="undoWork('+i+')">Undo</button>')+'</li>';
   }).join('');
   document.getElementById('noWorks').style.display=j.completedWorks.length?'none':'block';
 
-  document.getElementById('siteNotes').innerHTML=j.siteNotes.length?j.siteNotes.map(function(n){
-    return '<div class="notice" style="margin:6px 0">'+esc(n)+'</div>';
-  }).join(''):'<div class="small">No site notes.</div>';
+  document.getElementById('calendarNotes').innerHTML=j.calendarNotes.length?j.calendarNotes.map(function(n){return '<div class="notice" style="margin:6px 0">'+esc(n)+'</div>'}).join(''):'<div class="small">No unclassified Calendar Notes for this visit.</div>';
+  document.getElementById('siteNotes').innerHTML=j.siteNotes.length?j.siteNotes.map(function(n){return '<div class="notice" style="margin:6px 0">'+esc(n)+'</div>'}).join(''):'<div class="small">No site notes.</div>';
 
-  if(j.waste&&j.waste!=='none'&&j.dumpKm){
-    setRouteStatus(Number(j.dumpKm).toFixed(1)+' km one way · $'+(Number(j.dumpKm)*2).toFixed(2)+' at $2/km',false);
-  }else{
-    setRouteStatus('Select Green Waste to calculate the one-way route to 110 Glenda Drive.',false);
-  }
+  document.querySelectorAll('#jobPanel input,#jobPanel select').forEach(function(el){if(!['jobDate'].includes(el.id))el.disabled=!!j.completed});
+  document.getElementById('completeBtn').disabled=!!j.completed;
+
+  renderHistory(j);
+  if(j.waste&&j.waste!=='none'&&j.dumpKm)setRouteStatus(Number(j.dumpKm).toFixed(1)+' km one way to 110 Glenda Drive',false);
+  else setRouteStatus('Select Green Waste to calculate the one-way route to 110 Glenda Drive.',false);
   refreshJobPreview();
 }
 
+function renderHistory(j){
+  var hist=state.jobs.filter(function(x){return x.propertyKey===j.propertyKey&&x.id!==j.id}).sort(function(a,b){return (b.date+(b.start||'')).localeCompare(a.date+(a.start||''))}).slice(0,8);
+  var box=document.getElementById('historyList');
+  if(!hist.length){box.innerHTML='<div class="small">No earlier visits stored yet.</div>';return}
+  box.innerHTML=hist.map(function(x){
+    var works=x.completedWorks&&x.completedWorks.length?x.completedWorks.map(function(w){return '• '+esc(w)}).join('<br>'):'No completed works recorded';
+    var outstanding=x.todos?x.todos.filter(function(t){return !t.done&&t.scope!=='today'}).length:0;
+    return '<div class="historyItem"><strong>'+esc(pretty(x.date))+'</strong> <span class="small">'+esc((x.start||'')+'–'+(x.end||''))+'</span><div class="small" style="margin-top:4px">'+works+'</div><div class="small" style="margin-top:4px">'+outstanding+' persistent To Do'+(outstanding===1?'':'s')+' left after visit</div></div>';
+  }).join('');
+}
+
 window.addTodo=function(){
-  var j=activeJob();if(!j)return;
+  var j=activeJob();if(!j||j.completed)return;
   var t=prompt('Add To Do');
   if(t&&t.trim()){j.todos.push({id:'t_'+Date.now(),text:t.trim(),done:false,scope:'property'});save();renderJob()}
 };
 window.finishTodo=function(id){
-  var j=activeJob(),t=j&&j.todos.find(function(x){return x.id===id});if(!t)return;
+  var j=activeJob();if(!j||j.completed)return;
+  var t=j.todos.find(function(x){return x.id===id});if(!t)return;
   t.done=true;j.completedWorks.push(t.text);save();renderJob();
 };
 window.undoWork=function(i){
-  var j=activeJob();if(!j)return;
-  var text=j.completedWorks.splice(i,1)[0];
-  var t=j.todos.find(function(x){return x.text===text&&x.done});
+  var j=activeJob();if(!j||j.completed)return;
+  var text=j.completedWorks.splice(i,1)[0],t=j.todos.find(function(x){return x.text===text&&x.done});
   if(t)t.done=false;else j.todos.push({id:'t_'+Date.now(),text:text,done:false,scope:'property'});
   save();renderJob();
 };
 window.appendSiteNote=function(){
   var j=activeJob();if(!j)return;
   var n=prompt('Append site note');
-  if(n&&n.trim()){j.siteNotes.push(n.trim());save();renderJob()}
+  if(n&&n.trim()){pushUnique(j.siteNotes,n.trim());save();renderJob()}
 };
 
 function presetText(){
-  var base=document.getElementById('presetTask').value||'';
-  var detail=(document.getElementById('presetDetail').value||'').trim();
+  var base=document.getElementById('presetTask').value||'',detail=(document.getElementById('presetDetail').value||'').trim();
   if(!detail)return base;
   if(/\b(to|in|at|on|around|throughout)$/i.test(base))return base+' '+detail;
   return base+' — '+detail;
 }
 window.applyPreset=function(mode){
-  var j=activeJob();if(!j)return;
+  var j=activeJob();if(!j||j.completed)return;
   var text=presetText().trim();if(!text)return;
   if(mode==='description'){
     if(!j.completedWorks.some(function(x){return x.toLowerCase()===text.toLowerCase()}))j.completedWorks.push(text);
   }else{
     var scope=mode==='today'?'today':'property';
-    var existing=j.todos.find(function(x){return !x.done && x.text.toLowerCase()===text.toLowerCase()});
-    if(existing)existing.scope=scope;
-    else j.todos.push({id:'t_'+Date.now()+'_'+Math.random(),text:text,done:false,scope:scope});
+    var existing=j.todos.find(function(x){return !x.done&&x.text.toLowerCase()===text.toLowerCase()});
+    if(existing)existing.scope=scope;else j.todos.push({id:'t_'+Date.now()+'_'+Math.random(),text:text,done:false,scope:scope});
   }
-  document.getElementById('presetDetail').value='';
-  save();renderJob();
+  document.getElementById('presetDetail').value='';save();renderJob();
 };
 
-function setRouteStatus(msg,bad){
-  var e=document.getElementById('routeStatus');if(!e)return;
-  e.textContent=msg;e.style.color=bad?'#842e28':'#66716a';
-}
-function routeAddress(a){
-  var q=String(a||'').trim();if(!q)return '';
-  if(!/new zealand/i.test(q))q+=', New Zealand';
-  return q;
-}
+function setRouteStatus(msg,bad){var e=document.getElementById('routeStatus');if(e){e.textContent=msg;e.style.color=bad?'#842e28':'#66716a'}}
+function routeAddress(a){var q=String(a||'').trim();if(!q)return '';if(!/new zealand/i.test(q))q+=', New Zealand';return q}
 async function geocodeAddress(address){
-  var q=routeAddress(address);
-  if(!q)throw new Error('No address');
-  var key='geo:'+q.toLowerCase();
-  if(state.routeCache[key])return state.routeCache[key];
-  var url='https://photon.komoot.io/api/?limit=1&lat=-45.0312&lon=168.6626&q='+encodeURIComponent(q);
-  var res=await fetch(url);
-  if(!res.ok)throw new Error('Address lookup failed');
-  var data=await res.json();
-  if(!data.features||!data.features.length)throw new Error('Address not found');
-  var c=data.features[0].geometry.coordinates;
-  var p={lon:+c[0],lat:+c[1]};
-  state.routeCache[key]=p;save();return p;
+  var q=routeAddress(address),key='geo:'+q.toLowerCase();if(!q)throw new Error('No address');if(state.routeCache[key])return state.routeCache[key];
+  var res=await fetch('https://photon.komoot.io/api/?limit=1&lat=-45.0312&lon=168.6626&q='+encodeURIComponent(q));if(!res.ok)throw new Error('Address lookup failed');
+  var data=await res.json();if(!data.features||!data.features.length)throw new Error('Address not found');
+  var c=data.features[0].geometry.coordinates,p={lon:+c[0],lat:+c[1]};state.routeCache[key]=p;save();return p;
 }
 window.autoDumpKm=async function(showFailure){
-  var j=activeJob();if(!j)return false;
-  syncFields(j);
+  var j=activeJob();if(!j||j.completed)return false;syncFields(j);
   if(j.waste==='none'){setRouteStatus('Select Green Waste first.',true);return false}
-  if(!j.address){
-    setRouteStatus('No address was imported from the Calendar Location field.',true);
-    if(showFailure)alert('No property address was imported from Calendar.');
-    return false;
-  }
-  setRouteStatus('Calculating '+j.address+' → 110 Glenda Drive…',false);
+  if(!j.address){setRouteStatus('No address was imported from Calendar Location.',true);if(showFailure)alert('No property address was imported from Calendar.');return false}
+  setRouteStatus('Calculating route…',false);
   try{
     var o=await geocodeAddress(j.address),d=await geocodeAddress(DUMP_ADDRESS);
-    var url='https://router.project-osrm.org/route/v1/driving/'+o.lon+','+o.lat+';'+d.lon+','+d.lat+'?overview=false';
-    var res=await fetch(url),data=await res.json();
+    var res=await fetch('https://router.project-osrm.org/route/v1/driving/'+o.lon+','+o.lat+';'+d.lon+','+d.lat+'?overview=false'),data=await res.json();
     if(!res.ok||data.code!=='Ok'||!data.routes||!data.routes.length)throw new Error('Route failed');
-    var km=Math.round((data.routes[0].distance/1000)*10)/10;
-    j.dumpKm=km;j.dumpKmSource='auto';
-    document.getElementById('dumpKm').value=km.toFixed(1);
-    save();
-    setRouteStatus(km.toFixed(1)+' km one way · $'+(km*2).toFixed(2)+' at $2/km · to 110 Glenda Drive',false);
-    refreshJobPreview();
-    return true;
-  }catch(e){
-    setRouteStatus('Auto km could not resolve this route. Use Open route or enter km manually.',true);
-    if(showFailure)alert('Auto km could not resolve this route. Use Open route or enter km manually.');
-    return false;
-  }
+    var km=Math.round((data.routes[0].distance/1000)*10)/10;j.dumpKm=km;j.dumpKmSource='auto';document.getElementById('dumpKm').value=km.toFixed(1);save();
+    setRouteStatus(km.toFixed(1)+' km one way to 110 Glenda Drive',false);refreshJobPreview();return true;
+  }catch(e){setRouteStatus('Auto km could not resolve this route. Use Open route or enter km manually.',true);if(showFailure)alert('Auto km could not resolve this route.');return false}
 };
 window.openDumpRoute=function(){
   var j=activeJob();if(!j||!j.address){alert('No property address is available.');return}
@@ -528,86 +596,99 @@ function buildDraft(j){
   lines.push('Time: '+(j.start||'')+'–'+(j.end||''));
   lines.push('Labour: '+team.toFixed(2)+' hrs');
   if(j.rideOn)lines.push('Ride-on: '+Number(j.rideOn).toFixed(2)+' hrs');
-  if(waste){
-    lines.push('Green waste: '+j.waste);
-    lines.push('Waste run: 0.50 hr');
-    lines.push('Dump travel: '+Number(j.dumpKm||0).toFixed(1)+' km');
-  }
+  if(waste){lines.push('Green waste: '+j.waste);lines.push('Waste run: 0.50 hr');lines.push('Dump travel: '+Number(j.dumpKm||0).toFixed(1)+' km')}
   if(j.spray)lines.push('Spray: '+j.spray+' × 15 L application');
-  lines.push('');
-  lines.push('Description of works:');
-  if(j.completedWorks.length)j.completedWorks.forEach(function(w){lines.push('- '+w)});
-  else lines.push('- No completed works recorded');
+  lines.push('');lines.push('Description of works:');
+  if(j.completedWorks.length)j.completedWorks.forEach(function(w){lines.push('- '+w)});else lines.push('- No completed works recorded');
   return lines.join('\n');
 }
 window.refreshJobPreview=function(){
-  var j=activeJob(),el=document.getElementById('jobDraftPreview');
-  if(!el)return;if(!j){el.textContent='No active job.';return}
-  syncFields(j);save();el.textContent=buildDraft(j);
+  var j=activeJob(),el=document.getElementById('jobDraftPreview');if(!el)return;if(!j){el.textContent='No active job.';return}
+  if(!j.completed)syncFields(j);el.textContent=j.completed&&j.lastDraft?j.lastDraft:buildDraft(j);
 };
-window.copyJobPreview=async function(){
-  var el=document.getElementById('jobDraftPreview');if(!el)return;
-  try{await navigator.clipboard.writeText(el.textContent);alert('Draft preview copied')}
-  catch(e){alert('Select the preview text and copy manually.')}
-};
+window.copyJobPreview=async function(){var el=document.getElementById('jobDraftPreview');if(!el)return;try{await navigator.clipboard.writeText(el.textContent);alert('Draft preview copied')}catch(e){alert('Select the preview text and copy manually.')}};
 
 window.completeJob=async function(){
-  var j=activeJob();if(!j)return;
+  var j=activeJob();if(!j||j.completed)return;
   syncFields(j);
-  j.todos=j.todos.filter(function(t){return t.done || t.scope!=='today'});
-  if(j.waste!=='none'&&!j.dumpKm){
-    await autoDumpKm(false);syncFields(j);
-    if(!j.dumpKm){alert('Green waste is selected. Confirm dump km before completing the job.');return}
+  j.todos=j.todos.filter(function(t){return t.done||t.scope!=='today'});
+  if(j.waste!=='none'&&!j.dumpKm){await autoDumpKm(false);syncFields(j);if(!j.dumpKm){alert('Green waste is selected. Confirm dump km before completing the job.');return}}
+  j.completed=true;j.completedAt=new Date().toISOString();j.lastDraft=buildDraft(j);state.lastDraft=j.lastDraft;
+  var rec={id:'draft_'+j.id,jobId:j.id,propertyKey:j.propertyKey,date:j.date,title:j.title,address:j.address,text:j.lastDraft,completedAt:j.completedAt,start:j.start||''};
+  var ix=state.drafts.findIndex(function(d){return d.jobId===j.id});if(ix>=0)state.drafts[ix]=rec;else state.drafts.push(rec);
+  save();renderToday();renderDrafts();showPage('today');
+};
+
+function draftsForDay(){return state.drafts.filter(function(d){return d.date===state.date}).sort(function(a,b){return String(a.start||'').localeCompare(String(b.start||''))})}
+function renderDrafts(){
+  var title=document.getElementById('draftDayTitle');if(title)title.textContent=pretty(state.date);
+  var box=document.getElementById('draftList');if(!box)return;
+  var arr=draftsForDay();
+  if(!arr.length){box.innerHTML='<div class="card empty">No completed Xero drafts for this date.</div>';return}
+  box.innerHTML=arr.map(function(d){return '<div class="card draftCard"><div class="row"><div><strong>'+esc(d.title)+'</strong><div class="small">'+esc(d.address||'')+'</div></div><span class="badge">'+esc(d.start||'')+'</span></div><pre>'+esc(d.text)+'</pre><div class="actions"><button class="btn light" onclick="copyOneDraft(\''+d.id+'\')">Copy</button></div></div>'}).join('');
+}
+window.copyOneDraft=async function(id){var d=state.drafts.find(function(x){return x.id===id});if(!d)return;try{await navigator.clipboard.writeText(d.text);alert('Draft copied')}catch(e){}}
+function dayDraftText(){return draftsForDay().map(function(d){return d.title+'\n'+d.text}).join('\n\n----------------\n\n')}
+window.copyDayDrafts=async function(){var t=dayDraftText();if(!t){alert('No drafts for this day.');return}try{await navigator.clipboard.writeText(t);alert('Day drafts copied')}catch(e){}}
+window.exportDayDrafts=function(){var t=dayDraftText();if(!t){alert('No drafts for this day.');return}var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([t],{type:'text/plain'}));a.download='QGC-Xero-drafts-'+state.date+'.txt';a.click();setTimeout(function(){URL.revokeObjectURL(a.href)},500)}
+
+function parseScreenshotSchedule(text){
+  var lines=String(text||'').replace(/\r/g,'').split('\n').map(function(x){return x.trim()}).filter(Boolean),events=[];
+  for(var i=0;i<lines.length;i++){
+    var m=lines[i].match(/\b(\d{1,2})[:.](\d{2})\s*(AM|PM)?\b/i);
+    if(!m)continue;
+    var start=normaliseImportedTime(m[0]),title=lines[i].replace(m[0],'').replace(/^[-–—\s]+/,'').trim();
+    if(!title&&lines[i+1])title=lines[++i];
+    if(!title||/^\d{1,2}[:.]\d{2}/.test(title))continue;
+    var address='';
+    if(lines[i+1]&&/\d+\s+.+\b(street|st|road|rd|drive|dr|lane|ln|avenue|ave|crescent|court|ct|place|pl|way|terrace|tce)\b/i.test(lines[i+1]))address=lines[++i];
+    var next='';
+    for(var k=i+1;k<Math.min(lines.length,i+6);k++){var n=lines[k].match(/\b(\d{1,2})[:.](\d{2})\s*(AM|PM)?\b/i);if(n){next=normaliseImportedTime(n[0]);break}}
+    events.push({title:title,start:start,end:next,address:address,personnel:2,todos:[],siteNotes:[],calendarNotes:['Imported from screenshot OCR'],date:state.date});
   }
-  j.completed=true;j.lastDraft=buildDraft(j);state.lastDraft=j.lastDraft;
-  save();
-  document.getElementById('draftText').textContent=state.lastDraft;
-  renderToday();showPage('today');
+  return events;
+}
+function renderOcrPreview(events){
+  var box=document.getElementById('ocrPreviewBox');
+  if(!events.length){box.className='notice bad';box.textContent='No time/title pairs detected. Edit the OCR text and try again.';return}
+  box.className='notice';box.innerHTML='<strong>'+events.length+' possible event(s)</strong><br>'+events.map(function(e){return esc(e.start+' · '+e.title+(e.address?' · '+e.address:''))}).join('<br>');
+}
+window.previewScreenshotText=function(){var events=parseScreenshotSchedule(document.getElementById('ocrText').value);window._ocrEvents=events;renderOcrPreview(events)}
+window.loadScreenshotEvents=function(){
+  var date=selectedIso();if(!date)return;
+  var events=window._ocrEvents||parseScreenshotSchedule(document.getElementById('ocrText').value);if(!events.length){alert('No OCR events detected.');return}
+  events.forEach(function(e){e.date=date;var existing=sameVisit(e,date);if(!existing){var v=makeVisitFromEvent(e,date);v.source='screenshot';state.jobs.push(v)}});
+  state.date=date;save();renderToday();showPage('today');
+}
+function loadScript(src){
+  return new Promise(function(resolve,reject){if(window.Tesseract)return resolve();var s=document.createElement('script');s.src=src;s.onload=resolve;s.onerror=reject;document.head.appendChild(s)});
+}
+window.runScreenshotOCR=async function(){
+  var input=document.getElementById('shotFile'),status=document.getElementById('ocrStatus');if(!input.files||!input.files[0]){alert('Choose a screenshot first.');return}
+  status.className='notice';status.textContent='Loading OCR…';
+  try{
+    await loadScript('https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js');
+    status.textContent='Reading screenshot…';
+    var out=await Tesseract.recognize(input.files[0],'eng',{logger:function(m){if(m.status==='recognizing text')status.textContent='Reading screenshot… '+Math.round((m.progress||0)*100)+'%'}});
+    document.getElementById('ocrText').value=out.data.text||'';status.textContent='OCR complete. Review the text, then Preview OCR events.';previewScreenshotText();
+  }catch(e){status.className='notice bad';status.textContent='OCR could not run on this device. You can still type or paste text into the OCR box manually.'}
 };
-
-window.copyDraft=async function(){
-  if(!state.lastDraft)return;
-  try{await navigator.clipboard.writeText(state.lastDraft);alert('Draft copied')}
-  catch(e){alert('Select the draft text and copy manually.')}
-};
-window.exportDraft=function(){
-  if(!state.lastDraft)return;
-  var a=document.createElement('a');
-  a.href=URL.createObjectURL(new Blob([state.lastDraft],{type:'text/plain'}));
-  a.download='QGC-Xero-draft.txt';a.click();
-  setTimeout(function(){URL.revokeObjectURL(a.href)},500);
-};
-
-document.getElementById('dateText').addEventListener('change',function(){
-  var d=dateObj(this.value);if(d){state.date=isoDate(d);save();renderToday()}
+document.getElementById('shotFile').addEventListener('change',function(){
+  var img=document.getElementById('shotPreview');if(this.files&&this.files[0]){img.src=URL.createObjectURL(this.files[0]);img.style.display='block';document.getElementById('ocrStatus').textContent='Screenshot selected.'}
 });
+
+document.getElementById('dateText').addEventListener('change',function(){var d=dateObj(this.value);if(d){state.date=isoDate(d);save();renderToday();renderDrafts()}});
 ['personnel','startTime','endTime','rideOn','spray'].forEach(function(id){
-  document.getElementById(id).addEventListener('change',function(){
-    var j=activeJob();if(j){syncFields(j);save();refreshJobPreview()}
-  });
+  document.getElementById(id).addEventListener('change',function(){var j=activeJob();if(j&&!j.completed){syncFields(j);save();refreshJobPreview()}})
 });
-document.getElementById('dumpKm').addEventListener('change',function(){
-  var j=activeJob();if(!j)return;
-  syncFields(j);j.dumpKmSource='manual';save();
-  if(j.dumpKm)setRouteStatus(Number(j.dumpKm).toFixed(1)+' km manual · $'+(Number(j.dumpKm)*2).toFixed(2)+' at $2/km',false);
-  refreshJobPreview();
-});
-document.getElementById('waste').addEventListener('change',async function(){
-  var j=activeJob();if(!j)return;
-  syncFields(j);save();
-  if(j.waste!=='none')await autoDumpKm(false);
-  else setRouteStatus('Select Green Waste to calculate the one-way route to 110 Glenda Drive.',false);
-  refreshJobPreview();
-});
+document.getElementById('dumpKm').addEventListener('change',function(){var j=activeJob();if(!j||j.completed)return;syncFields(j);j.dumpKmSource='manual';save();if(j.dumpKm)setRouteStatus(Number(j.dumpKm).toFixed(1)+' km manual',false);refreshJobPreview()});
+document.getElementById('waste').addEventListener('change',async function(){var j=activeJob();if(!j||j.completed)return;syncFields(j);save();if(j.waste!=='none')await autoDumpKm(false);else setRouteStatus('Select Green Waste to calculate the one-way route to 110 Glenda Drive.',false);refreshJobPreview()});
 
 var presetSelect=document.getElementById('presetTask');
 if(presetSelect)presetSelect.innerHTML=PRESET_TASKS.map(function(t){return '<option value="'+esc(t)+'">'+esc(t)+'</option>'}).join('');
-document.getElementById('draftText').textContent=state.lastDraft||'Complete a job to create a draft.';
-renderToday();
-if(location.hash==='#calendar-import'){
-  showPage('import');
-  document.getElementById('shortcutStatus').innerHTML='<strong>Returned from Shortcuts.</strong> Tap Paste Calendar Result, then Load into Today.';
-}
+
+renderToday();renderDrafts();
+if(location.hash==='#calendar-import'){showPage('import');document.getElementById('shortcutStatus').innerHTML='<strong>Returned from Shortcuts.</strong> Paste the Calendar result, preview it, then load it.'}
 })();
 </script>
 </body>
