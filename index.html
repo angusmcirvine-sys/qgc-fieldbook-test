@@ -47,7 +47,7 @@ pre{white-space:pre-wrap;background:#f7f8f6;border:1px solid var(--line);border-
 <div class="section">iPhone Calendar</div>
 <div class="card">
 <div class="grid">
-<div><label>Date</label><input id="dateText" inputmode="numeric" placeholder="DD/MM/YYYY"></div>
+<div><label>Date</label><input id="dateText" type="date" aria-label="Choose calendar date"></div>
 <div><label>Calendar</label><select id="calendarName"><option>Truck 1</option></select></div>
 </div>
 <div class="actions" style="margin-top:10px">
@@ -198,11 +198,11 @@ function pretty(s){var d=dateObj(s);return d?new Intl.DateTimeFormat('en-NZ',{we
 function showPage(id){document.querySelectorAll('.page').forEach(function(x){x.classList.toggle('active',x.id===id)});document.querySelectorAll('nav button').forEach(function(x){x.classList.toggle('active',x.dataset.page===id)});window.scrollTo(0,0)}
 window.showPage=showPage;
 document.querySelectorAll('nav button').forEach(function(b){b.onclick=function(){showPage(b.dataset.page)}});
-function setDateField(s){state.date=s;save();document.getElementById('dateText').value=formatNZ(s);renderToday()}
+function setDateField(s){state.date=s;save();document.getElementById('dateText').value=s;renderToday()}
 function formatNZ(s){var d=dateObj(s);return d?String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0')+'/'+d.getFullYear():s}
 window.setDateOffset=function(n){var d=new Date();d.setHours(12,0,0,0);d.setDate(d.getDate()+n);setDateField(isoDate(d))}
 window.shiftDate=function(n){var d=dateObj(document.getElementById('dateText').value)||dateObj(state.date)||new Date();d.setDate(d.getDate()+n);setDateField(isoDate(d))}
-function selectedIso(){var d=dateObj(document.getElementById('dateText').value);if(!d){alert('Enter date as DD/MM/YYYY or YYYY-MM-DD');return null}return isoDate(d)}
+function selectedIso(){var v=document.getElementById('dateText').value;var d=dateObj(v);if(!d){alert('Choose a date first.');return null}return isoDate(d)}
 window.runShortcut=function(){var d=selectedIso();if(!d)return;document.getElementById('shortcutStatus').innerHTML='<strong>Opening Shortcuts…</strong> If iOS says the shortcut cannot be found, complete the one-time setup below first.';var name='QGC Truck 1 Import';var url='shortcuts://run-shortcut?name='+encodeURIComponent(name)+'&input=text&text='+encodeURIComponent(d);location.href=url}
 window.createShortcut=function(){location.href='shortcuts://create-shortcut'}
 window.pasteClipboard=async function(){try{document.getElementById('calendarText').value=await navigator.clipboard.readText();previewImport();document.getElementById('shortcutStatus').innerHTML='<strong>Calendar result received.</strong> Review the preview, then tap Load into Today.'}catch(e){alert('iPhone blocked automatic clipboard reading. Tap the Calendar data box, choose Paste, then Preview.')}}
@@ -255,7 +255,7 @@ save();renderToday();showPage('today')
 }
 function jobsForDay(){return state.jobs.filter(function(j){return j.date===state.date}).sort(function(a,b){return (a.start||'').localeCompare(b.start||'')})}
 function renderToday(){
-document.getElementById('dayTitle').textContent=pretty(state.date);document.getElementById('dateText').value=formatNZ(state.date);
+document.getElementById('dayTitle').textContent=pretty(state.date);document.getElementById('dateText').value=state.date;
 var arr=jobsForDay();var box=document.getElementById('todayList');
 if(!arr.length){box.innerHTML='<div class="card empty">No jobs loaded for this date.<br><br><button class="btn" onclick="showPage(\'import\')">Load from iPhone Calendar</button></div>';return}
 var first=arr.find(function(j){return !j.completed});
