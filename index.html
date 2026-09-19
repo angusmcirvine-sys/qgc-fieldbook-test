@@ -465,7 +465,7 @@ function buildDraft(j){
   if(waste){
     lines.push('Green waste: '+j.waste);
     lines.push('Waste run: 0.50 hr');
-    lines.push('Dump travel: '+Number(j.dumpKm||0).toFixed(1)+' km × $2.00/km = $'+(Number(j.dumpKm||0)*2).toFixed(2)+' · to 110 Glenda Drive');
+    lines.push('Dump travel: '+Number(j.dumpKm||0).toFixed(1)+' km');
   }
   if(j.spray)lines.push('Spray: '+j.spray+' × 15 L application');
   lines.push('');
