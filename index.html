@@ -48,7 +48,7 @@ pre{white-space:pre-wrap;background:#f7f8f6;border:1px solid var(--line);border-
 <div class="card">
 <div class="grid">
 <div><label>Date</label><input id="dateText" inputmode="numeric" placeholder="DD/MM/YYYY"></div>
-<div><label>Calendar</label><select id="calendarName"><option>Truck 1</option><option>Truck 2</option><option>Truck 3</option><option>Work</option></select></div>
+<div><label>Calendar</label><select id="calendarName"><option>Truck 1</option></select></div>
 </div>
 <div class="actions" style="margin-top:10px">
 <button class="btn light" onclick="setDateOffset(0)">Today</button>
@@ -57,11 +57,45 @@ pre{white-space:pre-wrap;background:#f7f8f6;border:1px solid var(--line);border-
 <button class="btn light" onclick="shiftDate(1)">+ 1 day</button>
 </div>
 <div class="actions" style="margin-top:10px">
-<button class="btn" onclick="runShortcut()">Run iPhone Shortcut</button>
-<button class="btn alt" onclick="pasteClipboard()">Paste Calendar</button>
+<button class="btn" onclick="runShortcut()">Run Truck 1 Calendar</button>
+<button class="btn alt" onclick="pasteClipboard()">Paste Calendar Result</button>
 </div>
-<div class="small" style="margin-top:9px">Shortcut receives the selected date. If clipboard permission is blocked, paste manually below.</div>
+<div id="shortcutStatus" class="notice" style="margin-top:10px"><strong>One-time setup required:</strong> the iPhone Shortcut named <b>QGC Truck 1 Import</b> must exist before Run Calendar can read Apple Calendar.</div>
 </div>
+
+<details class="card" open>
+<summary style="font-weight:900;cursor:pointer">One-time iPhone Shortcut setup</summary>
+<div class="small" style="margin-top:10px">Safari cannot directly read the iPhone Calendar database. The Shortcut gets permission to read Truck 1, creates the event text, copies it, then returns here.</div>
+<ol class="small" style="line-height:1.55;padding-left:20px">
+<li>Tap <b>Create Shortcut</b> and name it <b>QGC Truck 1 Import</b>.</li>
+<li>Add <b>Get Dates from Input</b>. Its input is the selected date sent by Fieldbook.</li>
+<li>Add <b>Adjust Date</b> → Add → 1 → Day.</li>
+<li>Add <b>Find Calendar Events</b>. Filter: Calendar is <b>Truck 1</b>; Start Date is between the selected date and adjusted date. Sort by Start Date, oldest first.</li>
+<li>Add <b>Repeat with Each</b> Calendar Event.</li>
+<li>Inside Repeat, get Event <b>Title</b>, <b>Start Date</b>, <b>End Date</b>, <b>Location</b> and <b>Notes</b>. Format start/end as <b>HH:mm</b>.</li>
+<li>Add a Text action inside Repeat using the block shown below, then <b>Add to Variable</b> named <b>EventBlocks</b>.</li>
+<li>After Repeat, add a Text action with the header plus <b>EventBlocks</b>, then <b>Copy to Clipboard</b>.</li>
+<li>Add <b>Open URLs</b> with <b>https://angusmcirvine-sys.github.io/qgc-fieldbook-test/#calendar-import</b>.</li>
+</ol>
+<div class="actions">
+<button class="btn" onclick="createShortcut()">Create Shortcut</button>
+<button class="btn alt" onclick="loadTestCalendar()">Test Fieldbook parser</button>
+</div>
+<pre>Inside Repeat:
+EVENT
+TITLE: [Event Title]
+START: [formatted Start Date]
+END: [formatted End Date]
+ADDRESS: [Event Location]
+NOTES: [Event Notes]
+END_EVENT
+
+After Repeat:
+QGC_CALENDAR_V1
+DATE: [Shortcut Input]
+CALENDAR: Truck 1
+[EventBlocks]</pre>
+</details>
 
 <div class="card">
 <label>Calendar data</label>
@@ -169,8 +203,10 @@ function formatNZ(s){var d=dateObj(s);return d?String(d.getDate()).padStart(2,'0
 window.setDateOffset=function(n){var d=new Date();d.setHours(12,0,0,0);d.setDate(d.getDate()+n);setDateField(isoDate(d))}
 window.shiftDate=function(n){var d=dateObj(document.getElementById('dateText').value)||dateObj(state.date)||new Date();d.setDate(d.getDate()+n);setDateField(isoDate(d))}
 function selectedIso(){var d=dateObj(document.getElementById('dateText').value);if(!d){alert('Enter date as DD/MM/YYYY or YYYY-MM-DD');return null}return isoDate(d)}
-window.runShortcut=function(){var d=selectedIso();if(!d)return;var name='QGC Truck 1 Import';var url='shortcuts://run-shortcut?name='+encodeURIComponent(name)+'&input=text&text='+encodeURIComponent(d);location.href=url}
-window.pasteClipboard=async function(){try{document.getElementById('calendarText').value=await navigator.clipboard.readText();previewImport()}catch(e){alert('Clipboard access was blocked. Tap the text box and use Paste.')}}
+window.runShortcut=function(){var d=selectedIso();if(!d)return;document.getElementById('shortcutStatus').innerHTML='<strong>Opening Shortcuts…</strong> If iOS says the shortcut cannot be found, complete the one-time setup below first.';var name='QGC Truck 1 Import';var url='shortcuts://run-shortcut?name='+encodeURIComponent(name)+'&input=text&text='+encodeURIComponent(d);location.href=url}
+window.createShortcut=function(){location.href='shortcuts://create-shortcut'}
+window.pasteClipboard=async function(){try{document.getElementById('calendarText').value=await navigator.clipboard.readText();previewImport();document.getElementById('shortcutStatus').innerHTML='<strong>Calendar result received.</strong> Review the preview, then tap Load into Today.'}catch(e){alert('iPhone blocked automatic clipboard reading. Tap the Calendar data box, choose Paste, then Preview.')}}
+window.loadTestCalendar=function(){var d=selectedIso()||state.date;document.getElementById('calendarText').value='QGC_CALENDAR_V1\nDATE: '+d+'\nCALENDAR: Truck 1\nEVENT\nTITLE: Test Garden Visit\nSTART: 08:00\nEND: 09:30\nADDRESS: 1 Test Street, Queenstown\nNOTES: 2 personnel\nTO DO: Mow lawn and remove grass clippings\nSITE NOTE: Synthetic parser test only\nEND_EVENT';previewImport();document.getElementById('shortcutStatus').innerHTML='<strong>Parser test loaded.</strong> Tap Load into Today. This contains no client data.'}
 function parseCalendar(txt){
 var events=[];var lines=String(txt||'').replace(/\r/g,'').split('\n');var cur=null;var date=null;
 lines.forEach(function(raw){
@@ -256,6 +292,7 @@ document.getElementById('personnel').addEventListener('change',function(){var j=
 ['startTime','endTime','waste','dumpKm','rideOn','spray'].forEach(function(id){document.getElementById(id).addEventListener('change',function(){var j=activeJob();if(j){syncFields(j);save()}})});
 document.getElementById('draftText').textContent=state.lastDraft||'Complete a job to create a draft.';
 renderToday();
+if(location.hash==='#calendar-import'){showPage('import');var st=document.getElementById('shortcutStatus');if(st)st.innerHTML='<strong>Returned from Shortcuts.</strong> Tap Paste Calendar Result to bring the Truck 1 events into Fieldbook.'}
 })();
 </script>
 </body>
