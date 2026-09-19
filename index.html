@@ -207,21 +207,32 @@ window.runShortcut=function(){var d=selectedIso();if(!d)return;document.getEleme
 window.createShortcut=function(){location.href='shortcuts://create-shortcut'}
 window.pasteClipboard=async function(){try{document.getElementById('calendarText').value=await navigator.clipboard.readText();previewImport();document.getElementById('shortcutStatus').innerHTML='<strong>Calendar result received.</strong> Review the preview, then tap Load into Today.'}catch(e){alert('iPhone blocked automatic clipboard reading. Tap the Calendar data box, choose Paste, then Preview.')}}
 window.loadTestCalendar=function(){var d=selectedIso()||state.date;document.getElementById('calendarText').value='QGC_CALENDAR_V1\nDATE: '+d+'\nCALENDAR: Truck 1\nEVENT\nTITLE: Test Garden Visit\nSTART: 08:00\nEND: 09:30\nADDRESS: 1 Test Street, Queenstown\nNOTES: 2 personnel\nTO DO: Mow lawn and remove grass clippings\nSITE NOTE: Synthetic parser test only\nEND_EVENT';previewImport();document.getElementById('shortcutStatus').innerHTML='<strong>Parser test loaded.</strong> Tap Load into Today. This contains no client data.'}
+function normaliseImportedTime(v){
+  v=String(v||'').trim();
+  var m=v.match(/\b(\d{1,2}):(\d{2})\s*(AM|PM)?\b/i);
+  if(m){
+    var h=+m[1],min=m[2],ap=(m[3]||'').toUpperCase();
+    if(ap){if(ap==='PM'&&h<12)h+=12;if(ap==='AM'&&h===12)h=0}
+    return String(h).padStart(2,'0')+':'+min;
+  }
+  return v;
+}
 function parseCalendar(txt){
-var events=[];var lines=String(txt||'').replace(/\r/g,'').split('\n');var cur=null;var date=null;
+var events=[];var lines=String(txt||'').replace(/\r/g,'').split('\n');var cur=null;var date=null;var lastField=null;
 lines.forEach(function(raw){
 var line=raw.trim();if(!line)return;
 if(/^DATE:/i.test(line)){date=line.replace(/^DATE:\s*/i,'').trim();return}
 if(/^EVENT$/i.test(line)){cur={title:'',start:'',end:'',address:'',notes:[],todos:[],siteNotes:[],personnel:2};return}
-if(/^END_EVENT$/i.test(line)){if(cur&&cur.title)events.push(cur);cur=null;return}
+if(/^END_EVENT$/i.test(line)){if(cur&&cur.title)events.push(cur);cur=null;lastField=null;return}
 if(!cur)return;
-if(/^TITLE:/i.test(line))cur.title=line.replace(/^TITLE:\s*/i,'').trim();
-else if(/^START:/i.test(line))cur.start=line.replace(/^START:\s*/i,'').trim();
-else if(/^END:/i.test(line))cur.end=line.replace(/^END:\s*/i,'').trim();
-else if(/^ADDRESS:/i.test(line))cur.address=line.replace(/^ADDRESS:\s*/i,'').trim();
-else if(/^TO DO:/i.test(line))cur.todos.push(line.replace(/^TO DO:\s*/i,'').trim());
-else if(/^SITE NOTE:/i.test(line))cur.siteNotes.push(line.replace(/^SITE NOTE:\s*/i,'').trim());
-else if(/^NOTES:/i.test(line)){var n=line.replace(/^NOTES:\s*/i,'').trim();cur.notes.push(n);var p=n.match(/(\d+)\s*(?:personnel|people|staff)/i);if(p)cur.personnel=+p[1]}
+if(/^TITLE:/i.test(line)){cur.title=line.replace(/^TITLE:\s*/i,'').trim();lastField='title'}
+else if(/^START:/i.test(line)){cur.start=normaliseImportedTime(line.replace(/^START:\s*/i,''));lastField='start'}
+else if(/^END:/i.test(line)){cur.end=normaliseImportedTime(line.replace(/^END:\s*/i,''));lastField='end'}
+else if(/^ADDRESS:/i.test(line)){cur.address=line.replace(/^ADDRESS:\s*/i,'').trim();lastField='address'}
+else if(/^TO DO:/i.test(line)){cur.todos.push(line.replace(/^TO DO:\s*/i,'').trim());lastField='todo'}
+else if(/^SITE NOTE:/i.test(line)){cur.siteNotes.push(line.replace(/^SITE NOTE:\s*/i,'').trim());lastField='siteNote'}
+else if(/^NOTES:/i.test(line)){var n=line.replace(/^NOTES:\s*/i,'').trim();cur.notes.push(n);var p=n.match(/(\d+)\s*(?:personnel|people|staff)/i);if(p)cur.personnel=+p[1];lastField='notes'}
+else if(lastField==='notes'){cur.notes.push(line);var p2=line.match(/(\d+)\s*(?:personnel|people|staff)/i);if(p2)cur.personnel=+p2[1];if(/^[-•]\s*/.test(line))cur.todos.push(line.replace(/^[-•]\s*/,''))}
 });
 if(cur&&cur.title)events.push(cur);
 return {date:date,events:events}
