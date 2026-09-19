@@ -39,17 +39,26 @@ details summary{font-weight:900;cursor:pointer}
 .presetActions{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin-top:10px}.presetActions .btn{padding:10px 6px;font-size:11px}
 .historyItem,.draftCard{border-top:1px solid #edf0ed;padding:10px 0}.historyItem:first-child,.draftCard:first-child{border-top:0;padding-top:0}
 .thumb{width:100%;max-height:240px;object-fit:contain;border:1px solid var(--line);border-radius:10px;background:#fafafa;display:none}
+.metricGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.metric{background:#f7f9f5;border:1px solid var(--line);border-radius:12px;padding:11px}
+.metric .value{font-size:22px;font-weight:900;color:var(--g);line-height:1.1}
+.metric .label{font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-top:5px}
+.runCard{border:1px solid var(--line);border-radius:13px;padding:12px;margin:10px 0;background:#fff}
+.runJob{display:flex;gap:8px;justify-content:space-between;align-items:center;padding:7px 0;border-top:1px solid #edf0ed}
+.runJob:first-child{border-top:0}
+.perfGood{font-weight:900;color:#38501f}
 @media(max-width:520px){.grid{grid-template-columns:1fr}.brand small{display:none}.presetActions{grid-template-columns:1fr}.presetActions .btn{width:100%}}
 </style>
 </head>
 <body>
 <header>
-<div class="brand"><div><strong>Queenstown Garden Company</strong><div><small>FIELD BOOK · MOBILE TEST</small></div></div><span class="badge">v0.4</span></div>
+<div class="brand"><div><strong>Queenstown Garden Company</strong><div><small>FIELD BOOK · MOBILE TEST</small></div></div><span class="badge">v0.5</span></div>
 <nav>
 <button class="active" data-page="today">Today</button>
 <button data-page="import">Calendar</button>
 <button data-page="job">Job</button>
 <button data-page="draft">Xero drafts</button>
+<button data-page="performance">Performance</button>
 </nav>
 </header>
 
@@ -241,6 +250,61 @@ SITE NOTES:
 </div>
 <div id="draftList"></div>
 </section>
+
+<section id="performance" class="page">
+<div class="section">Team leader performance</div>
+<div class="card">
+<div class="row">
+<div><div class="small">Management week</div><div id="perfWeekTitle" class="kpi"></div></div>
+<div class="actions">
+<button class="btn light" onclick="shiftPerformanceWeek(-1)">− Week</button>
+<button class="btn alt" onclick="performanceUseSelectedDate()">Selected date</button>
+<button class="btn light" onclick="shiftPerformanceWeek(1)">+ Week</button>
+</div>
+</div>
+<div class="small" style="margin-top:10px">Internal management view only. These recovery/consolidation metrics do not alter the client Xero description.</div>
+</div>
+
+<div class="metricGrid">
+<div class="metric"><div id="perfVisits" class="value">0</div><div class="label">Completed visits</div></div>
+<div class="metric"><div id="perfWasteClients" class="value">0</div><div class="label">Waste clients</div></div>
+<div class="metric"><div id="perfRuns" class="value">0</div><div class="label">Actual dump runs</div></div>
+<div class="metric"><div id="perfClientsPerRun" class="value">0</div><div class="label">Clients per run</div></div>
+<div class="metric"><div id="perfAvoided" class="value">0</div><div class="label">Avoided separate trips</div></div>
+<div class="metric"><div id="perfHoursSaved" class="value">0.00 h</div><div class="label">Run-hours consolidated</div></div>
+<div class="metric"><div id="perfRecovery" class="value">$0</div><div class="label">Billed recovery</div></div>
+<div class="metric"><div id="perfReceipts" class="value">$0</div><div class="label">Entered dump receipts</div></div>
+</div>
+
+<div id="perfSummary" class="notice" style="margin-top:10px"></div>
+
+<div class="section">Recovery settings</div>
+<details class="card">
+<summary>QGC waste recovery rates used for this management view</summary>
+<div class="grid" style="margin-top:10px">
+<div><label>≤100 kg fixed charge</label><input id="perfSmallCharge" type="number" step=".01"></div>
+<div><label>100–200 kg fixed charge</label><input id="perfMediumCharge" type="number" step=".01"></div>
+<div><label>Over 200 kg fixed charge</label><input id="perfLargeCharge" type="number" step=".01" placeholder="Set when confirmed"></div>
+<div><label>Labour charge-out / hr</label><input id="perfLabourRate" type="number" step=".01"></div>
+<div><label>KM charge</label><input id="perfKmRate" type="number" step=".01"></div>
+<div><label>Client waste-run labour</label><input id="perfWasteHours" type="number" step=".25"></div>
+</div>
+<div class="small" style="margin-top:9px">Billed recovery = fixed waste charge + client dump km × km rate + client waste-run labour. This is a recovery/charge-out measure, not accounting profit.</div>
+</details>
+
+<div class="section">Waste clients awaiting grouping</div>
+<div id="unassignedWaste"></div>
+
+<div class="section">Consolidated dump runs</div>
+<div id="dumpRunList"></div>
+
+<div class="section">How this shows team-leader performance</div>
+<div class="card">
+<div class="small">
+Each waste client may recover a 0.5 hr waste-run charge, but an efficient team leader can consolidate several properties into one physical dump run. The management page therefore compares <strong>client recovery</strong> with the <strong>actual number and duration of dump runs</strong>, rather than changing the individual client invoice formula.
+</div>
+</div>
+</section>
 </main>
 
 <script>
@@ -249,10 +313,19 @@ var KEY='qgcFieldbookHttpsV1Empty';
 var DUMP_ADDRESS='110 Glenda Drive, Frankton, Queenstown 9300, New Zealand';
 var state;
 try{state=JSON.parse(localStorage.getItem(KEY)||'null')}catch(e){}
-if(!state)state={date:isoDate(new Date()),jobs:[],active:null,lastDraft:'',drafts:[],routeCache:{}};
+if(!state)state={date:isoDate(new Date()),jobs:[],active:null,lastDraft:'',drafts:[],routeCache:{},dumpRuns:[],performanceAnchor:'',performanceSettings:{}};
 if(!state.jobs)state.jobs=[];
 if(!state.drafts)state.drafts=[];
 if(!state.routeCache)state.routeCache={};
+if(!state.dumpRuns)state.dumpRuns=[];
+if(!state.performanceSettings)state.performanceSettings={};
+if(!state.performanceAnchor)state.performanceAnchor=state.date;
+if(state.performanceSettings.smallWasteCharge==null)state.performanceSettings.smallWasteCharge=37;
+if(state.performanceSettings.mediumWasteCharge==null)state.performanceSettings.mediumWasteCharge=74;
+if(state.performanceSettings.largeWasteCharge==null)state.performanceSettings.largeWasteCharge=0;
+if(state.performanceSettings.labourRate==null)state.performanceSettings.labourRate=65;
+if(state.performanceSettings.kmRate==null)state.performanceSettings.kmRate=2;
+if(state.performanceSettings.wasteRunHours==null)state.performanceSettings.wasteRunHours=0.5;
 
 var PRESET_TASKS=[
 'Brush cut edges',
@@ -322,6 +395,7 @@ function showPage(id){
   document.querySelectorAll('.page').forEach(function(x){x.classList.toggle('active',x.id===id)});
   document.querySelectorAll('nav button').forEach(function(x){x.classList.toggle('active',x.dataset.page===id)});
   if(id==='draft')renderDrafts();
+  if(id==='performance')renderPerformance();
   window.scrollTo(0,0);
 }
 window.showPage=showPage;
@@ -624,7 +698,7 @@ window.completeJob=async function(){
   j.completed=true;j.completedAt=new Date().toISOString();j.lastDraft=buildDraft(j);state.lastDraft=j.lastDraft;
   var rec={id:'draft_'+j.id,jobId:j.id,propertyKey:j.propertyKey,date:j.date,title:j.title,address:j.address,text:j.lastDraft,completedAt:j.completedAt,start:j.start||''};
   var ix=state.drafts.findIndex(function(d){return d.jobId===j.id});if(ix>=0)state.drafts[ix]=rec;else state.drafts.push(rec);
-  save();renderToday();renderDrafts();showPage('today');
+  save();renderToday();renderDrafts();renderPerformance();showPage('today');
 };
 
 function draftsForDay(){return state.drafts.filter(function(d){return d.date===state.date}).sort(function(a,b){return String(a.start||'').localeCompare(String(b.start||''))})}
@@ -639,6 +713,232 @@ window.copyOneDraft=async function(id){var d=state.drafts.find(function(x){retur
 function dayDraftText(){return draftsForDay().map(function(d){return d.title+'\n'+d.text}).join('\n\n----------------\n\n')}
 window.copyDayDrafts=async function(){var t=dayDraftText();if(!t){alert('No drafts for this day.');return}try{await navigator.clipboard.writeText(t);alert('Day drafts copied')}catch(e){}}
 window.exportDayDrafts=function(){var t=dayDraftText();if(!t){alert('No drafts for this day.');return}var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([t],{type:'text/plain'}));a.download='QGC-Xero-drafts-'+state.date+'.txt';a.click();setTimeout(function(){URL.revokeObjectURL(a.href)},500)}
+
+
+function performanceWeekBounds(){
+  var d=dateObj(state.performanceAnchor)||dateObj(state.date)||new Date();
+  d.setHours(12,0,0,0);
+  var day=(d.getDay()+6)%7;
+  var start=new Date(d);start.setDate(d.getDate()-day);
+  var end=new Date(start);end.setDate(start.getDate()+6);
+  return {start:isoDate(start),end:isoDate(end)};
+}
+function performanceJobs(){
+  var b=performanceWeekBounds();
+  return state.jobs.filter(function(j){return j.completed&&j.date>=b.start&&j.date<=b.end});
+}
+function performanceWasteJobs(){
+  return performanceJobs().filter(function(j){return j.waste&&j.waste!=='none'});
+}
+function wasteFixedCharge(j){
+  var p=state.performanceSettings;
+  if(j.waste==='small')return Number(p.smallWasteCharge)||0;
+  if(j.waste==='medium')return Number(p.mediumWasteCharge)||0;
+  if(j.waste==='large')return Number(p.largeWasteCharge)||0;
+  return 0;
+}
+function billedWasteRecovery(j){
+  var p=state.performanceSettings;
+  return wasteFixedCharge(j)+(Number(j.dumpKm)||0)*(Number(p.kmRate)||0)+(Number(p.wasteRunHours)||0)*(Number(p.labourRate)||0);
+}
+function weekRuns(){
+  var b=performanceWeekBounds();
+  var ids=new Set(performanceWasteJobs().map(function(j){return j.id}));
+  return state.dumpRuns.filter(function(r){
+    return (r.jobIds||[]).some(function(id){return ids.has(id)}) || (r.date&&r.date>=b.start&&r.date<=b.end);
+  });
+}
+function assignedRunId(jobId){
+  var r=state.dumpRuns.find(function(x){return (x.jobIds||[]).indexOf(jobId)>=0});
+  return r?r.id:'';
+}
+function actualRunMinutes(run){
+  return Math.max(0,Number(run.actualMinutes==null?30:run.actualMinutes)||0);
+}
+function performanceMetrics(){
+  var jobs=performanceJobs(),waste=performanceWasteJobs(),runs=weekRuns();
+  var groupedIds=new Set();
+  runs.forEach(function(r){(r.jobIds||[]).forEach(function(id){if(waste.some(function(j){return j.id===id}))groupedIds.add(id)})});
+  var unassigned=waste.filter(function(j){return !groupedIds.has(j.id)});
+  var actualRuns=runs.filter(function(r){return (r.jobIds||[]).some(function(id){return waste.some(function(j){return j.id===id})})}).length+unassigned.length;
+  var actualHours=runs.reduce(function(sum,r){
+    var has=(r.jobIds||[]).some(function(id){return waste.some(function(j){return j.id===id})});
+    return sum+(has?actualRunMinutes(r)/60:0);
+  },0)+unassigned.length*(Number(state.performanceSettings.wasteRunHours)||0.5);
+  var billedHours=waste.length*(Number(state.performanceSettings.wasteRunHours)||0.5);
+  var recovery=waste.reduce(function(sum,j){return sum+billedWasteRecovery(j)},0);
+  var receipts=runs.reduce(function(sum,r){return sum+(Number(r.receiptCost)||0)},0);
+  return {
+    jobs:jobs,waste:waste,runs:runs,unassigned:unassigned,actualRuns:actualRuns,
+    clientsPerRun:actualRuns?waste.length/actualRuns:0,
+    avoided:Math.max(0,waste.length-actualRuns),
+    billedHours:billedHours,actualHours:actualHours,
+    consolidatedHours:Math.max(0,billedHours-actualHours),
+    recovery:recovery,receipts:receipts
+  };
+}
+function money(v){return '
+  var lines=String(text||'').replace(/\r/g,'').split('\n').map(function(x){return x.trim()}).filter(Boolean),events=[];
+  for(var i=0;i<lines.length;i++){
+    var m=lines[i].match(/\b(\d{1,2})[:.](\d{2})\s*(AM|PM)?\b/i);
+    if(!m)continue;
+    var start=normaliseImportedTime(m[0]),title=lines[i].replace(m[0],'').replace(/^[-–—\s]+/,'').trim();
+    if(!title&&lines[i+1])title=lines[++i];
+    if(!title||/^\d{1,2}[:.]\d{2}/.test(title))continue;
+    var address='';
+    if(lines[i+1]&&/\d+\s+.+\b(street|st|road|rd|drive|dr|lane|ln|avenue|ave|crescent|court|ct|place|pl|way|terrace|tce)\b/i.test(lines[i+1]))address=lines[++i];
+    var next='';
+    for(var k=i+1;k<Math.min(lines.length,i+6);k++){var n=lines[k].match(/\b(\d{1,2})[:.](\d{2})\s*(AM|PM)?\b/i);if(n){next=normaliseImportedTime(n[0]);break}}
+    events.push({title:title,start:start,end:next,address:address,personnel:2,todos:[],siteNotes:[],calendarNotes:['Imported from screenshot OCR'],date:state.date});
+  }
+  return events;
+}
+function renderOcrPreview(events){
+  var box=document.getElementById('ocrPreviewBox');
+  if(!events.length){box.className='notice bad';box.textContent='No time/title pairs detected. Edit the OCR text and try again.';return}
+  box.className='notice';box.innerHTML='<strong>'+events.length+' possible event(s)</strong><br>'+events.map(function(e){return esc(e.start+' · '+e.title+(e.address?' · '+e.address:''))}).join('<br>');
+}
+window.previewScreenshotText=function(){var events=parseScreenshotSchedule(document.getElementById('ocrText').value);window._ocrEvents=events;renderOcrPreview(events)}
+window.loadScreenshotEvents=function(){
+  var date=selectedIso();if(!date)return;
+  var events=window._ocrEvents||parseScreenshotSchedule(document.getElementById('ocrText').value);if(!events.length){alert('No OCR events detected.');return}
+  events.forEach(function(e){e.date=date;var existing=sameVisit(e,date);if(!existing){var v=makeVisitFromEvent(e,date);v.source='screenshot';state.jobs.push(v)}});
+  state.date=date;save();renderToday();showPage('today');
+}
+function loadScript(src){
+  return new Promise(function(resolve,reject){if(window.Tesseract)return resolve();var s=document.createElement('script');s.src=src;s.onload=resolve;s.onerror=reject;document.head.appendChild(s)});
+}
+window.runScreenshotOCR=async function(){
+  var input=document.getElementById('shotFile'),status=document.getElementById('ocrStatus');if(!input.files||!input.files[0]){alert('Choose a screenshot first.');return}
+  status.className='notice';status.textContent='Loading OCR…';
+  try{
+    await loadScript('https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js');
+    status.textContent='Reading screenshot…';
+    var out=await Tesseract.recognize(input.files[0],'eng',{logger:function(m){if(m.status==='recognizing text')status.textContent='Reading screenshot… '+Math.round((m.progress||0)*100)+'%'}});
+    document.getElementById('ocrText').value=out.data.text||'';status.textContent='OCR complete. Review the text, then Preview OCR events.';previewScreenshotText();
+  }catch(e){status.className='notice bad';status.textContent='OCR could not run on this device. You can still type or paste text into the OCR box manually.'}
+};
+document.getElementById('shotFile').addEventListener('change',function(){
+  var img=document.getElementById('shotPreview');if(this.files&&this.files[0]){img.src=URL.createObjectURL(this.files[0]);img.style.display='block';document.getElementById('ocrStatus').textContent='Screenshot selected.'}
+});
+
+document.getElementById('dateText').addEventListener('change',function(){var d=dateObj(this.value);if(d){state.date=isoDate(d);save();renderToday();renderDrafts()}});
+['personnel','startTime','endTime','rideOn','spray'].forEach(function(id){
+  document.getElementById(id).addEventListener('change',function(){var j=activeJob();if(j&&!j.completed){syncFields(j);save();refreshJobPreview()}})
+});
+document.getElementById('dumpKm').addEventListener('change',function(){var j=activeJob();if(!j||j.completed)return;syncFields(j);j.dumpKmSource='manual';save();if(j.dumpKm)setRouteStatus(Number(j.dumpKm).toFixed(1)+' km manual',false);refreshJobPreview()});
+document.getElementById('waste').addEventListener('change',async function(){var j=activeJob();if(!j||j.completed)return;syncFields(j);save();if(j.waste!=='none')await autoDumpKm(false);else setRouteStatus('Select Green Waste to calculate the one-way route to 110 Glenda Drive.',false);refreshJobPreview()});
+
+['perfSmallCharge','perfMediumCharge','perfLargeCharge','perfLabourRate','perfKmRate','perfWasteHours'].forEach(function(id){
+  var el=document.getElementById(id);if(el)el.addEventListener('change',savePerformanceSettings);
+});
+
+var presetSelect=document.getElementById('presetTask');
+if(presetSelect)presetSelect.innerHTML=PRESET_TASKS.map(function(t){return '<option value="'+esc(t)+'">'+esc(t)+'</option>'}).join('');
+
+renderToday();renderDrafts();
+if(location.hash==='#calendar-import'){showPage('import');document.getElementById('shortcutStatus').innerHTML='<strong>Returned from Shortcuts.</strong> Paste the Calendar result, preview it, then load it.'}
+})();
+</script>
+</body>
+</html>+Number(v||0).toFixed(2)}
+function renderPerformance(){
+  var b=performanceWeekBounds(),m=performanceMetrics();
+  document.getElementById('perfWeekTitle').textContent=pretty(b.start)+' – '+pretty(b.end);
+  document.getElementById('perfVisits').textContent=m.jobs.length;
+  document.getElementById('perfWasteClients').textContent=m.waste.length;
+  document.getElementById('perfRuns').textContent=m.actualRuns;
+  document.getElementById('perfClientsPerRun').textContent=m.clientsPerRun?m.clientsPerRun.toFixed(1):'0';
+  document.getElementById('perfAvoided').textContent=m.avoided;
+  document.getElementById('perfHoursSaved').textContent=m.consolidatedHours.toFixed(2)+' h';
+  document.getElementById('perfRecovery').textContent=money(m.recovery);
+  document.getElementById('perfReceipts').textContent=money(m.receipts);
+
+  var net=m.recovery-m.receipts;
+  var summary='';
+  if(!m.waste.length)summary='No completed waste clients in this week yet.';
+  else{
+    summary='<strong>'+m.waste.length+' waste client'+(m.waste.length===1?'':'s')+'</strong> serviced through <strong>'+m.actualRuns+' actual run'+(m.actualRuns===1?'':'s')+'</strong>. ';
+    summary+='That is <strong>'+m.clientsPerRun.toFixed(1)+' clients/run</strong> and <strong>'+m.avoided+' avoided separate trip'+(m.avoided===1?'':'s')+'</strong>. ';
+    summary+='Client waste-run recovery represents '+m.billedHours.toFixed(2)+' billed hours versus '+m.actualHours.toFixed(2)+' actual run hours entered/assumed. ';
+    summary+='Recovery less entered dump receipts: <strong>'+money(net)+'</strong>.';
+  }
+  document.getElementById('perfSummary').innerHTML=summary;
+
+  var p=state.performanceSettings;
+  document.getElementById('perfSmallCharge').value=p.smallWasteCharge;
+  document.getElementById('perfMediumCharge').value=p.mediumWasteCharge;
+  document.getElementById('perfLargeCharge').value=p.largeWasteCharge||'';
+  document.getElementById('perfLabourRate').value=p.labourRate;
+  document.getElementById('perfKmRate').value=p.kmRate;
+  document.getElementById('perfWasteHours').value=p.wasteRunHours;
+
+  var runs=m.runs;
+  var un=document.getElementById('unassignedWaste');
+  if(!m.unassigned.length)un.innerHTML='<div class="card small">All completed waste clients for this week are assigned to a consolidated run.</div>';
+  else un.innerHTML=m.unassigned.map(function(j){
+    var options='<option value="">Assign to run…</option><option value="new">+ New dump run</option>'+
+      runs.map(function(r){return '<option value="'+esc(r.id)+'">'+esc(r.label||('Dump run '+(r.date||'')))+'</option>'}).join('');
+    return '<div class="card"><div class="row"><div><strong>'+esc(j.title)+'</strong><div class="small">'+esc(pretty(j.date))+' · '+esc(j.waste)+' · '+Number(j.dumpKm||0).toFixed(1)+' km</div><div class="small">Recovery: '+money(billedWasteRecovery(j))+'</div></div><span class="badge">UNGROUPED</span></div><select style="margin-top:9px" onchange="assignWasteJob(\\''+j.id+'\\',this.value)">'+options+'</select></div>';
+  }).join('');
+
+  var list=document.getElementById('dumpRunList');
+  if(!runs.length)list.innerHTML='<div class="card small">No consolidated dump runs created for this week yet. Assign an ungrouped waste client to “+ New dump run”.</div>';
+  else list.innerHTML=runs.map(function(r,idx){
+    var jobs=(r.jobIds||[]).map(function(id){return state.jobs.find(function(j){return j.id===id})}).filter(Boolean);
+    var rec=jobs.reduce(function(sum,j){return sum+billedWasteRecovery(j)},0);
+    var jobRows=jobs.length?jobs.map(function(j){
+      return '<div class="runJob"><div><strong>'+esc(j.title)+'</strong><div class="small">'+esc(pretty(j.date))+' · '+esc(j.waste)+' · '+Number(j.dumpKm||0).toFixed(1)+' km · recovery '+money(billedWasteRecovery(j))+'</div></div><button class="btn light" style="padding:6px 8px" onclick="unassignWasteJob(\\''+j.id+'\\')">Remove</button></div>';
+    }).join(''):'<div class="small">No clients assigned.</div>';
+    return '<div class="runCard"><div class="row"><div><strong>'+esc(r.label||('Dump run '+(idx+1)))+'</strong><div class="small">'+jobs.length+' client'+(jobs.length===1?'':'s')+' · recovery '+money(rec)+'</div></div><button class="btn light" style="padding:6px 8px" onclick="deleteDumpRun(\\''+r.id+'\\')">Delete</button></div>'+
+      '<div style="margin-top:8px">'+jobRows+'</div>'+
+      '<div class="grid" style="margin-top:10px">'+
+      '<div><label>Actual dump receipt $</label><input type="number" step=".01" value="'+(Number(r.receiptCost)||'')+'" onchange="updateDumpRun(\\''+r.id+'\\',\\'receiptCost\\',this.value)"></div>'+
+      '<div><label>Actual load weight kg</label><input type="number" step="1" value="'+(Number(r.weightKg)||'')+'" onchange="updateDumpRun(\\''+r.id+'\\',\\'weightKg\\',this.value)"></div>'+
+      '<div><label>Actual run minutes</label><input type="number" step="5" value="'+actualRunMinutes(r)+'" onchange="updateDumpRun(\\''+r.id+'\\',\\'actualMinutes\\',this.value)"></div>'+
+      '<div><label>Run label</label><input value="'+esc(r.label||'')+'" placeholder="e.g. Friday combined run" onchange="updateDumpRun(\\''+r.id+'\\',\\'label\\',this.value)"></div>'+
+      '</div></div>';
+  }).join('');
+}
+window.renderPerformance=renderPerformance;
+window.performanceUseSelectedDate=function(){state.performanceAnchor=state.date;save();renderPerformance()}
+window.shiftPerformanceWeek=function(n){
+  var d=dateObj(state.performanceAnchor)||dateObj(state.date)||new Date();d.setDate(d.getDate()+(n*7));state.performanceAnchor=isoDate(d);save();renderPerformance();
+}
+window.assignWasteJob=function(jobId,runId){
+  if(!runId)return;
+  state.dumpRuns.forEach(function(r){r.jobIds=(r.jobIds||[]).filter(function(id){return id!==jobId})});
+  var j=state.jobs.find(function(x){return x.id===jobId});if(!j)return;
+  if(runId==='new'){
+    var r={id:'run_'+Date.now(),date:j.date,label:'Combined dump run '+pretty(j.date),jobIds:[jobId],receiptCost:0,weightKg:0,actualMinutes:30};
+    state.dumpRuns.push(r);
+  }else{
+    var target=state.dumpRuns.find(function(r){return r.id===runId});if(target){if(!target.jobIds)target.jobIds=[];target.jobIds.push(jobId)}
+  }
+  save();renderPerformance();
+}
+window.unassignWasteJob=function(jobId){
+  state.dumpRuns.forEach(function(r){r.jobIds=(r.jobIds||[]).filter(function(id){return id!==jobId})});
+  save();renderPerformance();
+}
+window.deleteDumpRun=function(id){
+  state.dumpRuns=state.dumpRuns.filter(function(r){return r.id!==id});save();renderPerformance();
+}
+window.updateDumpRun=function(id,field,value){
+  var r=state.dumpRuns.find(function(x){return x.id===id});if(!r)return;
+  if(['receiptCost','weightKg','actualMinutes'].indexOf(field)>=0)r[field]=Number(value)||0;else r[field]=String(value||'');
+  save();renderPerformance();
+}
+function savePerformanceSettings(){
+  var p=state.performanceSettings;
+  p.smallWasteCharge=Number(document.getElementById('perfSmallCharge').value)||0;
+  p.mediumWasteCharge=Number(document.getElementById('perfMediumCharge').value)||0;
+  p.largeWasteCharge=Number(document.getElementById('perfLargeCharge').value)||0;
+  p.labourRate=Number(document.getElementById('perfLabourRate').value)||0;
+  p.kmRate=Number(document.getElementById('perfKmRate').value)||0;
+  p.wasteRunHours=Number(document.getElementById('perfWasteHours').value)||0;
+  save();renderPerformance();
+}
 
 function parseScreenshotSchedule(text){
   var lines=String(text||'').replace(/\r/g,'').split('\n').map(function(x){return x.trim()}).filter(Boolean),events=[];
