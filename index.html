@@ -591,12 +591,20 @@ window.openDumpRoute=function(){
 };
 
 function buildDraft(j){
-  var visit=hours(j.start,j.end),team=visit*j.personnel,waste=j.waste!=='none',lines=[];
+  var visit=hours(j.start,j.end);
+  var baseStaffHours=visit*j.personnel;
+  var rideHours=Math.max(0,Number(j.rideOn)||0);
+  var waste=j.waste!=='none';
+  var wasteRunHours=waste?0.5:0;
+  var rideOverlap=Math.min(rideHours,baseStaffHours);
+  var labourHours=Math.max(0,baseStaffHours-rideOverlap)+wasteRunHours;
+  var lines=[];
   lines.push('Personnel: '+j.personnel);
   lines.push('Time: '+(j.start||'')+'–'+(j.end||''));
-  lines.push('Labour: '+team.toFixed(2)+' hrs');
-  if(j.rideOn)lines.push('Ride-on: '+Number(j.rideOn).toFixed(2)+' hrs');
-  if(waste){lines.push('Green waste: '+j.waste);lines.push('Waste run: 0.50 hr');lines.push('Dump travel: '+Number(j.dumpKm||0).toFixed(1)+' km')}
+  if(waste){lines.push('Green waste: '+j.waste);lines.push('Waste run: 0.50 hr')}
+  if(rideHours)lines.push('Ride-on: '+rideHours.toFixed(2)+' hrs');
+  lines.push('Labour: '+labourHours.toFixed(2)+' hrs');
+  if(waste)lines.push('Dump travel: '+Number(j.dumpKm||0).toFixed(1)+' km');
   if(j.spray)lines.push('Spray: '+j.spray+' × 15 L application');
   lines.push('');lines.push('Description of works:');
   if(j.completedWorks.length)j.completedWorks.forEach(function(w){lines.push('- '+w)});else lines.push('- No completed works recorded');
