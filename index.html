@@ -52,7 +52,7 @@ details summary{font-weight:900;cursor:pointer}
 </head>
 <body>
 <header>
-<div class="brand"><div><strong>Queenstown Garden Company</strong><div><small>FIELD BOOK · MOBILE TEST</small></div></div><span class="badge">v0.5</span></div>
+<div class="brand"><div><strong>Queenstown Garden Company</strong><div><small>FIELD BOOK · MOBILE TEST</small></div></div><span class="badge">v0.6</span></div>
 <nav>
 <button class="active" data-page="today">Today</button>
 <button data-page="import">Calendar</button>
@@ -163,7 +163,11 @@ SITE NOTES:
 
 <div class="section">To Dos</div>
 <div class="card">
-<div class="actions"><button class="btn alt" onclick="addTodo()">+ Add To Do</button></div>
+<label>Add task</label>
+<div class="row" style="align-items:stretch">
+<input id="todoQuickInput" placeholder="Type a task or use a preset below" onkeydown="if(event.key==='Enter'){event.preventDefault();addTodoFromInput()}">
+<button class="btn alt" type="button" onclick="addTodoFromInput()">+ Add</button>
+</div>
 <div class="small" style="margin:9px 0">Persistent To Dos return on the next visit until completed. TODAY items exist only for this visit.</div>
 <div id="todoList"></div>
 </div>
@@ -182,6 +186,18 @@ SITE NOTES:
 <button class="btn" onclick="applyPreset('description')">+ Description</button>
 </div>
 <div class="small" style="margin-top:9px"><strong>To Do</strong> carries forward. <strong>Work Today</strong> does not. <strong>Description</strong> records the task as completed immediately.</div>
+</div>
+
+<div class="section">Calendar To Do output</div>
+<div class="card">
+<div class="small" style="margin-bottom:8px">Live copy for the next Calendar visit. It includes outstanding persistent To Dos only; TODAY-only work and completed tasks are excluded.</div>
+<pre id="calendarTodoPreview">TO DO:
+- No outstanding persistent To Dos</pre>
+<div class="actions">
+<button class="btn" type="button" onclick="copyCalendarTodos()">Copy To Dos</button>
+<button class="btn alt" type="button" onclick="copyFullCalendarNotes()">Copy full Calendar notes</button>
+</div>
+<div class="small" style="margin-top:8px">Full Calendar notes also includes personnel and protected Site Notes in the format Fieldbook can read back later.</div>
 </div>
 
 <div class="section">Invoice description · completed today</div>
@@ -208,14 +224,14 @@ SITE NOTES:
 <div class="card">
 <div class="grid">
 <div><label>Green waste</label><select id="waste"><option value="none">None</option><option value="small">≤100 kg</option><option value="medium">100–200 kg</option><option value="large">Over 200 kg</option></select></div>
-<div><label>Dump km to 110 Glenda Drive</label><input id="dumpKm" type="number" step=".1" min="0"></div>
+<div><label>Dump km to 110 Glenda Drive · auto</label><input id="dumpKm" type="number" step=".1" min="0" placeholder="Calculates when waste selected"></div>
 <div><label>Ride-on hours</label><input id="rideOn" type="number" step=".25" min="0" value="0"></div>
 <div><label>Spray units (15 L)</label><input id="spray" type="number" min="0" value="0"></div>
 </div>
-<div class="notice" style="margin-top:10px">Waste km rate: $2/km. Waste-run labour: 0.5 hr when waste applies.</div>
+<div class="notice" style="margin-top:10px"><strong>Automatic:</strong> selecting a Green Waste category calculates the one-way property → 110 Glenda Drive distance. Waste km rate: $2/km. Waste-run labour: 0.5 hr when waste applies.</div>
 <div id="routeStatus" class="small" style="margin-top:9px">Select Green Waste to calculate the one-way route to 110 Glenda Drive.</div>
 <div class="actions" style="margin-top:9px">
-<button class="btn alt" type="button" onclick="autoDumpKm(true)">Auto km</button>
+<button class="btn alt" type="button" onclick="autoDumpKm(true)">Recalculate km</button>
 <button class="btn light" type="button" onclick="openDumpRoute()">Open route</button>
 </div>
 </div>
@@ -583,6 +599,7 @@ function renderJob(){
   renderHistory(j);
   if(j.waste&&j.waste!=='none'&&j.dumpKm)setRouteStatus(Number(j.dumpKm).toFixed(1)+' km one way to 110 Glenda Drive',false);
   else setRouteStatus('Select Green Waste to calculate the one-way route to 110 Glenda Drive.',false);
+  refreshCalendarTodoPreview();
   refreshJobPreview();
 }
 
@@ -597,10 +614,20 @@ function renderHistory(j){
   }).join('');
 }
 
+function addPersistentTodoText(text){
+  var j=activeJob();if(!j||j.completed)return false;
+  var t=String(text||'').trim();if(!t)return false;
+  var duplicate=j.todos.some(function(x){return !x.done&&x.scope!=='today'&&x.text.toLowerCase()===t.toLowerCase()});
+  if(!duplicate)j.todos.push({id:'t_'+Date.now()+'_'+Math.random(),text:t,done:false,scope:'property'});
+  save();renderJob();return true;
+}
+window.addTodoFromInput=function(){
+  var input=document.getElementById('todoQuickInput');if(!input)return;
+  if(addPersistentTodoText(input.value))input.value='';
+};
 window.addTodo=function(){
-  var j=activeJob();if(!j||j.completed)return;
   var t=prompt('Add To Do');
-  if(t&&t.trim()){j.todos.push({id:'t_'+Date.now(),text:t.trim(),done:false,scope:'property'});save();renderJob()}
+  if(t)addPersistentTodoText(t);
 };
 window.finishTodo=function(id){
   var j=activeJob();if(!j||j.completed)return;
@@ -617,6 +644,42 @@ window.appendSiteNote=function(){
   var j=activeJob();if(!j)return;
   var n=prompt('Append site note');
   if(n&&n.trim()){pushUnique(j.siteNotes,n.trim());save();renderJob()}
+};
+
+function calendarTodoText(j){
+  if(!j)return 'TO DO:\n- No outstanding persistent To Dos';
+  var items=(j.todos||[]).filter(function(t){return !t.done&&t.scope!=='today'}).map(function(t){return t.text});
+  var lines=['TO DO:'];
+  if(items.length)items.forEach(function(t){lines.push('- '+t)});
+  else lines.push('- No outstanding persistent To Dos');
+  return lines.join('\n');
+}
+function fullCalendarNotesText(j){
+  if(!j)return '';
+  var lines=[String(j.personnel||2)+' personnel','',calendarTodoText(j)];
+  var notes=(j.siteNotes||[]).filter(Boolean);
+  if(notes.length){
+    lines.push('');
+    lines.push('SITE NOTES:');
+    notes.forEach(function(n){lines.push('- '+n)});
+  }
+  return lines.join('\n');
+}
+function refreshCalendarTodoPreview(){
+  var el=document.getElementById('calendarTodoPreview');
+  if(!el)return;
+  el.textContent=calendarTodoText(activeJob());
+}
+window.copyCalendarTodos=async function(){
+  var text=calendarTodoText(activeJob());
+  try{await navigator.clipboard.writeText(text);alert('Calendar To Dos copied')}
+  catch(e){alert('Select the Calendar To Do output and copy manually.')}
+};
+window.copyFullCalendarNotes=async function(){
+  var text=fullCalendarNotesText(activeJob());
+  if(!text)return;
+  try{await navigator.clipboard.writeText(text);alert('Full Calendar notes copied')}
+  catch(e){alert('Select the Calendar notes output and copy manually.')}
 };
 
 function presetText(){
@@ -657,7 +720,7 @@ window.autoDumpKm=async function(showFailure){
     if(!res.ok||data.code!=='Ok'||!data.routes||!data.routes.length)throw new Error('Route failed');
     var km=Math.round((data.routes[0].distance/1000)*10)/10;j.dumpKm=km;j.dumpKmSource='auto';document.getElementById('dumpKm').value=km.toFixed(1);save();
     setRouteStatus(km.toFixed(1)+' km one way to 110 Glenda Drive',false);refreshJobPreview();return true;
-  }catch(e){setRouteStatus('Auto km could not resolve this route. Use Open route or enter km manually.',true);if(showFailure)alert('Auto km could not resolve this route.');return false}
+  }catch(e){j.dumpKmSource='manual-needed';save();setRouteStatus('Auto km could not resolve this route. Enter km manually or use Open route.',true);if(showFailure)alert('Auto km could not resolve this route. Enter km manually or use Open route.');return false}
 };
 window.openDumpRoute=function(){
   var j=activeJob();if(!j||!j.address){alert('No property address is available.');return}
@@ -978,8 +1041,26 @@ document.getElementById('dateText').addEventListener('change',function(){var d=d
 ['personnel','startTime','endTime','rideOn','spray'].forEach(function(id){
   document.getElementById(id).addEventListener('change',function(){var j=activeJob();if(j&&!j.completed){syncFields(j);save();refreshJobPreview()}})
 });
-document.getElementById('dumpKm').addEventListener('change',function(){var j=activeJob();if(!j||j.completed)return;syncFields(j);j.dumpKmSource='manual';save();if(j.dumpKm)setRouteStatus(Number(j.dumpKm).toFixed(1)+' km manual',false);refreshJobPreview()});
-document.getElementById('waste').addEventListener('change',async function(){var j=activeJob();if(!j||j.completed)return;syncFields(j);save();if(j.waste!=='none')await autoDumpKm(false);else setRouteStatus('Select Green Waste to calculate the one-way route to 110 Glenda Drive.',false);refreshJobPreview()});
+document.getElementById('dumpKm').addEventListener('change',function(){var j=activeJob();if(!j||j.completed)return;syncFields(j);j.dumpKmSource='manual';save();if(j.dumpKm){j.dumpKmSource='manual';save();setRouteStatus(Number(j.dumpKm).toFixed(1)+' km manual override',false)}refreshJobPreview()});
+document.getElementById('waste').addEventListener('change',async function(){
+  var j=activeJob();if(!j||j.completed)return;
+  syncFields(j);
+  if(j.waste!=='none'){
+    j.dumpKm=0;
+    j.dumpKmSource='auto-pending';
+    document.getElementById('dumpKm').value='';
+    setRouteStatus('Calculating property → 110 Glenda Drive automatically…',false);
+    save();
+    await autoDumpKm(false);
+  }else{
+    j.dumpKm=0;
+    j.dumpKmSource='';
+    document.getElementById('dumpKm').value='';
+    save();
+    setRouteStatus('Select Green Waste to calculate the one-way route to 110 Glenda Drive.',false);
+  }
+  refreshJobPreview();
+});
 
 ['perfSmallCharge','perfMediumCharge','perfLargeCharge','perfLabourRate','perfKmRate','perfWasteHours'].forEach(function(id){
   var el=document.getElementById(id);if(el)el.addEventListener('change',savePerformanceSettings);
