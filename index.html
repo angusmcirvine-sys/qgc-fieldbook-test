@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#173d2c">
+<title>QGC Fieldbook</title>
+<style>
+:root{--g:#173d2c;--g2:#245740;--lime:#b8d36b;--bg:#f4f6f1;--card:#fff;--ink:#16221c;--muted:#66716a;--line:#dce3dc;--done:#e8ece8}
+*{box-sizing:border-box}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--ink)}
+header{position:sticky;top:0;z-index:20;background:var(--g);color:#fff;padding:14px 16px 10px;box-shadow:0 1px 8px #0002}
+.brand{display:flex;justify-content:space-between;gap:12px;align-items:center}.brand strong{font-size:17px}.brand small{opacity:.8}
+nav{display:flex;gap:6px;overflow:auto;margin-top:12px}nav button{border:0;border-radius:999px;padding:8px 12px;background:#ffffff18;color:#fff;font-weight:700;white-space:nowrap}nav button.active{background:var(--lime);color:#18311f}
+main{max-width:720px;margin:auto;padding:14px 14px 90px}.page{display:none}.page.active{display:block}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;margin:10px 0;box-shadow:0 2px 7px #0000000b}
+.card.done{background:var(--done);opacity:.62}.row{display:flex;gap:10px;align-items:center;justify-content:space-between}.grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+label{display:block;font-size:11px;font-weight:800;color:var(--muted);margin-bottom:5px}input,textarea,select{width:100%;font:inherit;padding:11px;border:1px solid #cdd6cf;border-radius:10px;background:#fff}
+textarea{min-height:110px;resize:vertical}.btn{border:0;border-radius:11px;padding:11px 13px;font-weight:800;background:var(--g);color:#fff}.btn.alt{background:#e9efe9;color:var(--g)}.btn.light{background:#fff;border:1px solid var(--line);color:var(--g)}.btn:disabled{opacity:.45}
+.actions{display:flex;gap:8px;flex-wrap:wrap}.section{font-size:12px;text-transform:uppercase;letter-spacing:.07em;color:var(--g);font-weight:900;margin:18px 2px 7px}
+.small{font-size:12px;color:var(--muted)}.badge{display:inline-block;padding:4px 8px;border-radius:999px;background:#edf3df;color:#38501f;font-size:10px;font-weight:900}.next{outline:2px solid var(--lime)}
+.todo{display:flex;gap:9px;align-items:flex-start;padding:9px 0;border-bottom:1px solid #edf0ed}.todo input{width:20px;height:20px;margin-top:1px}.todo span{flex:1}.works li{margin:7px 0}.empty{text-align:center;color:var(--muted);padding:24px 8px}
+.kpi{font-size:26px;font-weight:900;color:var(--g)}.notice{padding:10px;border-radius:10px;background:#f4f7e9;color:#465728;font-size:12px}.danger{background:#fff0ef;color:#842e28}
+pre{white-space:pre-wrap;background:#f7f8f6;border:1px solid var(--line);border-radius:10px;padding:11px;font:12px/1.5 ui-monospace,SFMono-Regular,monospace}
+@media(max-width:520px){.grid{grid-template-columns:1fr}.brand small{display:none}}
+</style>
+</head>
+<body>
+<header>
+<div class="brand"><div><strong>Queenstown Garden Company</strong><div><small>FIELD BOOK · iPHONE CALENDAR TEST</small></div></div><span class="badge">EMPTY BUILD</span></div>
+<nav>
+<button class="active" data-page="today">Today</button>
+<button data-page="import">Calendar</button>
+<button data-page="job">Job</button>
+<button data-page="draft">Xero draft</button>
+</nav>
+</header>
+<main>
+<section id="today" class="page active">
+<div class="section">Selected day</div>
+<div class="card">
+<div class="row"><div><div class="small">Calendar date</div><div id="dayTitle" class="kpi"></div></div><button class="btn alt" onclick="showPage('import')">Load calendar</button></div>
+</div>
+<div id="todayList"></div>
+</section>
+
+<section id="import" class="page">
+<div class="section">iPhone Calendar</div>
+<div class="card">
+<div class="grid">
+<div><label>Date</label><input id="dateText" inputmode="numeric" placeholder="DD/MM/YYYY"></div>
+<div><label>Calendar</label><select id="calendarName"><option>Truck 1</option><option>Truck 2</option><option>Truck 3</option><option>Work</option></select></div>
+</div>
+<div class="actions" style="margin-top:10px">
+<button class="btn light" onclick="setDateOffset(0)">Today</button>
+<button class="btn light" onclick="setDateOffset(1)">Tomorrow</button>
+<button class="btn light" onclick="shiftDate(-1)">− 1 day</button>
+<button class="btn light" onclick="shiftDate(1)">+ 1 day</button>
+</div>
+<div class="actions" style="margin-top:10px">
+<button class="btn" onclick="runShortcut()">Run iPhone Shortcut</button>
+<button class="btn alt" onclick="pasteClipboard()">Paste Calendar</button>
+</div>
+<div class="small" style="margin-top:9px">Shortcut receives the selected date. If clipboard permission is blocked, paste manually below.</div>
+</div>
+
+<div class="card">
+<label>Calendar data</label>
+<textarea id="calendarText" placeholder="Paste Shortcut output here…"></textarea>
+<div class="actions" style="margin-top:10px">
+<button class="btn alt" onclick="previewImport()">Preview</button>
+<button class="btn" onclick="loadCalendar()">Load into Today</button>
+</div>
+<div id="previewBox" class="notice" style="margin-top:10px">No calendar data loaded.</div>
+</div>
+
+<div class="card">
+<div class="small"><strong>Expected Shortcut structure</strong></div>
+<pre>QGC_CALENDAR_V1
+DATE: 2026-09-20
+CALENDAR: Truck 1
+EVENT
+TITLE: Property / client
+START: 08:00
+END: 10:00
+ADDRESS: Full address
+NOTES: 2 personnel
+TO DO: Cut and shape hedges
+SITE NOTE: Access via lower gate
+END_EVENT</pre>
+</div>
+</section>
+
+<section id="job" class="page">
+<div id="jobEmpty" class="card empty">Choose a job from Today.</div>
+<div id="jobPanel" style="display:none">
+<div class="card">
+<div class="row"><div><h2 id="jobTitle" style="margin:0"></h2><div id="jobAddress" class="small"></div></div><span id="jobStatus" class="badge"></span></div>
+</div>
+<div class="section">Personnel & time</div>
+<div class="card">
+<div class="grid">
+<div><label>Personnel</label><input id="personnel" type="number" min="1"></div>
+<div><label>Date</label><input id="jobDate" readonly></div>
+<div><label>Start</label><input id="startTime" type="time"></div>
+<div><label>Finish</label><input id="endTime" type="time"></div>
+</div>
+</div>
+
+<div class="section">To Dos</div>
+<div class="card">
+<div class="actions"><button class="btn alt" onclick="addTodo()">+ Add To Do</button></div>
+<div class="small" style="margin:9px 0">Check an item when completed. It immediately moves into the invoice description. Anything unchecked stays as a To Do for the next visit.</div>
+<div id="todoList"></div>
+</div>
+
+<div class="section">Invoice description · completed today</div>
+<div class="card"><ul id="worksList" class="works"></ul><div id="noWorks" class="small">No completed works yet.</div></div>
+
+<div class="section">Protected site notes</div>
+<div class="card"><div id="siteNotes"></div><div class="actions" style="margin-top:10px"><button class="btn alt" onclick="appendSiteNote()">Append site note</button></div></div>
+
+<div class="section">Charges / visit actuals</div>
+<div class="card">
+<div class="grid">
+<div><label>Green waste</label><select id="waste"><option value="none">None</option><option value="small">≤100 kg</option><option value="medium">100–200 kg</option><option value="large">Over 200 kg</option></select></div>
+<div><label>Dump km to 110 Glenda Drive</label><input id="dumpKm" type="number" step=".1" min="0"></div>
+<div><label>Ride-on hours</label><input id="rideOn" type="number" step=".25" min="0" value="0"></div>
+<div><label>Spray units (15 L)</label><input id="spray" type="number" min="0" value="0"></div>
+</div>
+<div class="notice" style="margin-top:10px">Waste km rate: $2/km. Waste-run labour: 0.5 hr when waste applies.</div>
+</div>
+
+<div class="actions">
+<button id="completeBtn" class="btn" onclick="completeJob()">Complete Job</button>
+<button class="btn light" onclick="showPage('today')">Back to Today</button>
+</div>
+</div>
+</section>
+
+<section id="draft" class="page">
+<div class="section">Xero draft output</div>
+<div class="card">
+<pre id="draftText">Complete a job to create a draft.</pre>
+<div class="actions">
+<button class="btn" onclick="copyDraft()">Copy draft</button>
+<button class="btn alt" onclick="exportDraft()">Export .txt</button>
+<button class="btn light" onclick="alert('Xero API connection will replace this placeholder later.')">Send to Xero · later</button>
+</div>
+</div>
+</section>
+</main>
+
+<script>
+(function(){
+var KEY='qgcFieldbookHttpsV1Empty';
+var state;
+try{state=JSON.parse(localStorage.getItem(KEY)||'null')}catch(e){}
+if(!state)state={date:isoDate(new Date()),jobs:[],active:null,lastDraft:''};
+function save(){localStorage.setItem(KEY,JSON.stringify(state))}
+function esc(s){return String(s||'').replace(/[&<>"']/g,function(m){return({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])})}
+function isoDate(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+function dateObj(s){var m=String(s||'').trim().match(/^(\d{4})-(\d{2})-(\d{2})$/);if(m)return new Date(+m[1],+m[2]-1,+m[3]);m=String(s||'').trim().match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);if(m)return new Date(+m[3],+m[2]-1,+m[1]);return null}
+function pretty(s){var d=dateObj(s);return d?new Intl.DateTimeFormat('en-NZ',{weekday:'short',day:'numeric',month:'short',year:'numeric'}).format(d):s}
+function showPage(id){document.querySelectorAll('.page').forEach(function(x){x.classList.toggle('active',x.id===id)});document.querySelectorAll('nav button').forEach(function(x){x.classList.toggle('active',x.dataset.page===id)});window.scrollTo(0,0)}
+window.showPage=showPage;
+document.querySelectorAll('nav button').forEach(function(b){b.onclick=function(){showPage(b.dataset.page)}});
+function setDateField(s){state.date=s;save();document.getElementById('dateText').value=formatNZ(s);renderToday()}
+function formatNZ(s){var d=dateObj(s);return d?String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0')+'/'+d.getFullYear():s}
+window.setDateOffset=function(n){var d=new Date();d.setHours(12,0,0,0);d.setDate(d.getDate()+n);setDateField(isoDate(d))}
+window.shiftDate=function(n){var d=dateObj(document.getElementById('dateText').value)||dateObj(state.date)||new Date();d.setDate(d.getDate()+n);setDateField(isoDate(d))}
+function selectedIso(){var d=dateObj(document.getElementById('dateText').value);if(!d){alert('Enter date as DD/MM/YYYY or YYYY-MM-DD');return null}return isoDate(d)}
+window.runShortcut=function(){var d=selectedIso();if(!d)return;var name='QGC Truck 1 Import';var url='shortcuts://run-shortcut?name='+encodeURIComponent(name)+'&input=text&text='+encodeURIComponent(d);location.href=url}
+window.pasteClipboard=async function(){try{document.getElementById('calendarText').value=await navigator.clipboard.readText();previewImport()}catch(e){alert('Clipboard access was blocked. Tap the text box and use Paste.')}}
+function parseCalendar(txt){
+var events=[];var lines=String(txt||'').replace(/\r/g,'').split('\n');var cur=null;var date=null;
+lines.forEach(function(raw){
+var line=raw.trim();if(!line)return;
+if(/^DATE:/i.test(line)){date=line.replace(/^DATE:\s*/i,'').trim();return}
+if(/^EVENT$/i.test(line)){cur={title:'',start:'',end:'',address:'',notes:[],todos:[],siteNotes:[],personnel:2};return}
+if(/^END_EVENT$/i.test(line)){if(cur&&cur.title)events.push(cur);cur=null;return}
+if(!cur)return;
+if(/^TITLE:/i.test(line))cur.title=line.replace(/^TITLE:\s*/i,'').trim();
+else if(/^START:/i.test(line))cur.start=line.replace(/^START:\s*/i,'').trim();
+else if(/^END:/i.test(line))cur.end=line.replace(/^END:\s*/i,'').trim();
+else if(/^ADDRESS:/i.test(line))cur.address=line.replace(/^ADDRESS:\s*/i,'').trim();
+else if(/^TO DO:/i.test(line))cur.todos.push(line.replace(/^TO DO:\s*/i,'').trim());
+else if(/^SITE NOTE:/i.test(line))cur.siteNotes.push(line.replace(/^SITE NOTE:\s*/i,'').trim());
+else if(/^NOTES:/i.test(line)){var n=line.replace(/^NOTES:\s*/i,'').trim();cur.notes.push(n);var p=n.match(/(\d+)\s*(?:personnel|people|staff)/i);if(p)cur.personnel=+p[1]}
+});
+if(cur&&cur.title)events.push(cur);
+return {date:date,events:events}
+}
+window.previewImport=function(){var p=parseCalendar(document.getElementById('calendarText').value);document.getElementById('previewBox').innerHTML=p.events.length?'<strong>'+p.events.length+' event(s)</strong><br>'+p.events.map(function(e){return esc(e.start+'–'+e.end+' · '+e.title)}).join('<br>'):'No EVENT blocks found. Use the Shortcut format shown below.'}
+function findExisting(e){return state.jobs.find(function(j){return (e.address&&j.address&&e.address.toLowerCase()===j.address.toLowerCase())||j.title.toLowerCase()===e.title.toLowerCase()})}
+window.loadCalendar=function(){
+var d=selectedIso();if(!d)return;var p=parseCalendar(document.getElementById('calendarText').value);if(!p.events.length){alert('No calendar events found.');return}
+state.date=d;
+p.events.forEach(function(e,i){
+var old=findExisting(e);var id=old?old.id:'job_'+Date.now()+'_'+i;
+var existingTodos=old?old.todos.filter(function(t){return !t.done}):[];
+e.todos.forEach(function(t){if(!existingTodos.some(function(x){return x.text.toLowerCase()===t.toLowerCase()}))existingTodos.push({id:'t_'+Date.now()+'_'+Math.random(),text:t,done:false})});
+var notes=old?old.siteNotes.slice():[];
+e.siteNotes.forEach(function(n){if(notes.indexOf(n)<0)notes.push(n)});
+var job={id:id,title:e.title,address:e.address,date:d,start:e.start,end:e.end,personnel:e.personnel||2,todos:existingTodos,completedWorks:[],siteNotes:notes,waste:'none',dumpKm:0,rideOn:0,spray:0,completed:false};
+if(old){Object.keys(job).forEach(function(k){old[k]=job[k]})}else state.jobs.push(job)
+});
+save();renderToday();showPage('today')
+}
+function jobsForDay(){return state.jobs.filter(function(j){return j.date===state.date}).sort(function(a,b){return (a.start||'').localeCompare(b.start||'')})}
+function renderToday(){
+document.getElementById('dayTitle').textContent=pretty(state.date);document.getElementById('dateText').value=formatNZ(state.date);
+var arr=jobsForDay();var box=document.getElementById('todayList');
+if(!arr.length){box.innerHTML='<div class="card empty">No jobs loaded for this date.<br><br><button class="btn" onclick="showPage(\'import\')">Load from iPhone Calendar</button></div>';return}
+var first=arr.find(function(j){return !j.completed});
+box.innerHTML=arr.map(function(j){
+var cls='card'+(j.completed?' done':'')+(first&&first.id===j.id?' next':'');
+return '<div class="'+cls+'"><div class="row"><div><h3 style="margin:0">'+esc(j.title)+'</h3><div class="small">'+esc((j.start||'')+'–'+(j.end||'')+' · '+j.personnel+' personnel')+'</div><div class="small">'+esc(j.address||'No address')+'</div></div><span class="badge">'+(j.completed?'COMPLETED':(first&&first.id===j.id?'NEXT JOB':'READY'))+'</span></div><div class="actions" style="margin-top:11px"><button class="btn '+(j.completed?'light':'')+'" onclick="openJob(\''+j.id+'\')" '+(j.completed?'disabled':'')+'>'+(j.completed?'Completed':'Open job')+'</button></div></div>'
+}).join('')
+}
+window.openJob=function(id){state.active=id;save();renderJob();showPage('job')}
+function activeJob(){return state.jobs.find(function(j){return j.id===state.active})}
+function renderJob(){
+var j=activeJob();document.getElementById('jobEmpty').style.display=j?'none':'block';document.getElementById('jobPanel').style.display=j?'block':'none';if(!j)return;
+document.getElementById('jobTitle').textContent=j.title;document.getElementById('jobAddress').textContent=j.address||'';document.getElementById('jobStatus').textContent=j.completed?'Completed':'Active';
+document.getElementById('personnel').value=j.personnel;document.getElementById('jobDate').value=pretty(j.date);document.getElementById('startTime').value=j.start;document.getElementById('endTime').value=j.end;
+document.getElementById('waste').value=j.waste||'none';document.getElementById('dumpKm').value=j.dumpKm||'';document.getElementById('rideOn').value=j.rideOn||0;document.getElementById('spray').value=j.spray||0;
+var todos=j.todos.filter(function(t){return !t.done});document.getElementById('todoList').innerHTML=todos.length?todos.map(function(t){return '<label class="todo"><input type="checkbox" onchange="finishTodo(\''+t.id+'\')"><span>'+esc(t.text)+'</span></label>'}).join(''):'<div class="small" style="padding:10px 0">No unchecked To Dos remain for this visit.</div>';
+document.getElementById('worksList').innerHTML=j.completedWorks.map(function(w,i){return '<li>'+esc(w)+' <button class="btn light" style="padding:3px 7px" onclick="undoWork('+i+')">Undo</button></li>'}).join('');
+document.getElementById('noWorks').style.display=j.completedWorks.length?'none':'block';
+document.getElementById('siteNotes').innerHTML=j.siteNotes.length?j.siteNotes.map(function(n){return '<div class="notice" style="margin:6px 0">'+esc(n)+'</div>'}).join(''):'<div class="small">No site notes.</div>';
+}
+function syncFields(j){j.personnel=+document.getElementById('personnel').value||1;j.start=document.getElementById('startTime').value;j.end=document.getElementById('endTime').value;j.waste=document.getElementById('waste').value;j.dumpKm=+document.getElementById('dumpKm').value||0;j.rideOn=+document.getElementById('rideOn').value||0;j.spray=+document.getElementById('spray').value||0}
+window.addTodo=function(){var j=activeJob();if(!j)return;var t=prompt('Add To Do');if(t&&t.trim()){j.todos.push({id:'t_'+Date.now(),text:t.trim(),done:false});save();renderJob()}}
+window.finishTodo=function(id){var j=activeJob();var t=j.todos.find(function(x){return x.id===id});if(!t)return;t.done=true;j.completedWorks.push(t.text);save();renderJob()}
+window.undoWork=function(i){var j=activeJob();var text=j.completedWorks.splice(i,1)[0];var t=j.todos.find(function(x){return x.text===text&&x.done});if(t)t.done=false;else j.todos.push({id:'t_'+Date.now(),text:text,done:false});save();renderJob()}
+window.appendSiteNote=function(){var j=activeJob();if(!j)return;var n=prompt('Append site note');if(n&&n.trim()){j.siteNotes.push(n.trim());save();renderJob()}}
+function hours(a,b){if(!a||!b)return 0;var x=a.split(':').map(Number),y=b.split(':').map(Number);return Math.max(0,(y[0]*60+y[1]-x[0]*60-x[1])/60)}
+function buildDraft(j){
+var visit=hours(j.start,j.end);var team=visit*j.personnel;var waste=j.waste!=='none';var lines=[];
+lines.push('Personnel: '+j.personnel);lines.push('Time: '+j.start+'–'+j.end);lines.push('Labour: '+team.toFixed(2)+' hrs');
+if(j.rideOn)lines.push('Ride-on: '+Number(j.rideOn).toFixed(2)+' hrs');
+if(waste){lines.push('Green waste: '+j.waste);lines.push('Waste run: 0.50 hr');lines.push('Dump travel: '+Number(j.dumpKm||0).toFixed(1)+' km × $2.00/km = $'+(Number(j.dumpKm||0)*2).toFixed(2)+' · to 110 Glenda Drive')}
+if(j.spray)lines.push('Spray: '+j.spray+' × 15 L application');
+lines.push('');lines.push('Description of works:');
+if(j.completedWorks.length)j.completedWorks.forEach(function(w){lines.push('- '+w)});else lines.push('- No completed works recorded');
+return lines.join('\n')
+}
+window.completeJob=function(){
+var j=activeJob();if(!j)return;syncFields(j);if(j.waste!=='none'&&!j.dumpKm){alert('Green waste is selected. Confirm dump km before completing the job.');return}
+j.completed=true;j.lastDraft=buildDraft(j);state.lastDraft=j.lastDraft;save();document.getElementById('draftText').textContent=state.lastDraft;renderToday();showPage('today')
+}
+window.copyDraft=async function(){if(!state.lastDraft)return;try{await navigator.clipboard.writeText(state.lastDraft);alert('Draft copied')}catch(e){alert('Select the draft text and copy manually.')}}
+window.exportDraft=function(){if(!state.lastDraft)return;var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([state.lastDraft],{type:'text/plain'}));a.download='QGC-Xero-draft.txt';a.click();setTimeout(function(){URL.revokeObjectURL(a.href)},500)}
+document.getElementById('dateText').addEventListener('change',function(){var d=dateObj(this.value);if(d){state.date=isoDate(d);save();renderToday()}});
+document.getElementById('personnel').addEventListener('change',function(){var j=activeJob();if(j){syncFields(j);save()}});
+['startTime','endTime','waste','dumpKm','rideOn','spray'].forEach(function(id){document.getElementById(id).addEventListener('change',function(){var j=activeJob();if(j){syncFields(j);save()}})});
+document.getElementById('draftText').textContent=state.lastDraft||'Complete a job to create a draft.';
+renderToday();
+})();
+</script>
+</body>
+</html>
