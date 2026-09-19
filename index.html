@@ -162,6 +162,12 @@ END_EVENT</pre>
 <div><label>Spray units (15 L)</label><input id="spray" type="number" min="0" value="0"></div>
 </div>
 <div class="notice" style="margin-top:10px">Waste km rate: $2/km. Waste-run labour: 0.5 hr when waste applies.</div>
+<div id="routeStatus" class="small" style="margin-top:9px">Select Green Waste to calculate the one-way route to 110 Glenda Drive.</div>
+<div class="actions" style="margin-top:9px">
+<button class="btn alt" type="button" onclick="autoDumpKm(true)">Auto km</button>
+<button class="btn light" type="button" onclick="openDumpRoute()">Open route</button>
+</div>
+<div class="small" style="margin-top:8px">Prototype routing uses OpenStreetMap-based geocoding/routing. The client address is sent to that mapping service for this calculation. The km field remains editable.</div>
 </div>
 
 <div class="actions">
@@ -190,6 +196,7 @@ var KEY='qgcFieldbookHttpsV1Empty';
 var state;
 try{state=JSON.parse(localStorage.getItem(KEY)||'null')}catch(e){}
 if(!state)state={date:isoDate(new Date()),jobs:[],active:null,lastDraft:''};
+if(!state.routeCache)state.routeCache={};
 function save(){localStorage.setItem(KEY,JSON.stringify(state))}
 function esc(s){return String(s||'').replace(/[&<>"']/g,function(m){return({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])})}
 function isoDate(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
@@ -275,8 +282,481 @@ var todos=j.todos.filter(function(t){return !t.done});document.getElementById('t
 document.getElementById('worksList').innerHTML=j.completedWorks.map(function(w,i){return '<li>'+esc(w)+' <button class="btn light" style="padding:3px 7px" onclick="undoWork('+i+')">Undo</button></li>'}).join('');
 document.getElementById('noWorks').style.display=j.completedWorks.length?'none':'block';
 document.getElementById('siteNotes').innerHTML=j.siteNotes.length?j.siteNotes.map(function(n){return '<div class="notice" style="margin:6px 0">'+esc(n)+'</div>'}).join(''):'<div class="small">No site notes.</div>';
+if(j.waste&&j.waste!=='none'&&j.dumpKm){
+  setRouteStatus(Number(j.dumpKm).toFixed(1)+' km one way · 
+function syncFields(j){j.personnel=+document.getElementById('personnel').value||1;j.start=document.getElementById('startTime').value;j.end=document.getElementById('endTime').value;j.waste=document.getElementById('waste').value;j.dumpKm=+document.getElementById('dumpKm').value||0;j.rideOn=+document.getElementById('rideOn').value||0;j.spray=+document.getElementById('spray').value||0}
+
+var DUMP_ADDRESS='110 Glenda Drive, Frankton, Queenstown 9300, New Zealand';
+
+function setRouteStatus(msg,bad){
+  var e=document.getElementById('routeStatus');
+  if(!e)return;
+  e.textContent=msg;
+  e.style.color=bad?'#842e28':'#66716a';
+}
+
+function normaliseRouteAddress(address){
+  var q=String(address||'').trim();
+  if(!q)return '';
+  if(!/(queenstown|frankton|arrowtown|lake hayes|arthurs point|fernhill|new zealand)/i.test(q)){
+    q+=', Queenstown, New Zealand';
+  }else if(!/new zealand/i.test(q)){
+    q+=', New Zealand';
+  }
+  return q;
+}
+
+async function geocodeAddress(address){
+  var q=normaliseRouteAddress(address);
+  if(!q)throw new Error('No address');
+  var key='geo:'+q.toLowerCase();
+  if(state.routeCache[key])return state.routeCache[key];
+  var url='https://photon.komoot.io/api/?limit=1&lang=en&lat=-45.0312&lon=168.6626&q='+encodeURIComponent(q);
+  var res=await fetch(url,{headers:{'Accept':'application/json'}});
+  if(!res.ok)throw new Error('Address lookup failed');
+  var data=await res.json();
+  if(!data.features||!data.features.length)throw new Error('Address not found');
+  var c=data.features[0].geometry.coordinates;
+  var point={lon:+c[0],lat:+c[1]};
+  state.routeCache[key]=point;
+  save();
+  return point;
+}
+
+async function autoDumpKm(showFailure){
+  var j=activeJob();
+  if(!j)return false;
+  syncFields(j);
+  if(j.waste==='none'){
+    setRouteStatus('Select Green Waste to calculate the one-way route to 110 Glenda Drive.',false);
+    return false;
+  }
+  if(!j.address){
+    setRouteStatus('No property address was imported from the Calendar Location field. Add/confirm the address before calculating km.',true);
+    if(showFailure)alert('No property address was imported from Calendar.');
+    return false;
+  }
+  setRouteStatus('Calculating '+j.address+' → 110 Glenda Drive…',false);
+  try{
+    var origin=await geocodeAddress(j.address);
+    var dest=await geocodeAddress(DUMP_ADDRESS);
+    var routeUrl='https://router.project-osrm.org/route/v1/driving/'+origin.lon+','+origin.lat+';'+dest.lon+','+dest.lat+'?overview=false&alternatives=false&steps=false';
+    var rr=await fetch(routeUrl,{headers:{'Accept':'application/json'}});
+    if(!rr.ok)throw new Error('Routing service failed');
+    var route=await rr.json();
+    if(route.code!=='Ok'||!route.routes||!route.routes.length)throw new Error('No driving route found');
+    var km=Math.round((route.routes[0].distance/1000)*10)/10;
+    j.dumpKm=km;
+    j.dumpKmSource='auto';
+    document.getElementById('dumpKm').value=km.toFixed(1);
+    save();
+    setRouteStatus(km.toFixed(1)+' km one way · 
+window.addTodo=function(){var j=activeJob();if(!j)return;var t=prompt('Add To Do');if(t&&t.trim()){j.todos.push({id:'t_'+Date.now(),text:t.trim(),done:false});save();renderJob()}}
+window.finishTodo=function(id){var j=activeJob();var t=j.todos.find(function(x){return x.id===id});if(!t)return;t.done=true;j.completedWorks.push(t.text);save();renderJob()}
+window.undoWork=function(i){var j=activeJob();var text=j.completedWorks.splice(i,1)[0];var t=j.todos.find(function(x){return x.text===text&&x.done});if(t)t.done=false;else j.todos.push({id:'t_'+Date.now(),text:text,done:false});save();renderJob()}
+window.appendSiteNote=function(){var j=activeJob();if(!j)return;var n=prompt('Append site note');if(n&&n.trim()){j.siteNotes.push(n.trim());save();renderJob()}}
+function hours(a,b){if(!a||!b)return 0;var x=a.split(':').map(Number),y=b.split(':').map(Number);return Math.max(0,(y[0]*60+y[1]-x[0]*60-x[1])/60)}
+function buildDraft(j){
+var visit=hours(j.start,j.end);var team=visit*j.personnel;var waste=j.waste!=='none';var lines=[];
+lines.push('Personnel: '+j.personnel);lines.push('Time: '+j.start+'–'+j.end);lines.push('Labour: '+team.toFixed(2)+' hrs');
+if(j.rideOn)lines.push('Ride-on: '+Number(j.rideOn).toFixed(2)+' hrs');
+if(waste){lines.push('Green waste: '+j.waste);lines.push('Waste run: 0.50 hr');lines.push('Dump travel: '+Number(j.dumpKm||0).toFixed(1)+' km × $2.00/km = $'+(Number(j.dumpKm||0)*2).toFixed(2)+' · to 110 Glenda Drive')}
+if(j.spray)lines.push('Spray: '+j.spray+' × 15 L application');
+lines.push('');lines.push('Description of works:');
+if(j.completedWorks.length)j.completedWorks.forEach(function(w){lines.push('- '+w)});else lines.push('- No completed works recorded');
+return lines.join('\n')
+}
+window.completeJob=async function(){
+var j=activeJob();if(!j)return;syncFields(j);
+if(j.waste!=='none'&&!j.dumpKm){
+  await autoDumpKm(false);
+  syncFields(j);
+  if(!j.dumpKm){alert('Green waste is selected. Auto km could not resolve the route, so confirm km manually before completing the job.');return}
+}
+j.completed=true;j.lastDraft=buildDraft(j);state.lastDraft=j.lastDraft;save();document.getElementById('draftText').textContent=state.lastDraft;renderToday();showPage('today')
+}
+window.copyDraft=async function(){if(!state.lastDraft)return;try{await navigator.clipboard.writeText(state.lastDraft);alert('Draft copied')}catch(e){alert('Select the draft text and copy manually.')}}
+window.exportDraft=function(){if(!state.lastDraft)return;var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([state.lastDraft],{type:'text/plain'}));a.download='QGC-Xero-draft.txt';a.click();setTimeout(function(){URL.revokeObjectURL(a.href)},500)}
+document.getElementById('dateText').addEventListener('change',function(){var d=dateObj(this.value);if(d){state.date=isoDate(d);save();renderToday()}});
+document.getElementById('personnel').addEventListener('change',function(){var j=activeJob();if(j){syncFields(j);save()}});
+['startTime','endTime','rideOn','spray'].forEach(function(id){document.getElementById(id).addEventListener('change',function(){var j=activeJob();if(j){syncFields(j);save()}})});
+document.getElementById('dumpKm').addEventListener('change',function(){var j=activeJob();if(j){syncFields(j);j.dumpKmSource='manual';save();if(j.dumpKm)setRouteStatus(Number(j.dumpKm).toFixed(1)+' km manual · 
+document.getElementById('draftText').textContent=state.lastDraft||'Complete a job to create a draft.';
+renderToday();
+if(location.hash==='#calendar-import'){showPage('import');var st=document.getElementById('shortcutStatus');if(st)st.innerHTML='<strong>Returned from Shortcuts.</strong> Tap Paste Calendar Result to bring the Truck 1 events into Fieldbook.'}
+})();
+</script>
+</body>
+</html>+(km*2).toFixed(2)+' at $2/km · to 110 Glenda Drive',false);
+    return true;
+  }catch(err){
+    setRouteStatus('Auto km could not resolve this address. Use Open route or enter km manually.',true);
+    if(showFailure)alert('Auto km could not resolve the route. You can open the route or enter the km manually.');
+    return false;
+  }
+}
+window.autoDumpKm=autoDumpKm;
+
+window.openDumpRoute=function(){
+  var j=activeJob();
+  if(!j||!j.address){alert('No property address is available for this job.');return}
+  var url='https://maps.apple.com/?saddr='+encodeURIComponent(normaliseRouteAddress(j.address))+'&daddr='+encodeURIComponent(DUMP_ADDRESS)+'&dirflg=d';
+  window.open(url,'_blank');
+}
+window.addTodo=function(){var j=activeJob();if(!j)return;var t=prompt('Add To Do');if(t&&t.trim()){j.todos.push({id:'t_'+Date.now(),text:t.trim(),done:false});save();renderJob()}}
+window.finishTodo=function(id){var j=activeJob();var t=j.todos.find(function(x){return x.id===id});if(!t)return;t.done=true;j.completedWorks.push(t.text);save();renderJob()}
+window.undoWork=function(i){var j=activeJob();var text=j.completedWorks.splice(i,1)[0];var t=j.todos.find(function(x){return x.text===text&&x.done});if(t)t.done=false;else j.todos.push({id:'t_'+Date.now(),text:text,done:false});save();renderJob()}
+window.appendSiteNote=function(){var j=activeJob();if(!j)return;var n=prompt('Append site note');if(n&&n.trim()){j.siteNotes.push(n.trim());save();renderJob()}}
+function hours(a,b){if(!a||!b)return 0;var x=a.split(':').map(Number),y=b.split(':').map(Number);return Math.max(0,(y[0]*60+y[1]-x[0]*60-x[1])/60)}
+function buildDraft(j){
+var visit=hours(j.start,j.end);var team=visit*j.personnel;var waste=j.waste!=='none';var lines=[];
+lines.push('Personnel: '+j.personnel);lines.push('Time: '+j.start+'–'+j.end);lines.push('Labour: '+team.toFixed(2)+' hrs');
+if(j.rideOn)lines.push('Ride-on: '+Number(j.rideOn).toFixed(2)+' hrs');
+if(waste){lines.push('Green waste: '+j.waste);lines.push('Waste run: 0.50 hr');lines.push('Dump travel: '+Number(j.dumpKm||0).toFixed(1)+' km × $2.00/km = $'+(Number(j.dumpKm||0)*2).toFixed(2)+' · to 110 Glenda Drive')}
+if(j.spray)lines.push('Spray: '+j.spray+' × 15 L application');
+lines.push('');lines.push('Description of works:');
+if(j.completedWorks.length)j.completedWorks.forEach(function(w){lines.push('- '+w)});else lines.push('- No completed works recorded');
+return lines.join('\n')
+}
+window.completeJob=function(){
+var j=activeJob();if(!j)return;syncFields(j);if(j.waste!=='none'&&!j.dumpKm){alert('Green waste is selected. Confirm dump km before completing the job.');return}
+j.completed=true;j.lastDraft=buildDraft(j);state.lastDraft=j.lastDraft;save();document.getElementById('draftText').textContent=state.lastDraft;renderToday();showPage('today')
+}
+window.copyDraft=async function(){if(!state.lastDraft)return;try{await navigator.clipboard.writeText(state.lastDraft);alert('Draft copied')}catch(e){alert('Select the draft text and copy manually.')}}
+window.exportDraft=function(){if(!state.lastDraft)return;var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([state.lastDraft],{type:'text/plain'}));a.download='QGC-Xero-draft.txt';a.click();setTimeout(function(){URL.revokeObjectURL(a.href)},500)}
+document.getElementById('dateText').addEventListener('change',function(){var d=dateObj(this.value);if(d){state.date=isoDate(d);save();renderToday()}});
+document.getElementById('personnel').addEventListener('change',function(){var j=activeJob();if(j){syncFields(j);save()}});
+['startTime','endTime','waste','dumpKm','rideOn','spray'].forEach(function(id){document.getElementById(id).addEventListener('change',function(){var j=activeJob();if(j){syncFields(j);save()}})});
+document.getElementById('draftText').textContent=state.lastDraft||'Complete a job to create a draft.';
+renderToday();
+if(location.hash==='#calendar-import'){showPage('import');var st=document.getElementById('shortcutStatus');if(st)st.innerHTML='<strong>Returned from Shortcuts.</strong> Tap Paste Calendar Result to bring the Truck 1 events into Fieldbook.'}
+})();
+</script>
+</body>
+</html>+(Number(j.dumpKm)*2).toFixed(2)+' at $2/km · to 110 Glenda Drive',false);
+}else if(j.waste&&j.waste!=='none'){
+  setRouteStatus('Green Waste selected. Tap Auto km to calculate '+(j.address||'the property address')+' → 110 Glenda Drive.',false);
+}else{
+  setRouteStatus('Select Green Waste to calculate the one-way route to 110 Glenda Drive.',false);
+}
 }
 function syncFields(j){j.personnel=+document.getElementById('personnel').value||1;j.start=document.getElementById('startTime').value;j.end=document.getElementById('endTime').value;j.waste=document.getElementById('waste').value;j.dumpKm=+document.getElementById('dumpKm').value||0;j.rideOn=+document.getElementById('rideOn').value||0;j.spray=+document.getElementById('spray').value||0}
+
+var DUMP_ADDRESS='110 Glenda Drive, Frankton, Queenstown 9300, New Zealand';
+
+function setRouteStatus(msg,bad){
+  var e=document.getElementById('routeStatus');
+  if(!e)return;
+  e.textContent=msg;
+  e.style.color=bad?'#842e28':'#66716a';
+}
+
+function normaliseRouteAddress(address){
+  var q=String(address||'').trim();
+  if(!q)return '';
+  if(!/(queenstown|frankton|arrowtown|lake hayes|arthurs point|fernhill|new zealand)/i.test(q)){
+    q+=', Queenstown, New Zealand';
+  }else if(!/new zealand/i.test(q)){
+    q+=', New Zealand';
+  }
+  return q;
+}
+
+async function geocodeAddress(address){
+  var q=normaliseRouteAddress(address);
+  if(!q)throw new Error('No address');
+  var key='geo:'+q.toLowerCase();
+  if(state.routeCache[key])return state.routeCache[key];
+  var url='https://photon.komoot.io/api/?limit=1&lang=en&lat=-45.0312&lon=168.6626&q='+encodeURIComponent(q);
+  var res=await fetch(url,{headers:{'Accept':'application/json'}});
+  if(!res.ok)throw new Error('Address lookup failed');
+  var data=await res.json();
+  if(!data.features||!data.features.length)throw new Error('Address not found');
+  var c=data.features[0].geometry.coordinates;
+  var point={lon:+c[0],lat:+c[1]};
+  state.routeCache[key]=point;
+  save();
+  return point;
+}
+
+async function autoDumpKm(showFailure){
+  var j=activeJob();
+  if(!j)return false;
+  syncFields(j);
+  if(j.waste==='none'){
+    setRouteStatus('Select Green Waste to calculate the one-way route to 110 Glenda Drive.',false);
+    return false;
+  }
+  if(!j.address){
+    setRouteStatus('No property address was imported from the Calendar Location field. Add/confirm the address before calculating km.',true);
+    if(showFailure)alert('No property address was imported from Calendar.');
+    return false;
+  }
+  setRouteStatus('Calculating '+j.address+' → 110 Glenda Drive…',false);
+  try{
+    var origin=await geocodeAddress(j.address);
+    var dest=await geocodeAddress(DUMP_ADDRESS);
+    var routeUrl='https://router.project-osrm.org/route/v1/driving/'+origin.lon+','+origin.lat+';'+dest.lon+','+dest.lat+'?overview=false&alternatives=false&steps=false';
+    var rr=await fetch(routeUrl,{headers:{'Accept':'application/json'}});
+    if(!rr.ok)throw new Error('Routing service failed');
+    var route=await rr.json();
+    if(route.code!=='Ok'||!route.routes||!route.routes.length)throw new Error('No driving route found');
+    var km=Math.round((route.routes[0].distance/1000)*10)/10;
+    j.dumpKm=km;
+    j.dumpKmSource='auto';
+    document.getElementById('dumpKm').value=km.toFixed(1);
+    save();
+    setRouteStatus(km.toFixed(1)+' km one way · 
+window.addTodo=function(){var j=activeJob();if(!j)return;var t=prompt('Add To Do');if(t&&t.trim()){j.todos.push({id:'t_'+Date.now(),text:t.trim(),done:false});save();renderJob()}}
+window.finishTodo=function(id){var j=activeJob();var t=j.todos.find(function(x){return x.id===id});if(!t)return;t.done=true;j.completedWorks.push(t.text);save();renderJob()}
+window.undoWork=function(i){var j=activeJob();var text=j.completedWorks.splice(i,1)[0];var t=j.todos.find(function(x){return x.text===text&&x.done});if(t)t.done=false;else j.todos.push({id:'t_'+Date.now(),text:text,done:false});save();renderJob()}
+window.appendSiteNote=function(){var j=activeJob();if(!j)return;var n=prompt('Append site note');if(n&&n.trim()){j.siteNotes.push(n.trim());save();renderJob()}}
+function hours(a,b){if(!a||!b)return 0;var x=a.split(':').map(Number),y=b.split(':').map(Number);return Math.max(0,(y[0]*60+y[1]-x[0]*60-x[1])/60)}
+function buildDraft(j){
+var visit=hours(j.start,j.end);var team=visit*j.personnel;var waste=j.waste!=='none';var lines=[];
+lines.push('Personnel: '+j.personnel);lines.push('Time: '+j.start+'–'+j.end);lines.push('Labour: '+team.toFixed(2)+' hrs');
+if(j.rideOn)lines.push('Ride-on: '+Number(j.rideOn).toFixed(2)+' hrs');
+if(waste){lines.push('Green waste: '+j.waste);lines.push('Waste run: 0.50 hr');lines.push('Dump travel: '+Number(j.dumpKm||0).toFixed(1)+' km × $2.00/km = $'+(Number(j.dumpKm||0)*2).toFixed(2)+' · to 110 Glenda Drive')}
+if(j.spray)lines.push('Spray: '+j.spray+' × 15 L application');
+lines.push('');lines.push('Description of works:');
+if(j.completedWorks.length)j.completedWorks.forEach(function(w){lines.push('- '+w)});else lines.push('- No completed works recorded');
+return lines.join('\n')
+}
+window.completeJob=function(){
+var j=activeJob();if(!j)return;syncFields(j);if(j.waste!=='none'&&!j.dumpKm){alert('Green waste is selected. Confirm dump km before completing the job.');return}
+j.completed=true;j.lastDraft=buildDraft(j);state.lastDraft=j.lastDraft;save();document.getElementById('draftText').textContent=state.lastDraft;renderToday();showPage('today')
+}
+window.copyDraft=async function(){if(!state.lastDraft)return;try{await navigator.clipboard.writeText(state.lastDraft);alert('Draft copied')}catch(e){alert('Select the draft text and copy manually.')}}
+window.exportDraft=function(){if(!state.lastDraft)return;var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([state.lastDraft],{type:'text/plain'}));a.download='QGC-Xero-draft.txt';a.click();setTimeout(function(){URL.revokeObjectURL(a.href)},500)}
+document.getElementById('dateText').addEventListener('change',function(){var d=dateObj(this.value);if(d){state.date=isoDate(d);save();renderToday()}});
+document.getElementById('personnel').addEventListener('change',function(){var j=activeJob();if(j){syncFields(j);save()}});
+['startTime','endTime','waste','dumpKm','rideOn','spray'].forEach(function(id){document.getElementById(id).addEventListener('change',function(){var j=activeJob();if(j){syncFields(j);save()}})});
+document.getElementById('draftText').textContent=state.lastDraft||'Complete a job to create a draft.';
+renderToday();
+if(location.hash==='#calendar-import'){showPage('import');var st=document.getElementById('shortcutStatus');if(st)st.innerHTML='<strong>Returned from Shortcuts.</strong> Tap Paste Calendar Result to bring the Truck 1 events into Fieldbook.'}
+})();
+</script>
+</body>
+</html>+(km*2).toFixed(2)+' at $2/km · to 110 Glenda Drive',false);
+    return true;
+  }catch(err){
+    setRouteStatus('Auto km could not resolve this address. Use Open route or enter km manually.',true);
+    if(showFailure)alert('Auto km could not resolve the route. You can open the route or enter the km manually.');
+    return false;
+  }
+}
+window.autoDumpKm=autoDumpKm;
+
+window.openDumpRoute=function(){
+  var j=activeJob();
+  if(!j||!j.address){alert('No property address is available for this job.');return}
+  var url='https://maps.apple.com/?saddr='+encodeURIComponent(normaliseRouteAddress(j.address))+'&daddr='+encodeURIComponent(DUMP_ADDRESS)+'&dirflg=d';
+  window.open(url,'_blank');
+}
+window.addTodo=function(){var j=activeJob();if(!j)return;var t=prompt('Add To Do');if(t&&t.trim()){j.todos.push({id:'t_'+Date.now(),text:t.trim(),done:false});save();renderJob()}}
+window.finishTodo=function(id){var j=activeJob();var t=j.todos.find(function(x){return x.id===id});if(!t)return;t.done=true;j.completedWorks.push(t.text);save();renderJob()}
+window.undoWork=function(i){var j=activeJob();var text=j.completedWorks.splice(i,1)[0];var t=j.todos.find(function(x){return x.text===text&&x.done});if(t)t.done=false;else j.todos.push({id:'t_'+Date.now(),text:text,done:false});save();renderJob()}
+window.appendSiteNote=function(){var j=activeJob();if(!j)return;var n=prompt('Append site note');if(n&&n.trim()){j.siteNotes.push(n.trim());save();renderJob()}}
+function hours(a,b){if(!a||!b)return 0;var x=a.split(':').map(Number),y=b.split(':').map(Number);return Math.max(0,(y[0]*60+y[1]-x[0]*60-x[1])/60)}
+function buildDraft(j){
+var visit=hours(j.start,j.end);var team=visit*j.personnel;var waste=j.waste!=='none';var lines=[];
+lines.push('Personnel: '+j.personnel);lines.push('Time: '+j.start+'–'+j.end);lines.push('Labour: '+team.toFixed(2)+' hrs');
+if(j.rideOn)lines.push('Ride-on: '+Number(j.rideOn).toFixed(2)+' hrs');
+if(waste){lines.push('Green waste: '+j.waste);lines.push('Waste run: 0.50 hr');lines.push('Dump travel: '+Number(j.dumpKm||0).toFixed(1)+' km × $2.00/km = $'+(Number(j.dumpKm||0)*2).toFixed(2)+' · to 110 Glenda Drive')}
+if(j.spray)lines.push('Spray: '+j.spray+' × 15 L application');
+lines.push('');lines.push('Description of works:');
+if(j.completedWorks.length)j.completedWorks.forEach(function(w){lines.push('- '+w)});else lines.push('- No completed works recorded');
+return lines.join('\n')
+}
+window.completeJob=function(){
+var j=activeJob();if(!j)return;syncFields(j);if(j.waste!=='none'&&!j.dumpKm){alert('Green waste is selected. Confirm dump km before completing the job.');return}
+j.completed=true;j.lastDraft=buildDraft(j);state.lastDraft=j.lastDraft;save();document.getElementById('draftText').textContent=state.lastDraft;renderToday();showPage('today')
+}
+window.copyDraft=async function(){if(!state.lastDraft)return;try{await navigator.clipboard.writeText(state.lastDraft);alert('Draft copied')}catch(e){alert('Select the draft text and copy manually.')}}
+window.exportDraft=function(){if(!state.lastDraft)return;var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([state.lastDraft],{type:'text/plain'}));a.download='QGC-Xero-draft.txt';a.click();setTimeout(function(){URL.revokeObjectURL(a.href)},500)}
+document.getElementById('dateText').addEventListener('change',function(){var d=dateObj(this.value);if(d){state.date=isoDate(d);save();renderToday()}});
+document.getElementById('personnel').addEventListener('change',function(){var j=activeJob();if(j){syncFields(j);save()}});
+['startTime','endTime','waste','dumpKm','rideOn','spray'].forEach(function(id){document.getElementById(id).addEventListener('change',function(){var j=activeJob();if(j){syncFields(j);save()}})});
+document.getElementById('draftText').textContent=state.lastDraft||'Complete a job to create a draft.';
+renderToday();
+if(location.hash==='#calendar-import'){showPage('import');var st=document.getElementById('shortcutStatus');if(st)st.innerHTML='<strong>Returned from Shortcuts.</strong> Tap Paste Calendar Result to bring the Truck 1 events into Fieldbook.'}
+})();
+</script>
+</body>
+</html>+(Number(j.dumpKm)*2).toFixed(2)+' at $2/km',false)}});
+document.getElementById('waste').addEventListener('change',function(){var j=activeJob();if(!j)return;syncFields(j);save();if(j.waste!=='none')autoDumpKm(false);else setRouteStatus('Select Green Waste to calculate the one-way route to 110 Glenda Drive.',false)});
+document.getElementById('draftText').textContent=state.lastDraft||'Complete a job to create a draft.';
+renderToday();
+if(location.hash==='#calendar-import'){showPage('import');var st=document.getElementById('shortcutStatus');if(st)st.innerHTML='<strong>Returned from Shortcuts.</strong> Tap Paste Calendar Result to bring the Truck 1 events into Fieldbook.'}
+})();
+</script>
+</body>
+</html>+(km*2).toFixed(2)+' at $2/km · to 110 Glenda Drive',false);
+    return true;
+  }catch(err){
+    setRouteStatus('Auto km could not resolve this address. Use Open route or enter km manually.',true);
+    if(showFailure)alert('Auto km could not resolve the route. You can open the route or enter the km manually.');
+    return false;
+  }
+}
+window.autoDumpKm=autoDumpKm;
+
+window.openDumpRoute=function(){
+  var j=activeJob();
+  if(!j||!j.address){alert('No property address is available for this job.');return}
+  var url='https://maps.apple.com/?saddr='+encodeURIComponent(normaliseRouteAddress(j.address))+'&daddr='+encodeURIComponent(DUMP_ADDRESS)+'&dirflg=d';
+  window.open(url,'_blank');
+}
+window.addTodo=function(){var j=activeJob();if(!j)return;var t=prompt('Add To Do');if(t&&t.trim()){j.todos.push({id:'t_'+Date.now(),text:t.trim(),done:false});save();renderJob()}}
+window.finishTodo=function(id){var j=activeJob();var t=j.todos.find(function(x){return x.id===id});if(!t)return;t.done=true;j.completedWorks.push(t.text);save();renderJob()}
+window.undoWork=function(i){var j=activeJob();var text=j.completedWorks.splice(i,1)[0];var t=j.todos.find(function(x){return x.text===text&&x.done});if(t)t.done=false;else j.todos.push({id:'t_'+Date.now(),text:text,done:false});save();renderJob()}
+window.appendSiteNote=function(){var j=activeJob();if(!j)return;var n=prompt('Append site note');if(n&&n.trim()){j.siteNotes.push(n.trim());save();renderJob()}}
+function hours(a,b){if(!a||!b)return 0;var x=a.split(':').map(Number),y=b.split(':').map(Number);return Math.max(0,(y[0]*60+y[1]-x[0]*60-x[1])/60)}
+function buildDraft(j){
+var visit=hours(j.start,j.end);var team=visit*j.personnel;var waste=j.waste!=='none';var lines=[];
+lines.push('Personnel: '+j.personnel);lines.push('Time: '+j.start+'–'+j.end);lines.push('Labour: '+team.toFixed(2)+' hrs');
+if(j.rideOn)lines.push('Ride-on: '+Number(j.rideOn).toFixed(2)+' hrs');
+if(waste){lines.push('Green waste: '+j.waste);lines.push('Waste run: 0.50 hr');lines.push('Dump travel: '+Number(j.dumpKm||0).toFixed(1)+' km × $2.00/km = $'+(Number(j.dumpKm||0)*2).toFixed(2)+' · to 110 Glenda Drive')}
+if(j.spray)lines.push('Spray: '+j.spray+' × 15 L application');
+lines.push('');lines.push('Description of works:');
+if(j.completedWorks.length)j.completedWorks.forEach(function(w){lines.push('- '+w)});else lines.push('- No completed works recorded');
+return lines.join('\n')
+}
+window.completeJob=function(){
+var j=activeJob();if(!j)return;syncFields(j);if(j.waste!=='none'&&!j.dumpKm){alert('Green waste is selected. Confirm dump km before completing the job.');return}
+j.completed=true;j.lastDraft=buildDraft(j);state.lastDraft=j.lastDraft;save();document.getElementById('draftText').textContent=state.lastDraft;renderToday();showPage('today')
+}
+window.copyDraft=async function(){if(!state.lastDraft)return;try{await navigator.clipboard.writeText(state.lastDraft);alert('Draft copied')}catch(e){alert('Select the draft text and copy manually.')}}
+window.exportDraft=function(){if(!state.lastDraft)return;var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([state.lastDraft],{type:'text/plain'}));a.download='QGC-Xero-draft.txt';a.click();setTimeout(function(){URL.revokeObjectURL(a.href)},500)}
+document.getElementById('dateText').addEventListener('change',function(){var d=dateObj(this.value);if(d){state.date=isoDate(d);save();renderToday()}});
+document.getElementById('personnel').addEventListener('change',function(){var j=activeJob();if(j){syncFields(j);save()}});
+['startTime','endTime','waste','dumpKm','rideOn','spray'].forEach(function(id){document.getElementById(id).addEventListener('change',function(){var j=activeJob();if(j){syncFields(j);save()}})});
+document.getElementById('draftText').textContent=state.lastDraft||'Complete a job to create a draft.';
+renderToday();
+if(location.hash==='#calendar-import'){showPage('import');var st=document.getElementById('shortcutStatus');if(st)st.innerHTML='<strong>Returned from Shortcuts.</strong> Tap Paste Calendar Result to bring the Truck 1 events into Fieldbook.'}
+})();
+</script>
+</body>
+</html>+(Number(j.dumpKm)*2).toFixed(2)+' at $2/km · to 110 Glenda Drive',false);
+}else if(j.waste&&j.waste!=='none'){
+  setRouteStatus('Green Waste selected. Tap Auto km to calculate '+(j.address||'the property address')+' → 110 Glenda Drive.',false);
+}else{
+  setRouteStatus('Select Green Waste to calculate the one-way route to 110 Glenda Drive.',false);
+}
+}
+function syncFields(j){j.personnel=+document.getElementById('personnel').value||1;j.start=document.getElementById('startTime').value;j.end=document.getElementById('endTime').value;j.waste=document.getElementById('waste').value;j.dumpKm=+document.getElementById('dumpKm').value||0;j.rideOn=+document.getElementById('rideOn').value||0;j.spray=+document.getElementById('spray').value||0}
+
+var DUMP_ADDRESS='110 Glenda Drive, Frankton, Queenstown 9300, New Zealand';
+
+function setRouteStatus(msg,bad){
+  var e=document.getElementById('routeStatus');
+  if(!e)return;
+  e.textContent=msg;
+  e.style.color=bad?'#842e28':'#66716a';
+}
+
+function normaliseRouteAddress(address){
+  var q=String(address||'').trim();
+  if(!q)return '';
+  if(!/(queenstown|frankton|arrowtown|lake hayes|arthurs point|fernhill|new zealand)/i.test(q)){
+    q+=', Queenstown, New Zealand';
+  }else if(!/new zealand/i.test(q)){
+    q+=', New Zealand';
+  }
+  return q;
+}
+
+async function geocodeAddress(address){
+  var q=normaliseRouteAddress(address);
+  if(!q)throw new Error('No address');
+  var key='geo:'+q.toLowerCase();
+  if(state.routeCache[key])return state.routeCache[key];
+  var url='https://photon.komoot.io/api/?limit=1&lang=en&lat=-45.0312&lon=168.6626&q='+encodeURIComponent(q);
+  var res=await fetch(url,{headers:{'Accept':'application/json'}});
+  if(!res.ok)throw new Error('Address lookup failed');
+  var data=await res.json();
+  if(!data.features||!data.features.length)throw new Error('Address not found');
+  var c=data.features[0].geometry.coordinates;
+  var point={lon:+c[0],lat:+c[1]};
+  state.routeCache[key]=point;
+  save();
+  return point;
+}
+
+async function autoDumpKm(showFailure){
+  var j=activeJob();
+  if(!j)return false;
+  syncFields(j);
+  if(j.waste==='none'){
+    setRouteStatus('Select Green Waste to calculate the one-way route to 110 Glenda Drive.',false);
+    return false;
+  }
+  if(!j.address){
+    setRouteStatus('No property address was imported from the Calendar Location field. Add/confirm the address before calculating km.',true);
+    if(showFailure)alert('No property address was imported from Calendar.');
+    return false;
+  }
+  setRouteStatus('Calculating '+j.address+' → 110 Glenda Drive…',false);
+  try{
+    var origin=await geocodeAddress(j.address);
+    var dest=await geocodeAddress(DUMP_ADDRESS);
+    var routeUrl='https://router.project-osrm.org/route/v1/driving/'+origin.lon+','+origin.lat+';'+dest.lon+','+dest.lat+'?overview=false&alternatives=false&steps=false';
+    var rr=await fetch(routeUrl,{headers:{'Accept':'application/json'}});
+    if(!rr.ok)throw new Error('Routing service failed');
+    var route=await rr.json();
+    if(route.code!=='Ok'||!route.routes||!route.routes.length)throw new Error('No driving route found');
+    var km=Math.round((route.routes[0].distance/1000)*10)/10;
+    j.dumpKm=km;
+    j.dumpKmSource='auto';
+    document.getElementById('dumpKm').value=km.toFixed(1);
+    save();
+    setRouteStatus(km.toFixed(1)+' km one way · 
+window.addTodo=function(){var j=activeJob();if(!j)return;var t=prompt('Add To Do');if(t&&t.trim()){j.todos.push({id:'t_'+Date.now(),text:t.trim(),done:false});save();renderJob()}}
+window.finishTodo=function(id){var j=activeJob();var t=j.todos.find(function(x){return x.id===id});if(!t)return;t.done=true;j.completedWorks.push(t.text);save();renderJob()}
+window.undoWork=function(i){var j=activeJob();var text=j.completedWorks.splice(i,1)[0];var t=j.todos.find(function(x){return x.text===text&&x.done});if(t)t.done=false;else j.todos.push({id:'t_'+Date.now(),text:text,done:false});save();renderJob()}
+window.appendSiteNote=function(){var j=activeJob();if(!j)return;var n=prompt('Append site note');if(n&&n.trim()){j.siteNotes.push(n.trim());save();renderJob()}}
+function hours(a,b){if(!a||!b)return 0;var x=a.split(':').map(Number),y=b.split(':').map(Number);return Math.max(0,(y[0]*60+y[1]-x[0]*60-x[1])/60)}
+function buildDraft(j){
+var visit=hours(j.start,j.end);var team=visit*j.personnel;var waste=j.waste!=='none';var lines=[];
+lines.push('Personnel: '+j.personnel);lines.push('Time: '+j.start+'–'+j.end);lines.push('Labour: '+team.toFixed(2)+' hrs');
+if(j.rideOn)lines.push('Ride-on: '+Number(j.rideOn).toFixed(2)+' hrs');
+if(waste){lines.push('Green waste: '+j.waste);lines.push('Waste run: 0.50 hr');lines.push('Dump travel: '+Number(j.dumpKm||0).toFixed(1)+' km × $2.00/km = $'+(Number(j.dumpKm||0)*2).toFixed(2)+' · to 110 Glenda Drive')}
+if(j.spray)lines.push('Spray: '+j.spray+' × 15 L application');
+lines.push('');lines.push('Description of works:');
+if(j.completedWorks.length)j.completedWorks.forEach(function(w){lines.push('- '+w)});else lines.push('- No completed works recorded');
+return lines.join('\n')
+}
+window.completeJob=function(){
+var j=activeJob();if(!j)return;syncFields(j);if(j.waste!=='none'&&!j.dumpKm){alert('Green waste is selected. Confirm dump km before completing the job.');return}
+j.completed=true;j.lastDraft=buildDraft(j);state.lastDraft=j.lastDraft;save();document.getElementById('draftText').textContent=state.lastDraft;renderToday();showPage('today')
+}
+window.copyDraft=async function(){if(!state.lastDraft)return;try{await navigator.clipboard.writeText(state.lastDraft);alert('Draft copied')}catch(e){alert('Select the draft text and copy manually.')}}
+window.exportDraft=function(){if(!state.lastDraft)return;var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([state.lastDraft],{type:'text/plain'}));a.download='QGC-Xero-draft.txt';a.click();setTimeout(function(){URL.revokeObjectURL(a.href)},500)}
+document.getElementById('dateText').addEventListener('change',function(){var d=dateObj(this.value);if(d){state.date=isoDate(d);save();renderToday()}});
+document.getElementById('personnel').addEventListener('change',function(){var j=activeJob();if(j){syncFields(j);save()}});
+['startTime','endTime','waste','dumpKm','rideOn','spray'].forEach(function(id){document.getElementById(id).addEventListener('change',function(){var j=activeJob();if(j){syncFields(j);save()}})});
+document.getElementById('draftText').textContent=state.lastDraft||'Complete a job to create a draft.';
+renderToday();
+if(location.hash==='#calendar-import'){showPage('import');var st=document.getElementById('shortcutStatus');if(st)st.innerHTML='<strong>Returned from Shortcuts.</strong> Tap Paste Calendar Result to bring the Truck 1 events into Fieldbook.'}
+})();
+</script>
+</body>
+</html>+(km*2).toFixed(2)+' at $2/km · to 110 Glenda Drive',false);
+    return true;
+  }catch(err){
+    setRouteStatus('Auto km could not resolve this address. Use Open route or enter km manually.',true);
+    if(showFailure)alert('Auto km could not resolve the route. You can open the route or enter the km manually.');
+    return false;
+  }
+}
+window.autoDumpKm=autoDumpKm;
+
+window.openDumpRoute=function(){
+  var j=activeJob();
+  if(!j||!j.address){alert('No property address is available for this job.');return}
+  var url='https://maps.apple.com/?saddr='+encodeURIComponent(normaliseRouteAddress(j.address))+'&daddr='+encodeURIComponent(DUMP_ADDRESS)+'&dirflg=d';
+  window.open(url,'_blank');
+}
 window.addTodo=function(){var j=activeJob();if(!j)return;var t=prompt('Add To Do');if(t&&t.trim()){j.todos.push({id:'t_'+Date.now(),text:t.trim(),done:false});save();renderJob()}}
 window.finishTodo=function(id){var j=activeJob();var t=j.todos.find(function(x){return x.id===id});if(!t)return;t.done=true;j.completedWorks.push(t.text);save();renderJob()}
 window.undoWork=function(i){var j=activeJob();var text=j.completedWorks.splice(i,1)[0];var t=j.todos.find(function(x){return x.text===text&&x.done});if(t)t.done=false;else j.todos.push({id:'t_'+Date.now(),text:text,done:false});save();renderJob()}
