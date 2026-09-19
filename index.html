@@ -745,12 +745,8 @@ function weekRuns(){
   var b=performanceWeekBounds();
   var ids=new Set(performanceWasteJobs().map(function(j){return j.id}));
   return state.dumpRuns.filter(function(r){
-    return (r.jobIds||[]).some(function(id){return ids.has(id)}) || (r.date&&r.date>=b.start&&r.date<=b.end);
+    return (r.jobIds||[]).some(function(id){return ids.has(id)})||(r.date&&r.date>=b.start&&r.date<=b.end);
   });
-}
-function assignedRunId(jobId){
-  var r=state.dumpRuns.find(function(x){return (x.jobIds||[]).indexOf(jobId)>=0});
-  return r?r.id:'';
 }
 function actualRunMinutes(run){
   return Math.max(0,Number(run.actualMinutes==null?30:run.actualMinutes)||0);
@@ -758,112 +754,64 @@ function actualRunMinutes(run){
 function performanceMetrics(){
   var jobs=performanceJobs(),waste=performanceWasteJobs(),runs=weekRuns();
   var groupedIds=new Set();
-  runs.forEach(function(r){(r.jobIds||[]).forEach(function(id){if(waste.some(function(j){return j.id===id}))groupedIds.add(id)})});
+  runs.forEach(function(r){
+    (r.jobIds||[]).forEach(function(id){
+      if(waste.some(function(j){return j.id===id}))groupedIds.add(id);
+    });
+  });
   var unassigned=waste.filter(function(j){return !groupedIds.has(j.id)});
-  var actualRuns=runs.filter(function(r){return (r.jobIds||[]).some(function(id){return waste.some(function(j){return j.id===id})})}).length+unassigned.length;
-  var actualHours=runs.reduce(function(sum,r){
-    var has=(r.jobIds||[]).some(function(id){return waste.some(function(j){return j.id===id})});
-    return sum+(has?actualRunMinutes(r)/60:0);
-  },0)+unassigned.length*(Number(state.performanceSettings.wasteRunHours)||0.5);
+  var activeRuns=runs.filter(function(r){
+    return (r.jobIds||[]).some(function(id){return waste.some(function(j){return j.id===id})});
+  });
+  var actualRuns=activeRuns.length+unassigned.length;
+  var actualHours=activeRuns.reduce(function(sum,r){return sum+actualRunMinutes(r)/60},0)
+    +unassigned.length*(Number(state.performanceSettings.wasteRunHours)||0.5);
   var billedHours=waste.length*(Number(state.performanceSettings.wasteRunHours)||0.5);
   var recovery=waste.reduce(function(sum,j){return sum+billedWasteRecovery(j)},0);
-  var receipts=runs.reduce(function(sum,r){return sum+(Number(r.receiptCost)||0)},0);
+  var receipts=activeRuns.reduce(function(sum,r){return sum+(Number(r.receiptCost)||0)},0);
   return {
-    jobs:jobs,waste:waste,runs:runs,unassigned:unassigned,actualRuns:actualRuns,
+    jobs:jobs,waste:waste,runs:runs,activeRuns:activeRuns,unassigned:unassigned,
+    actualRuns:actualRuns,
     clientsPerRun:actualRuns?waste.length/actualRuns:0,
     avoided:Math.max(0,waste.length-actualRuns),
-    billedHours:billedHours,actualHours:actualHours,
+    billedHours:billedHours,
+    actualHours:actualHours,
     consolidatedHours:Math.max(0,billedHours-actualHours),
-    recovery:recovery,receipts:receipts
+    recovery:recovery,
+    receipts:receipts
   };
 }
-function money(v){return '
-  var lines=String(text||'').replace(/\r/g,'').split('\n').map(function(x){return x.trim()}).filter(Boolean),events=[];
-  for(var i=0;i<lines.length;i++){
-    var m=lines[i].match(/\b(\d{1,2})[:.](\d{2})\s*(AM|PM)?\b/i);
-    if(!m)continue;
-    var start=normaliseImportedTime(m[0]),title=lines[i].replace(m[0],'').replace(/^[-–—\s]+/,'').trim();
-    if(!title&&lines[i+1])title=lines[++i];
-    if(!title||/^\d{1,2}[:.]\d{2}/.test(title))continue;
-    var address='';
-    if(lines[i+1]&&/\d+\s+.+\b(street|st|road|rd|drive|dr|lane|ln|avenue|ave|crescent|court|ct|place|pl|way|terrace|tce)\b/i.test(lines[i+1]))address=lines[++i];
-    var next='';
-    for(var k=i+1;k<Math.min(lines.length,i+6);k++){var n=lines[k].match(/\b(\d{1,2})[:.](\d{2})\s*(AM|PM)?\b/i);if(n){next=normaliseImportedTime(n[0]);break}}
-    events.push({title:title,start:start,end:next,address:address,personnel:2,todos:[],siteNotes:[],calendarNotes:['Imported from screenshot OCR'],date:state.date});
-  }
-  return events;
+function perfMoney(v){
+  return String.fromCharCode(36)+Number(v||0).toFixed(2);
 }
-function renderOcrPreview(events){
-  var box=document.getElementById('ocrPreviewBox');
-  if(!events.length){box.className='notice bad';box.textContent='No time/title pairs detected. Edit the OCR text and try again.';return}
-  box.className='notice';box.innerHTML='<strong>'+events.length+' possible event(s)</strong><br>'+events.map(function(e){return esc(e.start+' · '+e.title+(e.address?' · '+e.address:''))}).join('<br>');
-}
-window.previewScreenshotText=function(){var events=parseScreenshotSchedule(document.getElementById('ocrText').value);window._ocrEvents=events;renderOcrPreview(events)}
-window.loadScreenshotEvents=function(){
-  var date=selectedIso();if(!date)return;
-  var events=window._ocrEvents||parseScreenshotSchedule(document.getElementById('ocrText').value);if(!events.length){alert('No OCR events detected.');return}
-  events.forEach(function(e){e.date=date;var existing=sameVisit(e,date);if(!existing){var v=makeVisitFromEvent(e,date);v.source='screenshot';state.jobs.push(v)}});
-  state.date=date;save();renderToday();showPage('today');
-}
-function loadScript(src){
-  return new Promise(function(resolve,reject){if(window.Tesseract)return resolve();var s=document.createElement('script');s.src=src;s.onload=resolve;s.onerror=reject;document.head.appendChild(s)});
-}
-window.runScreenshotOCR=async function(){
-  var input=document.getElementById('shotFile'),status=document.getElementById('ocrStatus');if(!input.files||!input.files[0]){alert('Choose a screenshot first.');return}
-  status.className='notice';status.textContent='Loading OCR…';
-  try{
-    await loadScript('https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js');
-    status.textContent='Reading screenshot…';
-    var out=await Tesseract.recognize(input.files[0],'eng',{logger:function(m){if(m.status==='recognizing text')status.textContent='Reading screenshot… '+Math.round((m.progress||0)*100)+'%'}});
-    document.getElementById('ocrText').value=out.data.text||'';status.textContent='OCR complete. Review the text, then Preview OCR events.';previewScreenshotText();
-  }catch(e){status.className='notice bad';status.textContent='OCR could not run on this device. You can still type or paste text into the OCR box manually.'}
-};
-document.getElementById('shotFile').addEventListener('change',function(){
-  var img=document.getElementById('shotPreview');if(this.files&&this.files[0]){img.src=URL.createObjectURL(this.files[0]);img.style.display='block';document.getElementById('ocrStatus').textContent='Screenshot selected.'}
-});
-
-document.getElementById('dateText').addEventListener('change',function(){var d=dateObj(this.value);if(d){state.date=isoDate(d);save();renderToday();renderDrafts()}});
-['personnel','startTime','endTime','rideOn','spray'].forEach(function(id){
-  document.getElementById(id).addEventListener('change',function(){var j=activeJob();if(j&&!j.completed){syncFields(j);save();refreshJobPreview()}})
-});
-document.getElementById('dumpKm').addEventListener('change',function(){var j=activeJob();if(!j||j.completed)return;syncFields(j);j.dumpKmSource='manual';save();if(j.dumpKm)setRouteStatus(Number(j.dumpKm).toFixed(1)+' km manual',false);refreshJobPreview()});
-document.getElementById('waste').addEventListener('change',async function(){var j=activeJob();if(!j||j.completed)return;syncFields(j);save();if(j.waste!=='none')await autoDumpKm(false);else setRouteStatus('Select Green Waste to calculate the one-way route to 110 Glenda Drive.',false);refreshJobPreview()});
-
-['perfSmallCharge','perfMediumCharge','perfLargeCharge','perfLabourRate','perfKmRate','perfWasteHours'].forEach(function(id){
-  var el=document.getElementById(id);if(el)el.addEventListener('change',savePerformanceSettings);
-});
-
-var presetSelect=document.getElementById('presetTask');
-if(presetSelect)presetSelect.innerHTML=PRESET_TASKS.map(function(t){return '<option value="'+esc(t)+'">'+esc(t)+'</option>'}).join('');
-
-renderToday();renderDrafts();
-if(location.hash==='#calendar-import'){showPage('import');document.getElementById('shortcutStatus').innerHTML='<strong>Returned from Shortcuts.</strong> Paste the Calendar result, preview it, then load it.'}
-})();
-</script>
-</body>
-</html>+Number(v||0).toFixed(2)}
 function renderPerformance(){
   var b=performanceWeekBounds(),m=performanceMetrics();
-  document.getElementById('perfWeekTitle').textContent=pretty(b.start)+' – '+pretty(b.end);
+  var weekTitle=document.getElementById('perfWeekTitle');
+  if(!weekTitle)return;
+  weekTitle.textContent=pretty(b.start)+' – '+pretty(b.end);
   document.getElementById('perfVisits').textContent=m.jobs.length;
   document.getElementById('perfWasteClients').textContent=m.waste.length;
   document.getElementById('perfRuns').textContent=m.actualRuns;
   document.getElementById('perfClientsPerRun').textContent=m.clientsPerRun?m.clientsPerRun.toFixed(1):'0';
   document.getElementById('perfAvoided').textContent=m.avoided;
   document.getElementById('perfHoursSaved').textContent=m.consolidatedHours.toFixed(2)+' h';
-  document.getElementById('perfRecovery').textContent=money(m.recovery);
-  document.getElementById('perfReceipts').textContent=money(m.receipts);
+  document.getElementById('perfRecovery').textContent=perfMoney(m.recovery);
+  document.getElementById('perfReceipts').textContent=perfMoney(m.receipts);
 
-  var net=m.recovery-m.receipts;
-  var summary='';
-  if(!m.waste.length)summary='No completed waste clients in this week yet.';
-  else{
-    summary='<strong>'+m.waste.length+' waste client'+(m.waste.length===1?'':'s')+'</strong> serviced through <strong>'+m.actualRuns+' actual run'+(m.actualRuns===1?'':'s')+'</strong>. ';
-    summary+='That is <strong>'+m.clientsPerRun.toFixed(1)+' clients/run</strong> and <strong>'+m.avoided+' avoided separate trip'+(m.avoided===1?'':'s')+'</strong>. ';
-    summary+='Client waste-run recovery represents '+m.billedHours.toFixed(2)+' billed hours versus '+m.actualHours.toFixed(2)+' actual run hours entered/assumed. ';
-    summary+='Recovery less entered dump receipts: <strong>'+money(net)+'</strong>.';
+  var summary=document.getElementById('perfSummary');
+  if(!m.waste.length){
+    summary.innerHTML='No completed waste clients in this week yet.';
+  }else{
+    var net=m.recovery-m.receipts;
+    summary.innerHTML=
+      '<strong>'+m.waste.length+' waste client'+(m.waste.length===1?'':'s')+'</strong> serviced through '+
+      '<strong>'+m.actualRuns+' actual run'+(m.actualRuns===1?'':'s')+'</strong>. '+
+      'That is <strong>'+m.clientsPerRun.toFixed(1)+' clients/run</strong>, with <strong>'+m.avoided+
+      ' avoided separate trip'+(m.avoided===1?'':'s')+'</strong>. '+
+      'Client waste-run recovery represents '+m.billedHours.toFixed(2)+' billed hours versus '+
+      m.actualHours.toFixed(2)+' actual run hours entered/assumed. '+
+      'Recovery less entered dump receipts: <strong>'+perfMoney(net)+'</strong>.';
   }
-  document.getElementById('perfSummary').innerHTML=summary;
 
   var p=state.performanceSettings;
   document.getElementById('perfSmallCharge').value=p.smallWasteCharge;
@@ -873,62 +821,103 @@ function renderPerformance(){
   document.getElementById('perfKmRate').value=p.kmRate;
   document.getElementById('perfWasteHours').value=p.wasteRunHours;
 
-  var runs=m.runs;
   var un=document.getElementById('unassignedWaste');
-  if(!m.unassigned.length)un.innerHTML='<div class="card small">All completed waste clients for this week are assigned to a consolidated run.</div>';
-  else un.innerHTML=m.unassigned.map(function(j){
-    var options='<option value="">Assign to run…</option><option value="new">+ New dump run</option>'+
-      runs.map(function(r){return '<option value="'+esc(r.id)+'">'+esc(r.label||('Dump run '+(r.date||'')))+'</option>'}).join('');
-    return '<div class="card"><div class="row"><div><strong>'+esc(j.title)+'</strong><div class="small">'+esc(pretty(j.date))+' · '+esc(j.waste)+' · '+Number(j.dumpKm||0).toFixed(1)+' km</div><div class="small">Recovery: '+money(billedWasteRecovery(j))+'</div></div><span class="badge">UNGROUPED</span></div><select style="margin-top:9px" onchange="assignWasteJob(\\''+j.id+'\\',this.value)">'+options+'</select></div>';
-  }).join('');
+  if(!m.unassigned.length){
+    un.innerHTML='<div class="card small">All completed waste clients for this week are assigned to a consolidated run.</div>';
+  }else{
+    un.innerHTML=m.unassigned.map(function(j){
+      var options='<option value="">Assign to run…</option><option value="new">+ New dump run</option>'+
+        m.runs.map(function(r){
+          return '<option value="'+esc(r.id)+'">'+esc(r.label||('Dump run '+(r.date||'')))+'</option>';
+        }).join('');
+      return '<div class="card">'+
+        '<div class="row"><div><strong>'+esc(j.title)+'</strong>'+
+        '<div class="small">'+esc(pretty(j.date))+' · '+esc(j.waste)+' · '+Number(j.dumpKm||0).toFixed(1)+' km</div>'+
+        '<div class="small">Recovery: '+perfMoney(billedWasteRecovery(j))+'</div></div>'+
+        '<span class="badge">UNGROUPED</span></div>'+
+        '<select data-job="'+esc(j.id)+'" style="margin-top:9px" onchange="assignWasteJob(this.dataset.job,this.value)">'+options+'</select>'+
+        '</div>';
+    }).join('');
+  }
 
   var list=document.getElementById('dumpRunList');
-  if(!runs.length)list.innerHTML='<div class="card small">No consolidated dump runs created for this week yet. Assign an ungrouped waste client to “+ New dump run”.</div>';
-  else list.innerHTML=runs.map(function(r,idx){
-    var jobs=(r.jobIds||[]).map(function(id){return state.jobs.find(function(j){return j.id===id})}).filter(Boolean);
-    var rec=jobs.reduce(function(sum,j){return sum+billedWasteRecovery(j)},0);
-    var jobRows=jobs.length?jobs.map(function(j){
-      return '<div class="runJob"><div><strong>'+esc(j.title)+'</strong><div class="small">'+esc(pretty(j.date))+' · '+esc(j.waste)+' · '+Number(j.dumpKm||0).toFixed(1)+' km · recovery '+money(billedWasteRecovery(j))+'</div></div><button class="btn light" style="padding:6px 8px" onclick="unassignWasteJob(\\''+j.id+'\\')">Remove</button></div>';
-    }).join(''):'<div class="small">No clients assigned.</div>';
-    return '<div class="runCard"><div class="row"><div><strong>'+esc(r.label||('Dump run '+(idx+1)))+'</strong><div class="small">'+jobs.length+' client'+(jobs.length===1?'':'s')+' · recovery '+money(rec)+'</div></div><button class="btn light" style="padding:6px 8px" onclick="deleteDumpRun(\\''+r.id+'\\')">Delete</button></div>'+
-      '<div style="margin-top:8px">'+jobRows+'</div>'+
-      '<div class="grid" style="margin-top:10px">'+
-      '<div><label>Actual dump receipt $</label><input type="number" step=".01" value="'+(Number(r.receiptCost)||'')+'" onchange="updateDumpRun(\\''+r.id+'\\',\\'receiptCost\\',this.value)"></div>'+
-      '<div><label>Actual load weight kg</label><input type="number" step="1" value="'+(Number(r.weightKg)||'')+'" onchange="updateDumpRun(\\''+r.id+'\\',\\'weightKg\\',this.value)"></div>'+
-      '<div><label>Actual run minutes</label><input type="number" step="5" value="'+actualRunMinutes(r)+'" onchange="updateDumpRun(\\''+r.id+'\\',\\'actualMinutes\\',this.value)"></div>'+
-      '<div><label>Run label</label><input value="'+esc(r.label||'')+'" placeholder="e.g. Friday combined run" onchange="updateDumpRun(\\''+r.id+'\\',\\'label\\',this.value)"></div>'+
-      '</div></div>';
-  }).join('');
+  if(!m.runs.length){
+    list.innerHTML='<div class="card small">No consolidated dump runs created for this week yet. Assign an ungrouped waste client to “+ New dump run”.</div>';
+  }else{
+    list.innerHTML=m.runs.map(function(r,idx){
+      var jobs=(r.jobIds||[]).map(function(id){
+        return state.jobs.find(function(j){return j.id===id});
+      }).filter(Boolean);
+      var rec=jobs.reduce(function(sum,j){return sum+billedWasteRecovery(j)},0);
+      var jobRows=jobs.length?jobs.map(function(j){
+        return '<div class="runJob"><div><strong>'+esc(j.title)+'</strong>'+
+          '<div class="small">'+esc(pretty(j.date))+' · '+esc(j.waste)+' · '+Number(j.dumpKm||0).toFixed(1)+' km · recovery '+perfMoney(billedWasteRecovery(j))+'</div></div>'+
+          '<button class="btn light" style="padding:6px 8px" data-job="'+esc(j.id)+'" onclick="unassignWasteJob(this.dataset.job)">Remove</button></div>';
+      }).join(''):'<div class="small">No clients assigned.</div>';
+      return '<div class="runCard">'+
+        '<div class="row"><div><strong>'+esc(r.label||('Dump run '+(idx+1)))+'</strong>'+
+        '<div class="small">'+jobs.length+' client'+(jobs.length===1?'':'s')+' · recovery '+perfMoney(rec)+'</div></div>'+
+        '<button class="btn light" style="padding:6px 8px" data-run="'+esc(r.id)+'" onclick="deleteDumpRun(this.dataset.run)">Delete</button></div>'+
+        '<div style="margin-top:8px">'+jobRows+'</div>'+
+        '<div class="grid" style="margin-top:10px">'+
+        '<div><label>Actual dump receipt $</label><input type="number" step=".01" data-run="'+esc(r.id)+'" data-field="receiptCost" value="'+(Number(r.receiptCost)||'')+'" onchange="updateDumpRun(this.dataset.run,this.dataset.field,this.value)"></div>'+
+        '<div><label>Actual load weight kg</label><input type="number" step="1" data-run="'+esc(r.id)+'" data-field="weightKg" value="'+(Number(r.weightKg)||'')+'" onchange="updateDumpRun(this.dataset.run,this.dataset.field,this.value)"></div>'+
+        '<div><label>Actual run minutes</label><input type="number" step="5" data-run="'+esc(r.id)+'" data-field="actualMinutes" value="'+actualRunMinutes(r)+'" onchange="updateDumpRun(this.dataset.run,this.dataset.field,this.value)"></div>'+
+        '<div><label>Run label</label><input data-run="'+esc(r.id)+'" data-field="label" value="'+esc(r.label||'')+'" placeholder="e.g. Friday combined run" onchange="updateDumpRun(this.dataset.run,this.dataset.field,this.value)"></div>'+
+        '</div></div>';
+    }).join('');
+  }
 }
 window.renderPerformance=renderPerformance;
-window.performanceUseSelectedDate=function(){state.performanceAnchor=state.date;save();renderPerformance()}
+window.performanceUseSelectedDate=function(){
+  state.performanceAnchor=state.date;save();renderPerformance();
+};
 window.shiftPerformanceWeek=function(n){
-  var d=dateObj(state.performanceAnchor)||dateObj(state.date)||new Date();d.setDate(d.getDate()+(n*7));state.performanceAnchor=isoDate(d);save();renderPerformance();
-}
+  var d=dateObj(state.performanceAnchor)||dateObj(state.date)||new Date();
+  d.setDate(d.getDate()+(n*7));
+  state.performanceAnchor=isoDate(d);save();renderPerformance();
+};
 window.assignWasteJob=function(jobId,runId){
   if(!runId)return;
-  state.dumpRuns.forEach(function(r){r.jobIds=(r.jobIds||[]).filter(function(id){return id!==jobId})});
+  state.dumpRuns.forEach(function(r){
+    r.jobIds=(r.jobIds||[]).filter(function(id){return id!==jobId});
+  });
   var j=state.jobs.find(function(x){return x.id===jobId});if(!j)return;
   if(runId==='new'){
-    var r={id:'run_'+Date.now(),date:j.date,label:'Combined dump run '+pretty(j.date),jobIds:[jobId],receiptCost:0,weightKg:0,actualMinutes:30};
-    state.dumpRuns.push(r);
+    state.dumpRuns.push({
+      id:'run_'+Date.now(),
+      date:j.date,
+      label:'Combined dump run '+pretty(j.date),
+      jobIds:[jobId],
+      receiptCost:0,
+      weightKg:0,
+      actualMinutes:30
+    });
   }else{
-    var target=state.dumpRuns.find(function(r){return r.id===runId});if(target){if(!target.jobIds)target.jobIds=[];target.jobIds.push(jobId)}
+    var target=state.dumpRuns.find(function(r){return r.id===runId});
+    if(target){
+      if(!target.jobIds)target.jobIds=[];
+      if(target.jobIds.indexOf(jobId)<0)target.jobIds.push(jobId);
+    }
   }
   save();renderPerformance();
-}
+};
 window.unassignWasteJob=function(jobId){
-  state.dumpRuns.forEach(function(r){r.jobIds=(r.jobIds||[]).filter(function(id){return id!==jobId})});
+  state.dumpRuns.forEach(function(r){
+    r.jobIds=(r.jobIds||[]).filter(function(id){return id!==jobId});
+  });
   save();renderPerformance();
-}
+};
 window.deleteDumpRun=function(id){
-  state.dumpRuns=state.dumpRuns.filter(function(r){return r.id!==id});save();renderPerformance();
-}
+  state.dumpRuns=state.dumpRuns.filter(function(r){return r.id!==id});
+  save();renderPerformance();
+};
 window.updateDumpRun=function(id,field,value){
   var r=state.dumpRuns.find(function(x){return x.id===id});if(!r)return;
-  if(['receiptCost','weightKg','actualMinutes'].indexOf(field)>=0)r[field]=Number(value)||0;else r[field]=String(value||'');
+  if(['receiptCost','weightKg','actualMinutes'].indexOf(field)>=0)r[field]=Number(value)||0;
+  else r[field]=String(value||'');
   save();renderPerformance();
-}
+};
 function savePerformanceSettings(){
   var p=state.performanceSettings;
   p.smallWasteCharge=Number(document.getElementById('perfSmallCharge').value)||0;
@@ -991,6 +980,10 @@ document.getElementById('dateText').addEventListener('change',function(){var d=d
 });
 document.getElementById('dumpKm').addEventListener('change',function(){var j=activeJob();if(!j||j.completed)return;syncFields(j);j.dumpKmSource='manual';save();if(j.dumpKm)setRouteStatus(Number(j.dumpKm).toFixed(1)+' km manual',false);refreshJobPreview()});
 document.getElementById('waste').addEventListener('change',async function(){var j=activeJob();if(!j||j.completed)return;syncFields(j);save();if(j.waste!=='none')await autoDumpKm(false);else setRouteStatus('Select Green Waste to calculate the one-way route to 110 Glenda Drive.',false);refreshJobPreview()});
+
+['perfSmallCharge','perfMediumCharge','perfLargeCharge','perfLabourRate','perfKmRate','perfWasteHours'].forEach(function(id){
+  var el=document.getElementById(id);if(el)el.addEventListener('change',savePerformanceSettings);
+});
 
 var presetSelect=document.getElementById('presetTask');
 if(presetSelect)presetSelect.innerHTML=PRESET_TASKS.map(function(t){return '<option value="'+esc(t)+'">'+esc(t)+'</option>'}).join('');
