@@ -56,6 +56,9 @@ details summary{font-weight:900;cursor:pointer}
 .quickNav{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:10px}
 .quickNav .btn{padding:9px 6px;font-size:11px}
 .jobHeader{position:sticky;top:104px;z-index:10}
+.jobMetaGrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.jobMetaGrid input{padding:9px 10px}
+.jobMetaGrid label{margin-bottom:3px}
 .stickyJobActions{position:sticky;bottom:8px;z-index:15;background:#f4f6f1e8;backdrop-filter:blur(8px);padding:9px;border-radius:14px;border:1px solid var(--line);margin-top:14px;display:grid;grid-template-columns:1fr auto;gap:8px}
 .stickyJobActions .btn{min-height:46px}
 .workPanel{border:1px solid var(--line);border-radius:14px;padding:12px;margin-top:10px}
@@ -71,12 +74,14 @@ details summary{font-weight:900;cursor:pointer}
   main{padding:10px 10px 96px}
   .card,.flowCard{border-radius:14px;padding:12px}
   .jobHeader{top:96px}
+  .jobMetaGrid{grid-template-columns:1fr 1fr}
+  .jobMetaGrid input{font-size:14px;padding:8px}
 }
 </style>
 </head>
 <body>
 <header>
-<div class="brand"><div><strong>Queenstown Garden Company</strong><div><small>FIELD BOOK · MOBILE TEST</small></div></div><span class="badge">v1.0</span></div>
+<div class="brand"><div><strong>Queenstown Garden Company</strong><div><small>FIELD BOOK · MOBILE TEST</small></div></div><span class="badge">v1.1</span></div>
 <nav>
 <button class="active" data-page="today">Today</button>
 <button data-page="import">Calendar</button>
@@ -184,7 +189,7 @@ SITE NOTES:
 </div>
 <span id="jobStatus" class="badge"></span>
 </div>
-<div class="grid" style="margin-top:10px">
+<div class="jobMetaGrid" style="margin-top:10px">
 <div><label>Personnel</label><input id="personnel" type="number" min="1"></div>
 <div><label>Date</label><input id="jobDate" readonly></div>
 <div><label>Start</label><input id="startTime" type="time"></div>
