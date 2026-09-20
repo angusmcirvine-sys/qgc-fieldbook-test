@@ -55,10 +55,35 @@ details summary{font-weight:900;cursor:pointer}
 .toolDetails[open] summary::after{content:'Close'}
 .quickNav{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:10px}
 .quickNav .btn{padding:9px 6px;font-size:11px}
-.jobHeader{position:sticky;top:104px;z-index:10}
-.jobMetaGrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.jobMetaGrid input{padding:9px 10px}
-.jobMetaGrid label{margin-bottom:3px}
+.jobHeader{
+  position:sticky;
+  top:104px;
+  z-index:10;
+  transition:transform .22s ease,opacity .18s ease;
+  will-change:transform,opacity;
+}
+.jobHeader.jobHeaderHidden{
+  transform:translateY(calc(-100% - 12px));
+  opacity:0;
+  pointer-events:none;
+}
+.jobMetaGrid{display:grid;grid-template-columns:1fr 1fr;gap:4px 6px}
+.jobMetaGrid input{
+  height:30px;
+  min-height:30px;
+  padding:3px 6px;
+  font-size:12px;
+  line-height:1.1;
+  border-radius:7px;
+}
+.jobMetaGrid label{
+  margin-bottom:1px;
+  font-size:9px;
+  line-height:1.05;
+}
+.jobHeader h2{font-size:18px;line-height:1.05}
+.jobHeader .small{font-size:10px;line-height:1.15}
+.jobHeader .stepLabel{margin-bottom:3px;font-size:8px}
 .stickyJobActions{position:sticky;bottom:8px;z-index:15;background:#f4f6f1e8;backdrop-filter:blur(8px);padding:9px;border-radius:14px;border:1px solid var(--line);margin-top:14px;display:grid;grid-template-columns:1fr auto;gap:8px}
 .stickyJobActions .btn{min-height:46px}
 .workPanel{border:1px solid var(--line);border-radius:14px;padding:12px;margin-top:10px}
@@ -73,15 +98,18 @@ details summary{font-weight:900;cursor:pointer}
   nav button{padding:7px 9px;font-size:12px}
   main{padding:10px 10px 96px}
   .card,.flowCard{border-radius:14px;padding:12px}
-  .jobHeader{top:96px}
-  .jobMetaGrid{grid-template-columns:1fr 1fr}
-  .jobMetaGrid input{font-size:14px;padding:8px}
+  .jobHeader{top:96px;padding:8px 10px;margin:6px 0}
+  .jobMetaGrid{grid-template-columns:1fr 1fr;gap:3px 5px;margin-top:6px!important}
+  .jobMetaGrid input{height:28px;min-height:28px;font-size:11px;padding:2px 5px}
+  .jobMetaGrid label{font-size:8px}
+  .jobHeader h2{font-size:17px}
+  .jobHeader .row{gap:6px}
 }
 </style>
 </head>
 <body>
 <header>
-<div class="brand"><div><strong>Queenstown Garden Company</strong><div><small>FIELD BOOK · MOBILE TEST</small></div></div><span class="badge">v1.1</span></div>
+<div class="brand"><div><strong>Queenstown Garden Company</strong><div><small>FIELD BOOK · MOBILE TEST</small></div></div><span class="badge">v1.2</span></div>
 <nav>
 <button class="active" data-page="today">Today</button>
 <button data-page="import">Calendar</button>
@@ -180,7 +208,7 @@ SITE NOTES:
 <div id="jobEmpty" class="card empty">Choose a job from Today.</div>
 <div id="jobPanel" style="display:none">
 
-<div class="card jobHeader">
+<div id="jobHeader" class="card jobHeader">
 <div class="row">
 <div>
 <div class="stepLabel">Current job</div>
@@ -439,6 +467,7 @@ migrate();
 
 function showPage(id){
   document.querySelectorAll('.page').forEach(function(x){x.classList.toggle('active',x.id===id)});
+  if(id==='job'){setTimeout(function(){setJobHeaderHidden(false);lastJobScrollY=window.scrollY||0},0)}
   document.querySelectorAll('nav button').forEach(function(x){x.classList.toggle('active',x.dataset.page===id)});
   if(id==='draft')renderDrafts();
   if(id==='performance')renderPerformance();
@@ -1077,6 +1106,29 @@ window.runScreenshotOCR=async function(){
 document.getElementById('shotFile').addEventListener('change',function(){
   var img=document.getElementById('shotPreview');if(this.files&&this.files[0]){img.src=URL.createObjectURL(this.files[0]);img.style.display='block';document.getElementById('ocrStatus').textContent='Screenshot selected.'}
 });
+
+var lastJobScrollY=window.scrollY||0;
+var jobHeaderHidden=false;
+function setJobHeaderHidden(hidden){
+  var header=document.getElementById('jobHeader');
+  if(!header)return;
+  jobHeaderHidden=!!hidden;
+  header.classList.toggle('jobHeaderHidden',jobHeaderHidden);
+}
+window.addEventListener('scroll',function(){
+  var jobPage=document.getElementById('job');
+  if(!jobPage||!jobPage.classList.contains('active'))return;
+  var y=window.scrollY||0;
+  var delta=y-lastJobScrollY;
+  if(y<80){
+    setJobHeaderHidden(false);
+  }else if(delta>5){
+    setJobHeaderHidden(true);
+  }else if(delta<-5){
+    setJobHeaderHidden(false);
+  }
+  lastJobScrollY=y;
+},{passive:true});
 
 document.getElementById('dateText').addEventListener('change',function(){var d=dateObj(this.value);if(d){state.date=isoDate(d);save();renderToday();renderDrafts()}});
 ['personnel','startTime','endTime','rideOn','spray'].forEach(function(id){
