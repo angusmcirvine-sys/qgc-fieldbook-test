@@ -52,7 +52,7 @@ details summary{font-weight:900;cursor:pointer}
 </head>
 <body>
 <header>
-<div class="brand"><div><strong>Queenstown Garden Company</strong><div><small>FIELD BOOK · MOBILE TEST</small></div></div><span class="badge">v0.7</span></div>
+<div class="brand"><div><strong>Queenstown Garden Company</strong><div><small>FIELD BOOK · MOBILE TEST</small></div></div><span class="badge">v0.8</span></div>
 <nav>
 <button class="active" data-page="today">Today</button>
 <button data-page="import">Calendar</button>
@@ -424,8 +424,9 @@ function selectedIso(){var v=document.getElementById('dateText').value;var d=dat
 
 window.runShortcut=function(){
   var d=selectedIso();if(!d)return;
-  document.getElementById('shortcutStatus').innerHTML='<strong>Opening Shortcuts…</strong> Selected date sent: '+pretty(d);
-  location.href='shortcuts://run-shortcut?name='+encodeURIComponent('QGC Truck 1 Import')+'&input=text&text='+encodeURIComponent(d);
+  var shortcutDate=d+'T00:00:00';
+  document.getElementById('shortcutStatus').innerHTML='<strong>Opening Shortcuts…</strong> Selected date sent from midnight: '+pretty(d);
+  location.href='shortcuts://run-shortcut?name='+encodeURIComponent('QGC Truck 1 Import')+'&input=text&text='+encodeURIComponent(shortcutDate);
 };
 window.pasteClipboard=async function(){
   try{
