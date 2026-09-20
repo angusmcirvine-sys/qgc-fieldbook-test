@@ -52,7 +52,7 @@ details summary{font-weight:900;cursor:pointer}
 </head>
 <body>
 <header>
-<div class="brand"><div><strong>Queenstown Garden Company</strong><div><small>FIELD BOOK · MOBILE TEST</small></div></div><span class="badge">v0.6</span></div>
+<div class="brand"><div><strong>Queenstown Garden Company</strong><div><small>FIELD BOOK · MOBILE TEST</small></div></div><span class="badge">v0.7</span></div>
 <nav>
 <button class="active" data-page="today">Today</button>
 <button data-page="import">Calendar</button>
@@ -484,14 +484,18 @@ function parseCalendar(txt){
 
 window.previewImport=function(){
   var date=selectedIso();if(!date)return;
-  var e=parseCalendar(document.getElementById('calendarText').value);
-  if(!e.length){document.getElementById('previewBox').className='notice bad';document.getElementById('previewBox').textContent='No EVENT blocks found.';return}
-  var mismatch=e.filter(function(x){return x.date&&x.date!==date});
-  document.getElementById('previewBox').className='notice'+(mismatch.length?' bad':'');
-  document.getElementById('previewBox').innerHTML=
-    '<strong>'+e.length+' event(s)</strong><br>'+
-    e.map(function(x){return esc((x.start||'?')+'–'+(x.end||'?')+' · '+x.title+(x.date?' · '+x.date:''))}).join('<br>')+
-    (mismatch.length?'<br><br><strong>Date mismatch:</strong> Shortcut returned a different day. Import will be blocked.':'');
+  var events=parseCalendar(document.getElementById('calendarText').value);
+  var box=document.getElementById('previewBox');
+  if(!events.length){box.className='notice bad';box.textContent='No EVENT blocks found.';return}
+  var selected=events.filter(function(x){return x.date===date});
+  var ignored=events.filter(function(x){return x.date&&x.date!==date});
+  var undated=events.filter(function(x){return !x.date});
+  box.className='notice'+(!selected.length?' bad':'');
+  box.innerHTML=
+    '<strong>'+selected.length+' event(s) for '+esc(date)+'</strong><br>'+
+    (selected.length?selected.map(function(x){return esc((x.start||'?')+'–'+(x.end||'?')+' · '+x.title)}).join('<br>'):'No events match the selected date.')+
+    (ignored.length?'<br><br><strong>'+ignored.length+' other-date event(s) ignored safely.</strong> '+esc(Array.from(new Set(ignored.map(function(x){return x.date}))).join(', ')):'')+
+    (undated.length?'<br><br><strong>'+undated.length+' undated event(s) not loaded.</strong>':'');
 };
 
 function latestPriorVisit(pk,date){
@@ -519,10 +523,15 @@ function makeVisitFromEvent(e,date){
 }
 window.loadCalendar=function(){
   var date=selectedIso();if(!date)return;
-  var events=parseCalendar(document.getElementById('calendarText').value);
-  if(!events.length){alert('No calendar events found.');return}
-  var mismatch=events.find(function(e){return e.date&&e.date!==date});
-  if(mismatch){alert('Import blocked: the Shortcut returned '+mismatch.date+' but Fieldbook is set to '+date+'. Change the Shortcut filter from “is today” to use Shortcut Input for selected-date loading.');return}
+  var allEvents=parseCalendar(document.getElementById('calendarText').value);
+  if(!allEvents.length){alert('No calendar events found.');return}
+  var events=allEvents.filter(function(e){return e.date===date});
+  var ignored=allEvents.filter(function(e){return e.date&&e.date!==date});
+  if(!events.length){
+    var dates=Array.from(new Set(allEvents.map(function(e){return e.date}).filter(Boolean)));
+    alert('No returned events match '+date+'. Returned date(s): '+(dates.join(', ')||'unknown')+'.');
+    return;
+  }
   events.forEach(function(e){
     var existing=sameVisit(e,date);
     if(existing){
@@ -531,7 +540,9 @@ window.loadCalendar=function(){
       e.siteNotes.forEach(function(n){pushUnique(existing.siteNotes,n)});
     }else state.jobs.push(makeVisitFromEvent(e,date));
   });
-  state.date=date;save();renderToday();showPage('today');
+  state.date=date;save();renderToday();
+  if(ignored.length)alert(events.length+' event(s) loaded for '+date+'. '+ignored.length+' event(s) from other dates were ignored.');
+  showPage('today');
 };
 
 function jobsForDay(){return state.jobs.filter(function(j){return j.date===state.date}).sort(function(a,b){return String(a.start||'').localeCompare(String(b.start||''))})}
