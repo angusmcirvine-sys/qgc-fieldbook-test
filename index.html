@@ -12,7 +12,7 @@ body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif
 header{position:sticky;top:0;z-index:20;background:var(--g);color:#fff;padding:14px 16px 10px;box-shadow:0 1px 8px #0002}
 .brand{display:flex;justify-content:space-between;gap:12px;align-items:center}.brand strong{font-size:17px}.brand small{opacity:.8}
 nav{display:flex;gap:6px;overflow:auto;margin-top:12px}
-nav button{border:0;border-radius:999px;padding:8px 12px;background:#ffffff18;color:#fff;font-weight:700;white-space:nowrap}
+nav button{border:0;border-radius:999px;padding:8px 11px;background:#ffffff18;color:#fff;font-weight:700;white-space:nowrap;font-size:13px}
 nav button.active{background:var(--lime);color:#18311f}
 main{max-width:720px;margin:auto;padding:14px 14px 90px}
 .page{display:none}.page.active{display:block}
@@ -47,12 +47,36 @@ details summary{font-weight:900;cursor:pointer}
 .runJob{display:flex;gap:8px;justify-content:space-between;align-items:center;padding:7px 0;border-top:1px solid #edf0ed}
 .runJob:first-child{border-top:0}
 .perfGood{font-weight:900;color:#38501f}
-@media(max-width:520px){.grid{grid-template-columns:1fr}.brand small{display:none}.presetActions{grid-template-columns:1fr}.presetActions .btn{width:100%}}
+.flowCard{background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px;margin:10px 0}
+.stepLabel{font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:7px}
+.toolDetails{margin:10px 0;background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px}
+.toolDetails summary{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.toolDetails summary::after{content:'Open';font-size:10px;color:var(--muted);font-weight:800}
+.toolDetails[open] summary::after{content:'Close'}
+.quickNav{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:10px}
+.quickNav .btn{padding:9px 6px;font-size:11px}
+.jobHeader{position:sticky;top:104px;z-index:10}
+.stickyJobActions{position:sticky;bottom:8px;z-index:15;background:#f4f6f1e8;backdrop-filter:blur(8px);padding:9px;border-radius:14px;border:1px solid var(--line);margin-top:14px;display:grid;grid-template-columns:1fr auto;gap:8px}
+.stickyJobActions .btn{min-height:46px}
+.workPanel{border:1px solid var(--line);border-radius:14px;padding:12px;margin-top:10px}
+.compactPre{max-height:220px;overflow:auto;margin:8px 0}
+.primaryButton{width:100%;min-height:48px;font-size:15px}
+@media(max-width:520px){
+  .grid{grid-template-columns:1fr}
+  .brand small{display:none}
+  .presetActions{grid-template-columns:1fr 1fr!important}
+  .presetActions .btn{width:100%}
+  nav{gap:4px}
+  nav button{padding:7px 9px;font-size:12px}
+  main{padding:10px 10px 96px}
+  .card,.flowCard{border-radius:14px;padding:12px}
+  .jobHeader{top:96px}
+}
 </style>
 </head>
 <body>
 <header>
-<div class="brand"><div><strong>Queenstown Garden Company</strong><div><small>FIELD BOOK · MOBILE TEST</small></div></div><span class="badge">v0.9</span></div>
+<div class="brand"><div><strong>Queenstown Garden Company</strong><div><small>FIELD BOOK · MOBILE TEST</small></div></div><span class="badge">v1.0</span></div>
 <nav>
 <button class="active" data-page="today">Today</button>
 <button data-page="import">Calendar</button>
@@ -64,54 +88,63 @@ details summary{font-weight:900;cursor:pointer}
 
 <main>
 <section id="today" class="page active">
-<div class="section">Selected day</div>
-<div class="card">
+<div class="flowCard">
 <div class="row">
-<div><div class="small">Calendar date</div><div id="dayTitle" class="kpi"></div></div>
-<button class="btn alt" onclick="showPage('import')">Load calendar</button>
+<div><div class="stepLabel">Work day</div><div id="dayTitle" class="kpi"></div></div>
+<button class="btn" onclick="showPage('import')">Load Calendar</button>
+</div>
+<div class="quickNav">
+<button class="btn light" onclick="shiftDate(-1)">− Day</button>
+<button class="btn light" onclick="setDateOffset(0)">Today</button>
+<button class="btn light" onclick="shiftDate(1)">+ Day</button>
+<button class="btn alt" onclick="showPage('draft')">Drafts</button>
 </div>
 </div>
 <div id="todayList"></div>
 </section>
 
 <section id="import" class="page">
-<div class="section">iPhone Calendar</div>
-<div class="card">
+<div class="section">Load work day</div>
+
+<div class="flowCard">
+<div class="stepLabel">1 · Choose date</div>
 <div class="grid">
 <div><label>Date</label><input id="dateText" type="date"></div>
 <div><label>Calendar</label><select id="calendarName"><option>Truck 1</option></select></div>
 </div>
-<div class="actions" style="margin-top:10px">
+<div class="quickNav">
 <button class="btn light" onclick="setDateOffset(0)">Today</button>
 <button class="btn light" onclick="setDateOffset(1)">Tomorrow</button>
-<button class="btn light" onclick="shiftDate(-1)">−1 day</button>
-<button class="btn light" onclick="shiftDate(1)">+1 day</button>
+<button class="btn light" onclick="shiftDate(-1)">− Day</button>
+<button class="btn light" onclick="shiftDate(1)">+ Day</button>
 </div>
-<div class="actions" style="margin-top:10px">
-<button class="btn" onclick="runShortcut()">Run Truck 1 Calendar</button>
-<button class="btn alt" onclick="pasteClipboard()">Paste Calendar Result</button>
-</div>
-<div id="shortcutStatus" class="notice" style="margin-top:10px">Fieldbook passes the selected date to <b>QGC Truck 1 Import</b>. Your current Shortcut still needs its Calendar filter changed from <b>is today</b> to use the Shortcut input for full selected-date loading.</div>
 </div>
 
-<details class="card">
-<summary>Selected-date Shortcut fix</summary>
-<div class="small" style="margin-top:9px">The website side is ready. On the iPhone Shortcut, replace the current <b>Start Date is today</b> filter with the selected date coming from Shortcut Input. A returned event whose actual date does not match the Fieldbook date will be blocked rather than loaded into the wrong day.</div>
+<div class="flowCard">
+<div class="stepLabel">2 · Get Truck 1 jobs</div>
+<button class="btn primaryButton" onclick="runShortcut()">Run Truck 1 Calendar</button>
+<div id="shortcutStatus" class="notice" style="margin-top:10px">Choose the date, then run the iPhone Shortcut.</div>
+</div>
+
+<div class="flowCard">
+<div class="stepLabel">3 · Bring result back</div>
+<button class="btn alt primaryButton" onclick="pasteClipboard()">Paste Calendar Result</button>
+<div id="previewBox" class="notice" style="margin-top:10px">No Calendar result pasted yet.</div>
+<div class="actions" style="margin-top:10px">
+<button class="btn light" onclick="previewImport()">Refresh Preview</button>
+<button class="btn primaryButton" style="flex:1" onclick="loadCalendar()">Load Jobs Into Day</button>
+</div>
+</div>
+
+<details class="toolDetails">
+<summary>Raw Calendar data</summary>
+<label style="margin-top:10px">Shortcut output</label>
+<textarea id="calendarText" placeholder="Paste Shortcut output here…"></textarea>
 </details>
 
-<div class="card">
-<label>Calendar data</label>
-<textarea id="calendarText" placeholder="Paste Shortcut output here…"></textarea>
-<div class="actions" style="margin-top:10px">
-<button class="btn alt" onclick="previewImport()">Preview</button>
-<button class="btn" onclick="loadCalendar()">Load selected date</button>
-</div>
-<div id="previewBox" class="notice" style="margin-top:10px">No calendar data loaded.</div>
-</div>
-
-<details class="card">
-<summary>Calendar Notes structure</summary>
-<div class="small" style="margin-top:9px">Fieldbook now understands headings inside Calendar Notes:</div>
+<details class="toolDetails">
+<summary>Calendar Notes format</summary>
+<div class="small" style="margin-top:9px">To Dos are taken from the selected Calendar event. Use an explicit SITE NOTES heading for protected site information.</div>
 <pre>2 personnel
 
 TO DO:
@@ -119,24 +152,21 @@ TO DO:
 - Weed rear beds
 
 SITE NOTES:
-- Access via lower gate
-- Irrigation controller in garage</pre>
-<div class="small">Unclassified note lines are preserved as visit-only Calendar Notes so nothing is discarded.</div>
+- Access via lower gate</pre>
 </details>
 
-<details class="card">
+<details class="toolDetails">
 <summary>Screenshot fallback</summary>
-<div class="small" style="margin:9px 0">If the Shortcut is unavailable, choose a Calendar screenshot. OCR runs in the browser after loading the OCR library. Review the extracted text before loading anything.</div>
+<div class="small" style="margin:9px 0">Use only when the Shortcut is unavailable.</div>
 <input id="shotFile" type="file" accept="image/*">
 <img id="shotPreview" class="thumb" alt="Calendar screenshot preview">
 <div class="actions" style="margin-top:10px">
 <button class="btn alt" onclick="runScreenshotOCR()">Read screenshot</button>
-<button class="btn light" onclick="previewScreenshotText()">Preview OCR events</button>
-<button class="btn" onclick="loadScreenshotEvents()">Load OCR events</button>
+<button class="btn light" onclick="previewScreenshotText()">Preview</button>
+<button class="btn" onclick="loadScreenshotEvents()">Load</button>
 </div>
 <div id="ocrStatus" class="notice" style="margin-top:10px">No screenshot selected.</div>
-<label style="margin-top:10px">OCR text — editable before loading</label>
-<textarea id="ocrText" placeholder="Recognised screenshot text appears here…"></textarea>
+<textarea id="ocrText" placeholder="Recognised screenshot text appears here…" style="margin-top:10px"></textarea>
 <div id="ocrPreviewBox" class="notice" style="margin-top:10px">No OCR events previewed.</div>
 </details>
 </section>
@@ -144,16 +174,17 @@ SITE NOTES:
 <section id="job" class="page">
 <div id="jobEmpty" class="card empty">Choose a job from Today.</div>
 <div id="jobPanel" style="display:none">
-<div class="card">
+
+<div class="card jobHeader">
 <div class="row">
-<div><h2 id="jobTitle" style="margin:0"></h2><div id="jobAddress" class="small"></div></div>
+<div>
+<div class="stepLabel">Current job</div>
+<h2 id="jobTitle" style="margin:0 0 3px"></h2>
+<div id="jobAddress" class="small"></div>
+</div>
 <span id="jobStatus" class="badge"></span>
 </div>
-</div>
-
-<div class="section">Personnel & time</div>
-<div class="card">
-<div class="grid">
+<div class="grid" style="margin-top:10px">
 <div><label>Personnel</label><input id="personnel" type="number" min="1"></div>
 <div><label>Date</label><input id="jobDate" readonly></div>
 <div><label>Start</label><input id="startTime" type="time"></div>
@@ -161,94 +192,89 @@ SITE NOTES:
 </div>
 </div>
 
-<div class="section">To Dos</div>
+<div class="section">Work</div>
 <div class="card">
-<label>Add task</label>
+<div class="stepLabel">To Dos for this Calendar visit</div>
 <div class="row" style="align-items:stretch">
-<input id="todoQuickInput" placeholder="Type a task or use a preset below" onkeydown="if(event.key==='Enter'){event.preventDefault();addTodoFromInput()}">
+<input id="todoQuickInput" placeholder="Add another task…" onkeydown="if(event.key==='Enter'){event.preventDefault();addTodoFromInput()}">
 <button class="btn alt" type="button" onclick="addTodoFromInput()">+ Add</button>
 </div>
-<div class="small" style="margin:9px 0">To Dos are scoped to this Calendar visit only. Unchecked tasks do not carry forward automatically.</div>
-<div id="todoList"></div>
-</div>
+<div id="todoList" style="margin-top:8px"></div>
 
-<div class="section">Preset tasks</div>
-<div class="card">
-<label>Standard QGC task</label>
+<details class="toolDetails" style="margin-top:12px">
+<summary>Add from preset</summary>
+<label style="margin-top:10px">Standard task</label>
 <select id="presetTask"></select>
-<div style="margin-top:9px">
-<label>Optional location / detail</label>
-<input id="presetDetail" placeholder="e.g. rear garden beds, driveway edge">
-</div>
+<label style="margin-top:9px">Location / detail</label>
+<input id="presetDetail" placeholder="e.g. rear garden beds">
 <div class="presetActions" style="grid-template-columns:1fr 1fr">
 <button class="btn alt" onclick="applyPreset('todo')">+ To Do</button>
-<button class="btn" onclick="applyPreset('description')">+ Description</button>
+<button class="btn" onclick="applyPreset('description')">Completed work</button>
 </div>
-<div class="small" style="margin-top:9px"><strong>To Do</strong> adds the preset to this Calendar visit only. <strong>Description</strong> records the task as completed immediately.</div>
+</details>
+
+<div class="workPanel">
+<div class="stepLabel">Completed work · invoice description</div>
+<ul id="worksList" class="works"></ul>
+<div id="noWorks" class="small">No completed work yet. Tick a To Do or add a preset as completed work.</div>
+</div>
 </div>
 
-<div class="section">Calendar To Do output</div>
-<div class="card">
-<div class="small" style="margin-bottom:8px">Live copy of this visit's outstanding To Dos. Copy it into another Calendar event only when you want those tasks scheduled there.</div>
-<pre id="calendarTodoPreview">TO DO:
+<details class="toolDetails">
+<summary>Calendar copy / notes</summary>
+<div class="small" style="margin-top:9px">Copy unchecked To Dos back into another Calendar event only when you want them scheduled there.</div>
+<pre id="calendarTodoPreview" class="compactPre">TO DO:
 - No outstanding To Dos</pre>
 <div class="actions">
 <button class="btn" type="button" onclick="copyCalendarTodos()">Copy To Dos</button>
-<button class="btn alt" type="button" onclick="copyFullCalendarNotes()">Copy full Calendar notes</button>
+<button class="btn alt" type="button" onclick="copyFullCalendarNotes()">Copy full notes</button>
 </div>
-<div class="small" style="margin-top:8px">Full Calendar notes includes personnel, this visit's outstanding To Dos, and protected Site Notes in the format Fieldbook reads back.</div>
-</div>
-
-<div class="section">Invoice description · completed today</div>
-<div class="card">
-<ul id="worksList" class="works"></ul>
-<div id="noWorks" class="small">No completed works yet.</div>
-</div>
-
-<div class="section">Calendar notes · this visit</div>
-<div class="card"><div id="calendarNotes"></div></div>
-
-<div class="section">Protected site notes</div>
-<div class="card">
-<div id="siteNotes"></div>
-<div class="actions" style="margin-top:10px"><button class="btn alt" onclick="appendSiteNote()">Append site note</button></div>
-</div>
-
-<details class="card">
-<summary>Property history</summary>
-<div id="historyList" style="margin-top:10px"></div>
+<div class="stepLabel" style="margin-top:14px">Calendar notes from this visit</div>
+<div id="calendarNotes"></div>
 </details>
 
-<div class="section">Charges / visit actuals</div>
+<details class="toolDetails">
+<summary>Site notes & property history</summary>
+<div class="stepLabel" style="margin-top:10px">Protected site notes</div>
+<div id="siteNotes"></div>
+<div class="actions" style="margin-top:10px"><button class="btn alt" onclick="appendSiteNote()">Append site note</button></div>
+<div class="stepLabel" style="margin-top:16px">Previous visits</div>
+<div id="historyList"></div>
+</details>
+
+<div class="section">Charges</div>
 <div class="card">
 <div class="grid">
 <div><label>Green waste</label><select id="waste"><option value="none">None</option><option value="small">≤100 kg</option><option value="medium">100–200 kg</option><option value="large">Over 200 kg</option></select></div>
-<div><label>Dump km to 110 Glenda Drive · auto</label><input id="dumpKm" type="number" step=".1" min="0" placeholder="Calculates when waste selected"></div>
+<div><label>Dump km · auto</label><input id="dumpKm" type="number" step=".1" min="0" placeholder="Auto when waste selected"></div>
 <div><label>Ride-on hours</label><input id="rideOn" type="number" step=".25" min="0" value="0"></div>
-<div><label>Spray units (15 L)</label><input id="spray" type="number" min="0" value="0"></div>
+<div><label>Spray units · 15 L</label><input id="spray" type="number" min="0" value="0"></div>
 </div>
-<div class="notice" style="margin-top:10px"><strong>Automatic:</strong> selecting a Green Waste category calculates the one-way property → 110 Glenda Drive distance. Waste km rate: $2/km. Waste-run labour: 0.5 hr when waste applies.</div>
-<div id="routeStatus" class="small" style="margin-top:9px">Select Green Waste to calculate the one-way route to 110 Glenda Drive.</div>
+<div id="routeStatus" class="notice" style="margin-top:10px">Select Green Waste to calculate km automatically.</div>
+<details class="toolDetails" style="margin-top:10px">
+<summary>Waste route tools</summary>
+<div class="small">Property → 110 Glenda Drive. Waste-run labour adds 0.5 hr for one person.</div>
 <div class="actions" style="margin-top:9px">
 <button class="btn alt" type="button" onclick="autoDumpKm(true)">Recalculate km</button>
 <button class="btn light" type="button" onclick="openDumpRoute()">Open route</button>
 </div>
+</details>
 </div>
 
-<div class="section">Review Xero draft before completion</div>
+<div class="section">Review before completion</div>
 <div class="card">
-<div class="small" style="margin-bottom:8px"><strong>Nothing is sent from this screen.</strong> This is the exact draft text that will be saved if you complete the job now.</div>
-<pre id="jobDraftPreview">No active job.</pre>
-<div class="actions">
-<button class="btn alt" onclick="refreshJobPreview()">Refresh preview</button>
-<button class="btn light" onclick="copyJobPreview()">Copy preview</button>
+<div class="row">
+<div><strong>Xero draft</strong><div class="small">Updates as the job changes. Nothing is sent yet.</div></div>
+<button class="btn light" onclick="copyJobPreview()">Copy</button>
 </div>
+<pre id="jobDraftPreview" class="compactPre">No active job.</pre>
 </div>
 
-<div class="actions">
-<button id="completeBtn" class="btn" onclick="completeJob()">Complete Job</button>
-<button class="btn light" onclick="showPage('today')">Back to Today</button>
+<div class="stickyJobActions">
+<button id="completeBtn" class="btn primaryButton" onclick="completeJob()">Complete Job</button>
+<button class="btn light" onclick="showPage('today')">Back</button>
 </div>
+
 </div>
 </section>
 
@@ -424,14 +450,14 @@ function selectedIso(){var v=document.getElementById('dateText').value;var d=dat
 window.runShortcut=function(){
   var d=selectedIso();if(!d)return;
   var shortcutDate=d+'T00:00:00';
-  document.getElementById('shortcutStatus').innerHTML='<strong>Opening Shortcuts…</strong> Selected date sent from midnight: '+pretty(d);
+  document.getElementById('shortcutStatus').innerHTML='<strong>Opening Shortcuts…</strong> '+pretty(d)+' · Truck 1';
   location.href='shortcuts://run-shortcut?name='+encodeURIComponent('QGC Truck 1 Import')+'&input=text&text='+encodeURIComponent(shortcutDate);
 };
 window.pasteClipboard=async function(){
   try{
     document.getElementById('calendarText').value=await navigator.clipboard.readText();
     previewImport();
-    document.getElementById('shortcutStatus').innerHTML='<strong>Calendar result received.</strong> Review the preview, then load it.';
+    document.getElementById('shortcutStatus').innerHTML='<strong>Calendar result received.</strong> Check the preview below, then load the jobs.';
   }catch(e){alert('iPhone blocked automatic clipboard reading. Tap the Calendar data box and choose Paste.')}
 };
 
@@ -1080,7 +1106,7 @@ var presetSelect=document.getElementById('presetTask');
 if(presetSelect)presetSelect.innerHTML=PRESET_TASKS.map(function(t){return '<option value="'+esc(t)+'">'+esc(t)+'</option>'}).join('');
 
 renderToday();renderDrafts();
-if(location.hash==='#calendar-import'){showPage('import');document.getElementById('shortcutStatus').innerHTML='<strong>Returned from Shortcuts.</strong> Paste the Calendar result, preview it, then load it.'}
+if(location.hash==='#calendar-import'){showPage('import');document.getElementById('shortcutStatus').innerHTML='<strong>Returned from Shortcuts.</strong> Tap Paste Calendar Result, check the preview, then load the jobs.'}
 })();
 </script>
 </body>
