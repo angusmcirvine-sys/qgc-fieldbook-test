@@ -9,15 +9,22 @@
 :root{--g:#173d2c;--lime:#b8d36b;--bg:#f4f6f1;--card:#fff;--ink:#16221c;--muted:#66716a;--line:#dce3dc;--done:#e8ece8;--warn:#fff6df;--bad:#fff0ef}
 *{box-sizing:border-box}
 body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--ink)}
-header{position:sticky;top:0;z-index:20;background:var(--g);color:#fff;padding:14px 16px 10px;box-shadow:0 1px 8px #0002}
-.brand{display:flex;justify-content:space-between;gap:12px;align-items:center}.brand strong{font-size:17px}.brand small{opacity:.8}
-nav{display:flex;gap:6px;overflow:auto;margin-top:12px}
-nav button{border:0;border-radius:999px;padding:8px 11px;background:#ffffff18;color:#fff;font-weight:700;white-space:nowrap;font-size:13px}
+header{position:sticky;top:0;z-index:20;background:var(--g);color:#fff;padding:8px 10px 7px;box-shadow:0 1px 8px #0002}
+.brand{display:flex;justify-content:space-between;gap:8px;align-items:center}
+.brand strong{font-size:14px;line-height:1}
+.brand small{display:none}
+nav{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-top:7px}
+nav button{border:0;border-radius:9px;padding:7px 5px;background:#ffffff14;color:#fff;font-weight:800;white-space:nowrap;font-size:11px;overflow:hidden;text-overflow:ellipsis}
 nav button.active{background:var(--lime);color:#18311f}
 main{max-width:720px;margin:auto;padding:14px 14px 90px}
 .page{display:none}.page.active{display:block}
 .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;margin:10px 0;box-shadow:0 2px 7px #0000000b}
 .card.done{background:var(--done);opacity:.65}.next{outline:2px solid var(--lime)}
+.jobCard{cursor:pointer;padding:11px 12px;margin:7px 0;transition:transform .08s ease}
+.jobCard:active{transform:scale(.992)}
+.jobCard h3{font-size:16px;line-height:1.15;margin:0 0 4px}
+.jobCardMeta{font-size:11px;color:var(--muted);line-height:1.35}
+.jobCardArrow{font-size:24px;line-height:1;color:var(--muted);font-weight:300}
 .row{display:flex;gap:10px;align-items:center;justify-content:space-between}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
 label{display:block;font-size:11px;font-weight:800;color:var(--muted);margin-bottom:5px}
@@ -26,7 +33,7 @@ textarea{min-height:110px;resize:vertical}
 .btn{border:0;border-radius:11px;padding:11px 13px;font-weight:800;background:var(--g);color:#fff}
 .btn.alt{background:#e9efe9;color:var(--g)}.btn.light{background:#fff;border:1px solid var(--line);color:var(--g)}.btn:disabled{opacity:.45}
 .actions{display:flex;gap:8px;flex-wrap:wrap}
-.section{font-size:12px;text-transform:uppercase;letter-spacing:.07em;color:var(--g);font-weight:900;margin:18px 2px 7px}
+.section{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--g);font-weight:900;margin:13px 2px 5px}
 .small{font-size:12px;color:var(--muted)}
 .badge{display:inline-block;padding:4px 8px;border-radius:999px;background:#edf3df;color:#38501f;font-size:10px;font-weight:900}
 .todo{display:flex;gap:9px;align-items:flex-start;padding:9px 0;border-bottom:1px solid #edf0ed}.todo input{width:20px;height:20px;margin-top:1px}.todo span{flex:1}
@@ -49,7 +56,7 @@ details summary{font-weight:900;cursor:pointer}
 .perfGood{font-weight:900;color:#38501f}
 .flowCard{background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px;margin:10px 0}
 .stepLabel{font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:7px}
-.toolDetails{margin:10px 0;background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px}
+.toolDetails{margin:7px 0;background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px 11px}
 .toolDetails summary{display:flex;align-items:center;justify-content:space-between;gap:10px}
 .toolDetails summary::after{content:'Open';font-size:10px;color:var(--muted);font-weight:800}
 .toolDetails[open] summary::after{content:'Close'}
@@ -81,6 +88,9 @@ details summary{font-weight:900;cursor:pointer}
   font-size:9px;
   line-height:1.05;
 }
+.chargeGrid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.chargeGrid input,.chargeGrid select{padding:8px;font-size:13px}
+.chargeGrid label{margin-bottom:2px;font-size:9px}
 .jobHeader h2{font-size:18px;line-height:1.05}
 .jobHeader .small{font-size:10px;line-height:1.15}
 .jobHeader .stepLabel{margin-bottom:3px;font-size:8px}
@@ -95,10 +105,10 @@ details summary{font-weight:900;cursor:pointer}
   .presetActions{grid-template-columns:1fr 1fr!important}
   .presetActions .btn{width:100%}
   nav{gap:4px}
-  nav button{padding:7px 9px;font-size:12px}
-  main{padding:10px 10px 96px}
+  nav button{padding:7px 4px;font-size:11px}
+  main{padding:8px 9px 96px}
   .card,.flowCard{border-radius:14px;padding:12px}
-  .jobHeader{top:96px;padding:8px 10px;margin:6px 0}
+  .jobHeader{top:69px;padding:7px 9px;margin:5px 0}
   .jobMetaGrid{grid-template-columns:1fr 1fr;gap:3px 5px;margin-top:6px!important}
   .jobMetaGrid input{height:28px;min-height:28px;font-size:11px;padding:2px 5px}
   .jobMetaGrid label{font-size:8px}
@@ -109,28 +119,26 @@ details summary{font-weight:900;cursor:pointer}
 </head>
 <body>
 <header>
-<div class="brand"><div><strong>Queenstown Garden Company</strong><div><small>FIELD BOOK · MOBILE TEST</small></div></div><span class="badge">v1.2</span></div>
+<div class="brand"><div><strong>QGC Fieldbook</strong></div><span class="badge">v1.3</span></div>
 <nav>
 <button class="active" data-page="today">Today</button>
 <button data-page="import">Calendar</button>
-<button data-page="job">Job</button>
-<button data-page="draft">Xero drafts</button>
+<button data-page="draft">Drafts</button>
 <button data-page="performance">Performance</button>
 </nav>
 </header>
 
 <main>
 <section id="today" class="page active">
-<div class="flowCard">
+<div class="flowCard" style="padding:10px 11px">
 <div class="row">
-<div><div class="stepLabel">Work day</div><div id="dayTitle" class="kpi"></div></div>
-<button class="btn" onclick="showPage('import')">Load Calendar</button>
+<div><div class="stepLabel">Work day</div><div id="dayTitle" class="kpi" style="font-size:20px"></div></div>
+<button class="btn" onclick="showPage('import')">Load</button>
 </div>
-<div class="quickNav">
-<button class="btn light" onclick="shiftDate(-1)">− Day</button>
+<div class="quickNav" style="grid-template-columns:repeat(3,1fr);margin-top:8px">
+<button class="btn light" onclick="shiftDate(-1)">← Day</button>
 <button class="btn light" onclick="setDateOffset(0)">Today</button>
-<button class="btn light" onclick="shiftDate(1)">+ Day</button>
-<button class="btn alt" onclick="showPage('draft')">Drafts</button>
+<button class="btn light" onclick="shiftDate(1)">Day →</button>
 </div>
 </div>
 <div id="todayList"></div>
@@ -211,7 +219,6 @@ SITE NOTES:
 <div id="jobHeader" class="card jobHeader">
 <div class="row">
 <div>
-<div class="stepLabel">Current job</div>
 <h2 id="jobTitle" style="margin:0 0 3px"></h2>
 <div id="jobAddress" class="small"></div>
 </div>
@@ -277,11 +284,11 @@ SITE NOTES:
 
 <div class="section">Charges</div>
 <div class="card">
-<div class="grid">
+<div class="chargeGrid">
 <div><label>Green waste</label><select id="waste"><option value="none">None</option><option value="small">≤100 kg</option><option value="medium">100–200 kg</option><option value="large">Over 200 kg</option></select></div>
-<div><label>Dump km · auto</label><input id="dumpKm" type="number" step=".1" min="0" placeholder="Auto when waste selected"></div>
-<div><label>Ride-on hours</label><input id="rideOn" type="number" step=".25" min="0" value="0"></div>
-<div><label>Spray units · 15 L</label><input id="spray" type="number" min="0" value="0"></div>
+<div><label>Dump km · auto</label><input id="dumpKm" type="number" step=".1" min="0" placeholder="Auto"></div>
+<div><label>Ride-on hrs</label><input id="rideOn" type="number" step=".25" min="0" value="0"></div>
+<div><label>Spray · 15 L</label><input id="spray" type="number" min="0" value="0"></div>
 </div>
 <div id="routeStatus" class="notice" style="margin-top:10px">Select Green Waste to calculate km automatically.</div>
 <details class="toolDetails" style="margin-top:10px">
@@ -617,7 +624,7 @@ function renderToday(){
   box.innerHTML=arr.map(function(j){
     var open=j.todos?j.todos.filter(function(t){return !t.done}).length:0;
     var cls='card'+(j.completed?' done':'')+(first&&first.id===j.id?' next':'');
-    return '<div class="'+cls+'"><div class="row"><div><h3 style="margin:0">'+esc(j.title)+'</h3><div class="small">'+esc((j.start||'')+'–'+(j.end||'')+' · '+j.personnel+' personnel')+'</div><div class="small">'+esc(j.address||'No address')+'</div><div class="small">'+open+' open task'+(open===1?'':'s')+'</div></div><span class="badge">'+(j.completed?'COMPLETED':(first&&first.id===j.id?'NEXT JOB':'READY'))+'</span></div><div class="actions" style="margin-top:11px"><button class="btn '+(j.completed?'light':'')+'" onclick="openJob(\''+j.id+'\')">'+(j.completed?'Review':'Open job')+'</button></div></div>';
+    return '<div class="'+cls+' jobCard" role="button" tabindex="0" onclick="openJob(\''+j.id+'\')" onkeydown="if(event.key===\'Enter\')openJob(\''+j.id+'\')"><div class="row"><div style="min-width:0;flex:1"><h3>'+esc(j.title)+'</h3><div class="jobCardMeta">'+esc((j.start||'')+'–'+(j.end||'')+' · '+j.personnel+' staff · '+open+' To Do'+(open===1?'':'s'))+'</div>'+(j.address?'<div class="jobCardMeta">'+esc(j.address)+'</div>':'')+'</div><div style="text-align:right"><span class="badge">'+(j.completed?'DONE':(first&&first.id===j.id?'NEXT':'READY'))+'</span><div class="jobCardArrow">›</div></div></div></div>';
   }).join('');
 }
 
