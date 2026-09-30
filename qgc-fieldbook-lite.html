@@ -50,7 +50,7 @@ h3{margin:0 0 3px}
 <div class="card">
 <div class="small">Calendar + Reminders are the source of truth. This view is a working copy only — nothing here is saved as the record.</div>
 <div class="row" style="margin-top:8px"><input id="dateIn" type="date"></div>
-<button class="btn" onclick="runImport()">Run "QGC Import Day" Shortcut</button>
+<button class="btn" onclick="runImport()">Run "QGC Truck" Shortcut</button>
 <button class="btn alt" onclick="pasteImport()">Paste Result</button>
 <div id="impStatus" class="small" style="margin-top:6px">No day loaded yet.</div>
 <details style="margin-top:8px"><summary class="small">Raw paste box</summary>
@@ -126,7 +126,7 @@ location.href='shortcuts://run-shortcut?name='+encodeURIComponent(name)+'&input=
 window.runImport=function(){
 var d=document.getElementById('dateIn').value;
 document.getElementById('impStatus').textContent='Opening Shortcuts for '+d+'…';
-runShortcut('QGC Import Day',d);
+runShortcut('QGC Truck',d);
 };
 window.pasteImport=async function(){
 try{
