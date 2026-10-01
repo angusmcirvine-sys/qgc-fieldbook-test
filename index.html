@@ -2,1176 +2,282 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#173d2c">
-<title>QGC Fieldbook</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>QGC Truck 1 Import</title>
 <style>
-:root{--g:#173d2c;--lime:#b8d36b;--bg:#f4f6f1;--card:#fff;--ink:#16221c;--muted:#66716a;--line:#dce3dc;--done:#e8ece8;--warn:#fff6df;--bad:#fff0ef}
+:root{--g:#173d2c;--lime:#b8d36b;--bg:#f4f6f1;--card:#fff;--ink:#16221c;--muted:#66716a;--line:#dce3dc}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#12160f;--card:#1b241c;--ink:#eef1ea;--muted:#9aa79c;--line:#2a352b}}
+:root[data-theme="dark"]{--bg:#12160f;--card:#1b241c;--ink:#eef1ea;--muted:#9aa79c;--line:#2a352b}
 *{box-sizing:border-box}
-body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--ink)}
-header{position:sticky;top:0;z-index:20;background:var(--g);color:#fff;padding:8px 10px 7px;box-shadow:0 1px 8px #0002}
-.brand{display:flex;justify-content:space-between;gap:8px;align-items:center}
-.brand strong{font-size:14px;line-height:1}
-.brand small{display:none}
-nav{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-top:7px}
-nav button{border:0;border-radius:9px;padding:7px 5px;background:#ffffff14;color:#fff;font-weight:800;white-space:nowrap;font-size:11px;overflow:hidden;text-overflow:ellipsis}
-nav button.active{background:var(--lime);color:#18311f}
-main{max-width:720px;margin:auto;padding:14px 14px 90px}
+html,body{height:100%}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg);color:var(--ink);
+padding-top:env(safe-area-inset-top,0);padding-bottom:env(safe-area-inset-bottom,0)}
+header{position:sticky;top:env(safe-area-inset-top,0);z-index:5;background:var(--g);color:#fff;padding:10px 12px}
+header b{font-size:15px}
+main{max-width:640px;margin:auto;padding:12px}
 .page{display:none}.page.active{display:block}
-.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;margin:10px 0;box-shadow:0 2px 7px #0000000b}
-.card.done{background:var(--done);opacity:.65}.next{outline:2px solid var(--lime)}
-.jobCard{cursor:pointer;padding:11px 12px;margin:7px 0;transition:transform .08s ease}
-.jobCard:active{transform:scale(.992)}
-.jobCard h3{font-size:16px;line-height:1.15;margin:0 0 4px}
-.jobCardMeta{font-size:11px;color:var(--muted);line-height:1.35}
-.jobCardArrow{font-size:24px;line-height:1;color:var(--muted);font-weight:300}
-.row{display:flex;gap:10px;align-items:center;justify-content:space-between}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
-label{display:block;font-size:11px;font-weight:800;color:var(--muted);margin-bottom:5px}
-input,textarea,select{width:100%;font:inherit;padding:11px;border:1px solid #cdd6cf;border-radius:10px;background:#fff}
-textarea{min-height:110px;resize:vertical}
-.btn{border:0;border-radius:11px;padding:11px 13px;font-weight:800;background:var(--g);color:#fff}
-.btn.alt{background:#e9efe9;color:var(--g)}.btn.light{background:#fff;border:1px solid var(--line);color:var(--g)}.btn:disabled{opacity:.45}
-.actions{display:flex;gap:8px;flex-wrap:wrap}
-.section{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--g);font-weight:900;margin:13px 2px 5px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;margin:9px 0}
+.btn{border:0;border-radius:10px;padding:11px 12px;font-weight:800;background:var(--g);color:#fff;width:100%;margin:4px 0}
+.btn.alt{background:#e9efe9;color:var(--g)}
+:root[data-theme="dark"] .btn.alt{background:#28322a;color:#cfe0c8}
+.row{display:flex;gap:8px;align-items:center}
+input,textarea,select{width:100%;font:inherit;padding:9px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink)}
+textarea{min-height:100px}
 .small{font-size:12px;color:var(--muted)}
-.badge{display:inline-block;padding:4px 8px;border-radius:999px;background:#edf3df;color:#38501f;font-size:10px;font-weight:900}
-.todo{display:flex;gap:9px;align-items:flex-start;padding:9px 0;border-bottom:1px solid #edf0ed}.todo input{width:20px;height:20px;margin-top:1px}.todo span{flex:1}
-.todoScope{font-size:9px;font-weight:900;letter-spacing:.04em;padding:3px 6px;border-radius:999px;background:#eef1ee;color:#58635c;white-space:nowrap}
-.works li{margin:7px 0}.empty{text-align:center;color:var(--muted);padding:24px 8px}.kpi{font-size:26px;font-weight:900;color:var(--g)}
-.notice{padding:10px;border-radius:10px;background:#f4f7e9;color:#465728;font-size:12px}
-.notice.warn{background:var(--warn);color:#715313}.notice.bad{background:var(--bad);color:#842e28}
-pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#f7f8f6;border:1px solid var(--line);border-radius:10px;padding:11px;font:12px/1.5 ui-monospace,SFMono-Regular,monospace}
-details summary{font-weight:900;cursor:pointer}
-.presetActions{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin-top:10px}.presetActions .btn{padding:10px 6px;font-size:11px}
-.historyItem,.draftCard{border-top:1px solid #edf0ed;padding:10px 0}.historyItem:first-child,.draftCard:first-child{border-top:0;padding-top:0}
-.thumb{width:100%;max-height:240px;object-fit:contain;border:1px solid var(--line);border-radius:10px;background:#fafafa;display:none}
-.metricGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
-.metric{background:#f7f9f5;border:1px solid var(--line);border-radius:12px;padding:11px}
-.metric .value{font-size:22px;font-weight:900;color:var(--g);line-height:1.1}
-.metric .label{font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-top:5px}
-.runCard{border:1px solid var(--line);border-radius:13px;padding:12px;margin:10px 0;background:#fff}
-.runJob{display:flex;gap:8px;justify-content:space-between;align-items:center;padding:7px 0;border-top:1px solid #edf0ed}
-.runJob:first-child{border-top:0}
-.perfGood{font-weight:900;color:#38501f}
-.flowCard{background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px;margin:10px 0}
-.stepLabel{font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:7px}
-.toolDetails{margin:7px 0;background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px 11px}
-.toolDetails summary{display:flex;align-items:center;justify-content:space-between;gap:10px}
-.toolDetails summary::after{content:'Open';font-size:10px;color:var(--muted);font-weight:800}
-.toolDetails[open] summary::after{content:'Close'}
-.quickNav{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:10px}
-.quickNav .btn{padding:9px 6px;font-size:11px}
-.jobHeader{
-  position:sticky;
-  top:104px;
-  z-index:10;
-  transition:transform .22s ease,opacity .18s ease;
-  will-change:transform,opacity;
-}
-.jobHeader.jobHeaderHidden{
-  transform:translateY(calc(-100% - 12px));
-  opacity:0;
-  pointer-events:none;
-}
-.jobMetaGrid{display:grid;grid-template-columns:1fr 1fr;gap:4px 6px}
-.jobMetaGrid input{
-  height:30px;
-  min-height:30px;
-  padding:3px 6px;
-  font-size:12px;
-  line-height:1.1;
-  border-radius:7px;
-}
-.jobMetaGrid label{
-  margin-bottom:1px;
-  font-size:9px;
-  line-height:1.05;
-}
-.chargeGrid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
-.chargeGrid input,.chargeGrid select{padding:8px;font-size:13px}
-.chargeGrid label{margin-bottom:2px;font-size:9px}
-.jobHeader h2{font-size:18px;line-height:1.05}
-.jobHeader .small{font-size:10px;line-height:1.15}
-.jobHeader .stepLabel{margin-bottom:3px;font-size:8px}
-.stickyJobActions{position:sticky;bottom:8px;z-index:15;background:#f4f6f1e8;backdrop-filter:blur(8px);padding:9px;border-radius:14px;border:1px solid var(--line);margin-top:14px;display:grid;grid-template-columns:1fr auto;gap:8px}
-.stickyJobActions .btn{min-height:46px}
-.workPanel{border:1px solid var(--line);border-radius:14px;padding:12px;margin-top:10px}
-.compactPre{max-height:220px;overflow:auto;margin:8px 0}
-.primaryButton{width:100%;min-height:48px;font-size:15px}
-@media(max-width:520px){
-  .grid{grid-template-columns:1fr}
-  .brand small{display:none}
-  .presetActions{grid-template-columns:1fr 1fr!important}
-  .presetActions .btn{width:100%}
-  nav{gap:4px}
-  nav button{padding:7px 4px;font-size:11px}
-  main{padding:8px 9px 96px}
-  .card,.flowCard{border-radius:14px;padding:12px}
-  .jobHeader{top:69px;padding:7px 9px;margin:5px 0}
-  .jobMetaGrid{grid-template-columns:1fr 1fr;gap:3px 5px;margin-top:6px!important}
-  .jobMetaGrid input{height:28px;min-height:28px;font-size:11px;padding:2px 5px}
-  .jobMetaGrid label{font-size:8px}
-  .jobHeader h2{font-size:17px}
-  .jobHeader .row{gap:6px}
-}
+.todo{display:flex;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid var(--line)}
+.todo input{width:18px}
+pre{white-space:pre-wrap;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:9px;font:12px/1.4 monospace}
+.badge{font-size:10px;font-weight:800;padding:3px 7px;border-radius:99px;background:var(--lime);color:#18311f}
+nav{display:flex;gap:6px;margin-top:8px}
+nav button{flex:1;border:0;border-radius:8px;padding:7px;background:#ffffff22;color:#fff;font-weight:700;font-size:12px}
+nav button.on{background:var(--lime);color:#18311f}
+h3{margin:0 0 3px}
+.jobrow{cursor:pointer}
 </style>
 </head>
 <body>
 <header>
-<div class="brand"><div><strong>QGC Fieldbook</strong></div><span class="badge">v1.3</span></div>
+<b>QGC Truck 1 Import</b>
 <nav>
-<button class="active" data-page="today">Today</button>
-<button data-page="import">Calendar</button>
-<button data-page="draft">Drafts</button>
-<button data-page="performance">Performance</button>
+<button class="on" data-p="today">Today</button>
+<button data-p="job">Job</button>
+<button data-p="drafts">Sent to Xero</button>
 </nav>
 </header>
-
 <main>
+
 <section id="today" class="page active">
-<div class="flowCard" style="padding:10px 11px">
-<div class="row">
-<div><div class="stepLabel">Work day</div><div id="dayTitle" class="kpi" style="font-size:20px"></div></div>
-<button class="btn" onclick="showPage('import')">Load</button>
-</div>
-<div class="quickNav" style="grid-template-columns:repeat(3,1fr);margin-top:8px">
-<button class="btn light" onclick="shiftDate(-1)">← Day</button>
-<button class="btn light" onclick="setDateOffset(0)">Today</button>
-<button class="btn light" onclick="shiftDate(1)">Day →</button>
-</div>
-</div>
-<div id="todayList"></div>
-</section>
-
-<section id="import" class="page">
-<div class="section">Load work day</div>
-
-<div class="flowCard">
-<div class="stepLabel">1 · Choose date</div>
-<div class="grid">
-<div><label>Date</label><input id="dateText" type="date"></div>
-<div><label>Calendar</label><select id="calendarName"><option>Truck 1</option></select></div>
-</div>
-<div class="quickNav">
-<button class="btn light" onclick="setDateOffset(0)">Today</button>
-<button class="btn light" onclick="setDateOffset(1)">Tomorrow</button>
-<button class="btn light" onclick="shiftDate(-1)">− Day</button>
-<button class="btn light" onclick="shiftDate(1)">+ Day</button>
-</div>
-</div>
-
-<div class="flowCard">
-<div class="stepLabel">2 · Get Truck 1 jobs</div>
-<button class="btn primaryButton" onclick="runShortcut()">Run Truck 1 Calendar</button>
-<div id="shortcutStatus" class="notice" style="margin-top:10px">Choose the date, then run the iPhone Shortcut.</div>
-</div>
-
-<div class="flowCard">
-<div class="stepLabel">3 · Bring result back</div>
-<button class="btn alt primaryButton" onclick="pasteClipboard()">Paste Calendar Result</button>
-<div id="previewBox" class="notice" style="margin-top:10px">No Calendar result pasted yet.</div>
-<div class="actions" style="margin-top:10px">
-<button class="btn light" onclick="previewImport()">Refresh Preview</button>
-<button class="btn primaryButton" style="flex:1" onclick="loadCalendar()">Load Jobs Into Day</button>
-</div>
-</div>
-
-<details class="toolDetails">
-<summary>Raw Calendar data</summary>
-<label style="margin-top:10px">Shortcut output</label>
-<textarea id="calendarText" placeholder="Paste Shortcut output here…"></textarea>
+<div class="card">
+<div class="small">Calendar + Reminders are the source of truth. This view is a working copy only — nothing here is saved as the record.</div>
+<div class="row" style="margin-top:8px"><input id="dateIn" type="date"></div>
+<button class="btn" onclick="runImport()">Run "QGC Truck" Shortcut</button>
+<button class="btn alt" onclick="pasteImport()">Paste Result</button>
+<div id="impStatus" class="small" style="margin-top:6px">No day loaded yet.</div>
+<details style="margin-top:8px"><summary class="small">Raw paste box</summary>
+<textarea id="raw" placeholder="Shortcut output appears here"></textarea>
 </details>
-
-<details class="toolDetails">
-<summary>Calendar Notes format</summary>
-<div class="small" style="margin-top:9px">To Dos are taken from the selected Calendar event. Use an explicit SITE NOTES heading for protected site information.</div>
-<pre>2 personnel
-
-TO DO:
-- Cut and shape hedges
-- Weed rear beds
-
-SITE NOTES:
-- Access via lower gate</pre>
-</details>
-
-<details class="toolDetails">
-<summary>Screenshot fallback</summary>
-<div class="small" style="margin:9px 0">Use only when the Shortcut is unavailable.</div>
-<input id="shotFile" type="file" accept="image/*">
-<img id="shotPreview" class="thumb" alt="Calendar screenshot preview">
-<div class="actions" style="margin-top:10px">
-<button class="btn alt" onclick="runScreenshotOCR()">Read screenshot</button>
-<button class="btn light" onclick="previewScreenshotText()">Preview</button>
-<button class="btn" onclick="loadScreenshotEvents()">Load</button>
 </div>
-<div id="ocrStatus" class="notice" style="margin-top:10px">No screenshot selected.</div>
-<textarea id="ocrText" placeholder="Recognised screenshot text appears here…" style="margin-top:10px"></textarea>
-<div id="ocrPreviewBox" class="notice" style="margin-top:10px">No OCR events previewed.</div>
-</details>
+<div id="jobList"></div>
 </section>
 
 <section id="job" class="page">
-<div id="jobEmpty" class="card empty">Choose a job from Today.</div>
-<div id="jobPanel" style="display:none">
-
-<div id="jobHeader" class="card jobHeader">
-<div class="row">
-<div>
-<h2 id="jobTitle" style="margin:0 0 3px"></h2>
-<div id="jobAddress" class="small"></div>
-</div>
-<span id="jobStatus" class="badge"></span>
-</div>
-<div class="jobMetaGrid" style="margin-top:10px">
-<div><label>Personnel</label><input id="personnel" type="number" min="1"></div>
-<div><label>Date</label><input id="jobDate" readonly></div>
-<div><label>Start</label><input id="startTime" type="time"></div>
-<div><label>Finish</label><input id="endTime" type="time"></div>
-</div>
-</div>
-
-<div class="section">Work</div>
+<div id="jobEmpty" class="card">Pick a job from Today.</div>
+<div id="jobBox" style="display:none">
 <div class="card">
-<div class="stepLabel">To Dos for this Calendar visit</div>
-<div class="row" style="align-items:stretch">
-<input id="todoQuickInput" placeholder="Add another task…" onkeydown="if(event.key==='Enter'){event.preventDefault();addTodoFromInput()}">
-<button class="btn alt" type="button" onclick="addTodoFromInput()">+ Add</button>
-</div>
-<div id="todoList" style="margin-top:8px"></div>
-
-<details class="toolDetails" style="margin-top:12px">
-<summary>Add from preset</summary>
-<label style="margin-top:10px">Standard task</label>
-<select id="presetTask"></select>
-<label style="margin-top:9px">Location / detail</label>
-<input id="presetDetail" placeholder="e.g. rear garden beds">
-<div class="presetActions" style="grid-template-columns:1fr 1fr">
-<button class="btn alt" onclick="applyPreset('todo')">+ To Do</button>
-<button class="btn" onclick="applyPreset('description')">Completed work</button>
-</div>
-</details>
-
-<div class="workPanel">
-<div class="stepLabel">Completed work · invoice description</div>
-<ul id="worksList" class="works"></ul>
-<div id="noWorks" class="small">No completed work yet. Tick a To Do or add a preset as completed work.</div>
+<h3 id="jTitle"></h3>
+<div id="jAddr" class="small"></div>
+<div class="row" style="margin-top:8px">
+<input id="jPersonnel" type="number" min="1" placeholder="Staff">
+<input id="jStart" type="time"><input id="jEnd" type="time">
 </div>
 </div>
-
-<details class="toolDetails">
-<summary>Calendar copy / notes</summary>
-<div class="small" style="margin-top:9px">Copy unchecked To Dos back into another Calendar event only when you want them scheduled there.</div>
-<pre id="calendarTodoPreview" class="compactPre">TO DO:
-- No outstanding To Dos</pre>
-<div class="actions">
-<button class="btn" type="button" onclick="copyCalendarTodos()">Copy To Dos</button>
-<button class="btn alt" type="button" onclick="copyFullCalendarNotes()">Copy full notes</button>
-</div>
-<div class="stepLabel" style="margin-top:14px">Calendar notes from this visit</div>
-<div id="calendarNotes"></div>
-</details>
-
-<details class="toolDetails">
-<summary>Site notes & property history</summary>
-<div class="stepLabel" style="margin-top:10px">Protected site notes</div>
-<div id="siteNotes"></div>
-<div class="actions" style="margin-top:10px"><button class="btn alt" onclick="appendSiteNote()">Append site note</button></div>
-<div class="stepLabel" style="margin-top:16px">Previous visits</div>
-<div id="historyList"></div>
-</details>
-
-<div class="section">Charges</div>
 <div class="card">
-<div class="chargeGrid">
-<div><label>Green waste</label><select id="waste"><option value="none">None</option><option value="small">≤100 kg</option><option value="medium">100–200 kg</option><option value="large">Over 200 kg</option></select></div>
-<div><label>Dump km · auto</label><input id="dumpKm" type="number" step=".1" min="0" placeholder="Auto"></div>
-<div><label>Ride-on hrs</label><input id="rideOn" type="number" step=".25" min="0" value="0"></div>
-<div><label>Spray · 15 L</label><input id="spray" type="number" min="0" value="0"></div>
+<div class="row"><b style="flex:1">To-dos (Reminders list)</b></div>
+<div id="jTodos"></div>
+<div class="row" style="margin-top:8px">
+<input id="newTodo" placeholder="New to-do…">
+<button class="btn alt" style="width:auto" onclick="addTodo()">Add</button>
 </div>
-<div id="routeStatus" class="notice" style="margin-top:10px">Select Green Waste to calculate km automatically.</div>
-<details class="toolDetails" style="margin-top:10px">
-<summary>Waste route tools</summary>
-<div class="small">Property → 110 Glenda Drive. Waste-run labour adds 0.5 hr for one person.</div>
-<div class="actions" style="margin-top:9px">
-<button class="btn alt" type="button" onclick="autoDumpKm(true)">Recalculate km</button>
-<button class="btn light" type="button" onclick="openDumpRoute()">Open route</button>
+<div class="small" style="margin-top:4px">Ticking or adding a to-do fires a Shortcut that edits Reminders directly — nothing is duplicated here.</div>
 </div>
-</details>
-</div>
-
-<div class="section">Review before completion</div>
 <div class="card">
-<div class="row">
-<div><strong>Xero draft</strong><div class="small">Updates as the job changes. Nothing is sent yet.</div></div>
-<button class="btn light" onclick="copyJobPreview()">Copy</button>
+<b>Charges</b>
+<div class="row" style="margin-top:8px">
+<select id="jWaste"><option value="none">No waste</option><option value="small">Waste ≤100kg</option><option value="medium">Waste 100-200kg</option><option value="large">Waste 200kg+</option></select>
+<input id="jKm" type="number" step=".1" placeholder="Dump km">
 </div>
-<pre id="jobDraftPreview" class="compactPre">No active job.</pre>
+<button class="btn alt" onclick="autoDumpKm()">Auto-calculate dump km</button>
+<div id="routeStatus" class="small"></div>
+<div class="row" style="margin-top:6px">
+<input id="jRide" type="number" step=".25" placeholder="Ride-on hrs">
+<input id="jSpray" type="number" placeholder="Spray ×15L">
 </div>
-
-<div class="stickyJobActions">
-<button id="completeBtn" class="btn primaryButton" onclick="completeJob()">Complete Job</button>
-<button class="btn light" onclick="showPage('today')">Back</button>
 </div>
-
+<div class="card">
+<b>Xero draft (live)</b>
+<pre id="draftPreview"></pre>
+<button class="btn" onclick="sendToXero()">Send to Xero (Shortcut: copy + open)</button>
+<button class="btn alt" onclick="appendSiteNote()">Append site note (Shortcut)</button>
+</div>
 </div>
 </section>
 
-<section id="draft" class="page">
-<div class="section">Xero drafts · selected day</div>
-<div class="card">
-<div class="row">
-<div><div class="small">Draft date</div><div id="draftDayTitle" class="kpi"></div></div>
-<div class="actions">
-<button class="btn alt" onclick="copyDayDrafts()">Copy day</button>
-<button class="btn light" onclick="exportDayDrafts()">Export day</button>
-</div>
-</div>
-</div>
+<section id="drafts" class="page">
+<div class="card small">Drafts you've sent this session — a local log only, Xero remains the record.</div>
 <div id="draftList"></div>
 </section>
 
-<section id="performance" class="page">
-<div class="section">Team leader performance</div>
-<div class="card">
-<div class="row">
-<div><div class="small">Management week</div><div id="perfWeekTitle" class="kpi"></div></div>
-<div class="actions">
-<button class="btn light" onclick="shiftPerformanceWeek(-1)">− Week</button>
-<button class="btn alt" onclick="performanceUseSelectedDate()">Selected date</button>
-<button class="btn light" onclick="shiftPerformanceWeek(1)">+ Week</button>
-</div>
-</div>
-<div class="small" style="margin-top:10px">Internal management view only. These recovery/consolidation metrics do not alter the client Xero description.</div>
-</div>
-
-<div class="metricGrid">
-<div class="metric"><div id="perfVisits" class="value">0</div><div class="label">Completed visits</div></div>
-<div class="metric"><div id="perfWasteClients" class="value">0</div><div class="label">Waste clients</div></div>
-<div class="metric"><div id="perfRuns" class="value">0</div><div class="label">Actual dump runs</div></div>
-<div class="metric"><div id="perfClientsPerRun" class="value">0</div><div class="label">Clients per run</div></div>
-<div class="metric"><div id="perfAvoided" class="value">0</div><div class="label">Avoided separate trips</div></div>
-<div class="metric"><div id="perfHoursSaved" class="value">0.00 h</div><div class="label">Run-hours consolidated</div></div>
-<div class="metric"><div id="perfRecovery" class="value">$0</div><div class="label">Billed recovery</div></div>
-<div class="metric"><div id="perfReceipts" class="value">$0</div><div class="label">Entered dump receipts</div></div>
-</div>
-
-<div id="perfSummary" class="notice" style="margin-top:10px"></div>
-
-<div class="section">Recovery settings</div>
-<details class="card">
-<summary>QGC waste recovery rates used for this management view</summary>
-<div class="grid" style="margin-top:10px">
-<div><label>≤100 kg fixed charge</label><input id="perfSmallCharge" type="number" step=".01"></div>
-<div><label>100–200 kg fixed charge</label><input id="perfMediumCharge" type="number" step=".01"></div>
-<div><label>Over 200 kg fixed charge</label><input id="perfLargeCharge" type="number" step=".01" placeholder="Set when confirmed"></div>
-<div><label>Labour charge-out / hr</label><input id="perfLabourRate" type="number" step=".01"></div>
-<div><label>KM charge</label><input id="perfKmRate" type="number" step=".01"></div>
-<div><label>Client waste-run labour</label><input id="perfWasteHours" type="number" step=".25"></div>
-</div>
-<div class="small" style="margin-top:9px">Billed recovery = fixed waste charge + client dump km × km rate + client waste-run labour. This is a recovery/charge-out measure, not accounting profit.</div>
-</details>
-
-<div class="section">Waste clients awaiting grouping</div>
-<div id="unassignedWaste"></div>
-
-<div class="section">Consolidated dump runs</div>
-<div id="dumpRunList"></div>
-
-<div class="section">How this shows team-leader performance</div>
-<div class="card">
-<div class="small">
-Each waste client may recover a 0.5 hr waste-run charge, but an efficient team leader can consolidate several properties into one physical dump run. The management page therefore compares <strong>client recovery</strong> with the <strong>actual number and duration of dump runs</strong>, rather than changing the individual client invoice formula.
-</div>
-</div>
-</section>
 </main>
-
 <script>
-(function(){
-var KEY='qgcFieldbookHttpsV1Empty';
-var DUMP_ADDRESS='110 Glenda Drive, Frankton, Queenstown 9300, New Zealand';
-var state;
-try{state=JSON.parse(localStorage.getItem(KEY)||'null')}catch(e){}
-if(!state)state={date:isoDate(new Date()),jobs:[],active:null,lastDraft:'',drafts:[],routeCache:{},dumpRuns:[],performanceAnchor:'',performanceSettings:{}};
-if(!state.jobs)state.jobs=[];
-if(!state.drafts)state.drafts=[];
-if(!state.routeCache)state.routeCache={};
-if(!state.dumpRuns)state.dumpRuns=[];
-if(!state.performanceSettings)state.performanceSettings={};
-if(!state.performanceAnchor)state.performanceAnchor=state.date;
-if(state.performanceSettings.smallWasteCharge==null)state.performanceSettings.smallWasteCharge=37;
-if(state.performanceSettings.mediumWasteCharge==null)state.performanceSettings.mediumWasteCharge=74;
-if(state.performanceSettings.largeWasteCharge==null)state.performanceSettings.largeWasteCharge=0;
-if(state.performanceSettings.labourRate==null)state.performanceSettings.labourRate=65;
-if(state.performanceSettings.kmRate==null)state.performanceSettings.kmRate=2;
-if(state.performanceSettings.wasteRunHours==null)state.performanceSettings.wasteRunHours=0.5;
+var jobs=JSON.parse(sessionStorage.getItem('qgcJobs')||'[]');
+var sentLog=JSON.parse(sessionStorage.getItem('qgcSent')||'[]');
+var activeIdx=-1;
+function saveSession(){sessionStorage.setItem('qgcJobs',JSON.stringify(jobs));sessionStorage.setItem('qgcSent',JSON.stringify(sentLog))}
+function esc(s){return String(s||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]))}
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>show(b.dataset.p));
+function show(p){document.querySelectorAll('.page').forEach(x=>x.classList.toggle('active',x.id===p));
+document.querySelectorAll('nav button').forEach(x=>x.classList.toggle('on',x.dataset.p===p));
+if(p==='drafts')renderDrafts();}
+document.getElementById('dateIn').value=new Date().toISOString().slice(0,10);
 
-var PRESET_TASKS=[
-'Brush cut edges',
-'Brush cut inaccessible areas',
-'Mow lawn and remove grass clippings',
-'Ride-on mower service',
-'Weed spray applied to',
-'Cut and shape hedges',
-'Cut back and reduce',
-'Leaf blow and clear hard surfaces',
-'Leaf blow and clear garden beds',
-'Leaf blow and clear pathways',
-'Collect waste material and remove',
-'Apply fertiliser to',
-'Apply seaweed tonic to',
-'Remove waste to disposal'
-];
-
-function save(){localStorage.setItem(KEY,JSON.stringify(state))}
-function esc(s){return String(s||'').replace(/[&<>"']/g,function(m){return({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])})}
-function isoDate(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
-function dateObj(s){var m=String(s||'').trim().match(/^(\d{4})-(\d{2})-(\d{2})$/);if(m)return new Date(+m[1],+m[2]-1,+m[3]);return null}
-function pretty(s){var d=dateObj(s);return d?new Intl.DateTimeFormat('en-NZ',{weekday:'short',day:'numeric',month:'short',year:'numeric'}).format(d):s}
-function hours(a,b){
-  if(!a||!b)return 0;
-  var x=a.split(':').map(Number),y=b.split(':').map(Number);
-  if(x.length<2||y.length<2||isNaN(x[0])||isNaN(y[0]))return 0;
-  return Math.max(0,(y[0]*60+y[1]-x[0]*60-x[1])/60);
+function runShortcut(name,payload){
+location.href='shortcuts://run-shortcut?name='+encodeURIComponent(name)+'&input=text&text='+encodeURIComponent(payload);
 }
-function propertyKey(title,address){
-  return String(address||title||'unknown').trim().toLowerCase().replace(/\s+/g,' ');
-}
-function normaliseImportedTime(v){
-  v=String(v||'').trim();
-  var m=v.match(/\b(\d{1,2}):(\d{2})\s*(AM|PM)?\b/i);
-  if(!m)return v;
-  var h=+m[1],min=m[2],ap=(m[3]||'').toUpperCase();
-  if(ap==='PM'&&h<12)h+=12;if(ap==='AM'&&h===12)h=0;
-  return String(h).padStart(2,'0')+':'+min;
-}
-function extractImportedDate(v){
-  var s=String(v||'').trim();
-  var m=s.match(/\b(\d{4})-(\d{2})-(\d{2})\b/);if(m)return m[1]+'-'+m[2]+'-'+m[3];
-  m=s.match(/\b(\d{1,2})\/(\d{1,2})\/(\d{4})\b/);if(m)return m[3]+'-'+String(+m[2]).padStart(2,'0')+'-'+String(+m[1]).padStart(2,'0');
-  var cleaned=s.replace(/\bat\b/i,' ');
-  var d=new Date(cleaned);
-  return isNaN(d.getTime())?'':isoDate(d);
-}
-
-function migrate(){
-  state.jobs.forEach(function(j){
-    if(!j.propertyKey)j.propertyKey=propertyKey(j.title,j.address);
-    if(!j.todos)j.todos=[];
-    j.todos.forEach(function(t){t.scope='visit'});
-    if(!j.completedWorks)j.completedWorks=[];
-    if(!j.siteNotes)j.siteNotes=[];
-    if(!j.calendarNotes)j.calendarNotes=[];
-    if(j.completed&&j.lastDraft&&!state.drafts.some(function(d){return d.jobId===j.id})){
-      state.drafts.push({id:'draft_'+j.id,jobId:j.id,propertyKey:j.propertyKey,date:j.date,title:j.title,address:j.address,text:j.lastDraft,completedAt:j.completedAt||'',start:j.start||''});
-    }
-  });
-  save();
-}
-migrate();
-
-function showPage(id){
-  document.querySelectorAll('.page').forEach(function(x){x.classList.toggle('active',x.id===id)});
-  if(id==='job'){setTimeout(function(){setJobHeaderHidden(false);lastJobScrollY=window.scrollY||0},0)}
-  document.querySelectorAll('nav button').forEach(function(x){x.classList.toggle('active',x.dataset.page===id)});
-  if(id==='draft')renderDrafts();
-  if(id==='performance')renderPerformance();
-  window.scrollTo(0,0);
-}
-window.showPage=showPage;
-document.querySelectorAll('nav button').forEach(function(b){b.onclick=function(){showPage(b.dataset.page)}});
-
-function setDateField(s){state.date=s;save();document.getElementById('dateText').value=s;renderToday();renderDrafts()}
-window.setDateOffset=function(n){var d=new Date();d.setHours(12,0,0,0);d.setDate(d.getDate()+n);setDateField(isoDate(d))}
-window.shiftDate=function(n){var d=dateObj(document.getElementById('dateText').value)||dateObj(state.date)||new Date();d.setDate(d.getDate()+n);setDateField(isoDate(d))}
-function selectedIso(){var v=document.getElementById('dateText').value;var d=dateObj(v);if(!d){alert('Choose a date first.');return null}return isoDate(d)}
-
-window.runShortcut=function(){
-  var d=selectedIso();if(!d)return;
-  var shortcutDate=d+'T00:00:00';
-  document.getElementById('shortcutStatus').innerHTML='<strong>Opening Shortcuts…</strong> '+pretty(d)+' · Truck 1';
-  location.href='shortcuts://run-shortcut?name='+encodeURIComponent('QGC Truck 1 Import')+'&input=text&text='+encodeURIComponent(shortcutDate);
+window.runImport=function(){
+var d=document.getElementById('dateIn').value;
+document.getElementById('impStatus').textContent='Opening Shortcuts for '+d+'…';
+runShortcut('QGC Truck',d);
 };
-window.pasteClipboard=async function(){
-  try{
-    document.getElementById('calendarText').value=await navigator.clipboard.readText();
-    previewImport();
-    document.getElementById('shortcutStatus').innerHTML='<strong>Calendar result received.</strong> Check the preview below, then load the jobs.';
-  }catch(e){alert('iPhone blocked automatic clipboard reading. Tap the Calendar data box and choose Paste.')}
+window.pasteImport=async function(){
+try{
+var t=await navigator.clipboard.readText();
+document.getElementById('raw').value=t;
+parseAndLoad(t);
+}catch(e){alert('Tap the raw paste box and paste manually.')}
 };
 
-function pushUnique(arr,val){val=String(val||'').trim();if(val&&!arr.some(function(x){return x.toLowerCase()===val.toLowerCase()}))arr.push(val)}
-
-function parseCalendar(txt){
-  var events=[],cur=null,mode=null;
-  String(txt||'').replace(/\r/g,'').split('\n').forEach(function(raw){
-    var line=raw.trim();
-    if(!line)return;
-    if(/^EVENT$/i.test(line)){cur={title:'',startRaw:'',endRaw:'',start:'',end:'',date:'',address:'',todos:[],siteNotes:[],calendarNotes:[],personnel:2};mode=null;return}
-    if(/^END_EVENT$/i.test(line)){if(cur&&cur.title)events.push(cur);cur=null;mode=null;return}
-    if(!cur)return;
-
-    if(/^TITLE:/i.test(line)){cur.title=line.replace(/^TITLE:\s*/i,'').trim();mode=null;return}
-    if(/^START:/i.test(line)){
-      cur.startRaw=line.replace(/^START:\s*/i,'').trim();
-      cur.start=normaliseImportedTime(cur.startRaw);
-      cur.date=extractImportedDate(cur.startRaw)||cur.date;mode=null;return;
-    }
-    if(/^END:/i.test(line)){cur.endRaw=line.replace(/^END:\s*/i,'').trim();cur.end=normaliseImportedTime(cur.endRaw);mode=null;return}
-    if(/^ADDRESS:/i.test(line)){cur.address=line.replace(/^ADDRESS:\s*/i,'').trim();mode=null;return}
-    if(/^(TO\s*DO|TODO|TO\s*DOS):/i.test(line)){
-      var t=line.replace(/^(TO\s*DO|TODO|TO\s*DOS):\s*/i,'').trim();if(t)pushUnique(cur.todos,t);mode='todo';return;
-    }
-    if(/^SITE\s*NOTES?:/i.test(line)){
-      var sn=line.replace(/^SITE\s*NOTES?:\s*/i,'').trim();if(sn)pushUnique(cur.siteNotes,sn);mode='site';return;
-    }
-    if(/^NOTES:/i.test(line)){
-      var n=line.replace(/^NOTES:\s*/i,'').trim();
-      var p=n.match(/(\d+)\s*(?:personnel|people|staff)/i);if(p)cur.personnel=+p[1];
-      if(n&&!/^(\d+)\s*(?:personnel|people|staff)$/i.test(n))pushUnique(cur.todos,n.replace(/^[-•]\s*/,''));
-      mode='todo';return;
-    }
-    var pp=line.match(/(\d+)\s*(?:personnel|people|staff)/i);if(pp)cur.personnel=+pp[1];
-    if(/^[-•]\s*/.test(line)){
-      var item=line.replace(/^[-•]\s*/,'').trim();
-      if(mode==='site')pushUnique(cur.siteNotes,item);
-      else pushUnique(cur.todos,item);
-    }else{
-      if(mode==='site')pushUnique(cur.siteNotes,line);
-      else pushUnique(cur.todos,line);
-    }
-  });
-  if(cur&&cur.title)events.push(cur);
-  return events;
+function parseAndLoad(text){
+var events=[],cur=null;
+text.replace(/\r/g,'').split('\n').forEach(line=>{
+line=line.trim();if(!line)return;
+if(/^EVENT$/i.test(line)){cur={title:'',start:'',end:'',address:'',personnel:2,todos:[]};return}
+if(/^END_EVENT$/i.test(line)){if(cur&&cur.title)events.push(cur);cur=null;return}
+if(!cur)return;
+var m;
+if(m=line.match(/^TITLE:\s*(.*)/i))cur.title=m[1];
+else if(m=line.match(/^START:\s*(.*)/i))cur.start=m[1];
+else if(m=line.match(/^END:\s*(.*)/i))cur.end=m[1];
+else if(m=line.match(/^ADDRESS:\s*(.*)/i))cur.address=m[1];
+else if(m=line.match(/^PERSONNEL:\s*(\d+)/i))cur.personnel=+m[1];
+else if(/^[-•]/.test(line))cur.todos.push(line.replace(/^[-•]\s*/,''));
+});
+if(!events.length){document.getElementById('impStatus').textContent='No EVENT blocks recognised — check the Shortcut output.';return}
+jobs=events;activeIdx=-1;saveSession();
+document.getElementById('impStatus').textContent=events.length+' job(s) loaded for '+ (document.getElementById('dateIn').value||'today');
+renderToday();
 }
 
-window.previewImport=function(){
-  var date=selectedIso();if(!date)return;
-  var events=parseCalendar(document.getElementById('calendarText').value);
-  var box=document.getElementById('previewBox');
-  if(!events.length){box.className='notice bad';box.textContent='No EVENT blocks found.';return}
-  var selected=events.filter(function(x){return x.date===date});
-  var ignored=events.filter(function(x){return x.date&&x.date!==date});
-  var undated=events.filter(function(x){return !x.date});
-  box.className='notice'+(!selected.length?' bad':'');
-  box.innerHTML=
-    '<strong>'+selected.length+' event(s) for '+esc(date)+'</strong><br>'+
-    (selected.length?selected.map(function(x){return esc((x.start||'?')+'–'+(x.end||'?')+' · '+x.title)}).join('<br>'):'No events match the selected date.')+
-    (ignored.length?'<br><br><strong>'+ignored.length+' other-date event(s) ignored safely.</strong> '+esc(Array.from(new Set(ignored.map(function(x){return x.date}))).join(', ')):'')+
-    (undated.length?'<br><br><strong>'+undated.length+' undated event(s) not loaded.</strong>':'');
-};
-
-function latestPriorVisit(pk,date){
-  return state.jobs.filter(function(j){return j.propertyKey===pk&&j.date<date}).sort(function(a,b){return (b.date+(b.start||'')).localeCompare(a.date+(a.start||''))})[0]||null;
-}
-function sameVisit(e,date){
-  var pk=propertyKey(e.title,e.address);
-  return state.jobs.find(function(j){return j.date===date&&j.propertyKey===pk&&String(j.start||'')===String(e.start||'')})||null;
-}
-function makeVisitFromEvent(e,date){
-  var pk=propertyKey(e.title,e.address),prior=latestPriorVisit(pk,date);
-  var todos=[];
-  e.todos.forEach(function(t){
-    if(!todos.some(function(x){return x.text.toLowerCase()===t.toLowerCase()})){
-      todos.push({id:'t_'+Date.now()+'_'+Math.random(),text:t,done:false,scope:'visit',source:'calendar'});
-    }
-  });
-  var siteNotes=prior&&prior.siteNotes?prior.siteNotes.slice():[];
-  e.siteNotes.forEach(function(n){pushUnique(siteNotes,n)});
-  return {
-    id:'job_'+Date.now()+'_'+Math.random(),
-    propertyKey:pk,title:e.title,address:e.address,date:date,start:e.start,end:e.end,personnel:e.personnel||2,
-    todos:todos,completedWorks:[],siteNotes:siteNotes,calendarNotes:e.calendarNotes||[],
-    waste:'none',dumpKm:0,rideOn:0,spray:0,completed:false,source:'calendar'
-  };
-}
-window.loadCalendar=function(){
-  var date=selectedIso();if(!date)return;
-  var allEvents=parseCalendar(document.getElementById('calendarText').value);
-  if(!allEvents.length){alert('No calendar events found.');return}
-  var events=allEvents.filter(function(e){return e.date===date});
-  var ignored=allEvents.filter(function(e){return e.date&&e.date!==date});
-  if(!events.length){
-    var dates=Array.from(new Set(allEvents.map(function(e){return e.date}).filter(Boolean)));
-    alert('No returned events match '+date+'. Returned date(s): '+(dates.join(', ')||'unknown')+'.');
-    return;
-  }
-  events.forEach(function(e){
-    var existing=sameVisit(e,date);
-    if(existing){
-      existing.title=e.title;existing.address=e.address;existing.end=e.end;existing.personnel=e.personnel||existing.personnel;existing.calendarNotes=e.calendarNotes||[];
-      var completed=(existing.completedWorks||[]).map(function(x){return x.toLowerCase()});
-      existing.todos=e.todos.map(function(t){
-        return {id:'t_'+Date.now()+'_'+Math.random(),text:t,done:completed.indexOf(t.toLowerCase())>=0,scope:'visit',source:'calendar'};
-      });
-      e.siteNotes.forEach(function(n){pushUnique(existing.siteNotes,n)});
-    }else state.jobs.push(makeVisitFromEvent(e,date));
-  });
-  state.date=date;save();renderToday();
-  if(ignored.length)alert(events.length+' event(s) loaded for '+date+'. '+ignored.length+' event(s) from other dates were ignored.');
-  showPage('today');
-};
-
-function jobsForDay(){return state.jobs.filter(function(j){return j.date===state.date}).sort(function(a,b){return String(a.start||'').localeCompare(String(b.start||''))})}
 function renderToday(){
-  document.getElementById('dayTitle').textContent=pretty(state.date);
-  document.getElementById('dateText').value=state.date;
-  var arr=jobsForDay(),box=document.getElementById('todayList');
-  if(!arr.length){box.innerHTML='<div class="card empty">No jobs loaded for this date.<br><br><button class="btn" onclick="showPage(\'import\')">Load from iPhone Calendar</button></div>';return}
-  var first=arr.find(function(j){return !j.completed});
-  box.innerHTML=arr.map(function(j){
-    var open=j.todos?j.todos.filter(function(t){return !t.done}).length:0;
-    var cls='card'+(j.completed?' done':'')+(first&&first.id===j.id?' next':'');
-    return '<div class="'+cls+' jobCard" role="button" tabindex="0" onclick="openJob(\''+j.id+'\')" onkeydown="if(event.key===\'Enter\')openJob(\''+j.id+'\')"><div class="row"><div style="min-width:0;flex:1"><h3>'+esc(j.title)+'</h3><div class="jobCardMeta">'+esc((j.start||'')+'–'+(j.end||'')+' · '+j.personnel+' staff · '+open+' To Do'+(open===1?'':'s'))+'</div>'+(j.address?'<div class="jobCardMeta">'+esc(j.address)+'</div>':'')+'</div><div style="text-align:right"><span class="badge">'+(j.completed?'DONE':(first&&first.id===j.id?'NEXT':'READY'))+'</span><div class="jobCardArrow">›</div></div></div></div>';
-  }).join('');
+var box=document.getElementById('jobList');
+if(!jobs.length){box.innerHTML='';return}
+box.innerHTML=jobs.map((j,i)=>
+'<div class="card jobrow" onclick="openJob('+i+')"><div class="row"><div style="flex:1"><h3>'+esc(j.title)+'</h3>'+
+'<div class="small">'+esc((j.start||'')+'–'+(j.end||''))+' · '+j.todos.length+' to-do(s)</div></div>'+
+'<span class="badge">Open</span></div></div>').join('');
 }
 
-window.openJob=function(id){state.active=id;save();renderJob();showPage('job')}
-function activeJob(){return state.jobs.find(function(j){return j.id===state.active})}
-function syncFields(j){
-  j.personnel=+document.getElementById('personnel').value||1;
-  j.start=document.getElementById('startTime').value;
-  j.end=document.getElementById('endTime').value;
-  j.waste=document.getElementById('waste').value;
-  j.dumpKm=+document.getElementById('dumpKm').value||0;
-  j.rideOn=+document.getElementById('rideOn').value||0;
-  j.spray=+document.getElementById('spray').value||0;
+window.openJob=function(i){
+activeIdx=i;var j=jobs[i];
+document.getElementById('jobEmpty').style.display='none';
+document.getElementById('jobBox').style.display='block';
+document.getElementById('jTitle').textContent=j.title;
+document.getElementById('jAddr').textContent=j.address||'';
+document.getElementById('jPersonnel').value=j.personnel||2;
+document.getElementById('jStart').value=j.start||'';
+document.getElementById('jEnd').value=j.end||'';
+document.getElementById('jWaste').value=j.waste||'none';
+document.getElementById('jKm').value=j.km||'';
+document.getElementById('jRide').value=j.ride||'';
+document.getElementById('jSpray').value=j.spray||'';
+renderTodos();show('job');
+};
+
+function renderTodos(){
+var j=jobs[activeIdx];
+document.getElementById('jTodos').innerHTML=j.todos.length?j.todos.map((t,i)=>
+'<label class="todo"><input type="checkbox" onchange="doneTodo('+i+')"><span>'+esc(t)+'</span></label>').join(''):
+'<div class="small">No open to-dos for this visit.</div>';
 }
-function renderJob(){
-  var j=activeJob();
-  document.getElementById('jobEmpty').style.display=j?'none':'block';
-  document.getElementById('jobPanel').style.display=j?'block':'none';
-  if(!j)return;
-  if(!j.propertyKey)j.propertyKey=propertyKey(j.title,j.address);
-  if(!j.todos)j.todos=[];if(!j.completedWorks)j.completedWorks=[];if(!j.siteNotes)j.siteNotes=[];if(!j.calendarNotes)j.calendarNotes=[];
-  j.todos.forEach(function(t){t.scope='visit'});
-  document.getElementById('jobTitle').textContent=j.title||'Untitled job';
-  document.getElementById('jobAddress').textContent=j.address||'No address imported';
-  document.getElementById('jobStatus').textContent=j.completed?'Completed':'Active';
-  document.getElementById('personnel').value=j.personnel||2;
-  document.getElementById('jobDate').value=pretty(j.date);
-  document.getElementById('startTime').value=j.start||'';
-  document.getElementById('endTime').value=j.end||'';
-  document.getElementById('waste').value=j.waste||'none';
-  document.getElementById('dumpKm').value=j.dumpKm||'';
-  document.getElementById('rideOn').value=j.rideOn||0;
-  document.getElementById('spray').value=j.spray||0;
-
-  var todos=j.todos.filter(function(t){return !t.done});
-  document.getElementById('todoList').innerHTML=todos.length?todos.map(function(t){
-    return '<label class="todo"><input type="checkbox" onchange="finishTodo(\''+t.id+'\')" '+(j.completed?'disabled':'')+'><span>'+esc(t.text)+'</span></label>';
-  }).join(''):'<div class="small" style="padding:10px 0">No unchecked To Dos remain for this Calendar visit.</div>';
-
-  document.getElementById('worksList').innerHTML=j.completedWorks.map(function(w,i){
-    return '<li>'+esc(w)+(j.completed?'':' <button class="btn light" style="padding:3px 7px" onclick="undoWork('+i+')">Undo</button>')+'</li>';
-  }).join('');
-  document.getElementById('noWorks').style.display=j.completedWorks.length?'none':'block';
-
-  document.getElementById('calendarNotes').innerHTML=j.calendarNotes.length?j.calendarNotes.map(function(n){return '<div class="notice" style="margin:6px 0">'+esc(n)+'</div>'}).join(''):'<div class="small">No unclassified Calendar Notes for this visit.</div>';
-  document.getElementById('siteNotes').innerHTML=j.siteNotes.length?j.siteNotes.map(function(n){return '<div class="notice" style="margin:6px 0">'+esc(n)+'</div>'}).join(''):'<div class="small">No site notes.</div>';
-
-  document.querySelectorAll('#jobPanel input,#jobPanel select').forEach(function(el){if(!['jobDate'].includes(el.id))el.disabled=!!j.completed});
-  document.getElementById('completeBtn').disabled=!!j.completed;
-
-  renderHistory(j);
-  if(j.waste&&j.waste!=='none'&&j.dumpKm)setRouteStatus(Number(j.dumpKm).toFixed(1)+' km one way to 110 Glenda Drive',false);
-  else setRouteStatus('Select Green Waste to calculate the one-way route to 110 Glenda Drive.',false);
-  refreshCalendarTodoPreview();
-  refreshJobPreview();
-}
-
-function renderHistory(j){
-  var hist=state.jobs.filter(function(x){return x.propertyKey===j.propertyKey&&x.id!==j.id}).sort(function(a,b){return (b.date+(b.start||'')).localeCompare(a.date+(a.start||''))}).slice(0,8);
-  var box=document.getElementById('historyList');
-  if(!hist.length){box.innerHTML='<div class="small">No earlier visits stored yet.</div>';return}
-  box.innerHTML=hist.map(function(x){
-    var works=x.completedWorks&&x.completedWorks.length?x.completedWorks.map(function(w){return '• '+esc(w)}).join('<br>'):'No completed works recorded';
-    var outstanding=x.todos?x.todos.filter(function(t){return !t.done}).length:0;
-    return '<div class="historyItem"><strong>'+esc(pretty(x.date))+'</strong> <span class="small">'+esc((x.start||'')+'–'+(x.end||''))+'</span><div class="small" style="margin-top:4px">'+works+'</div><div class="small" style="margin-top:4px">'+outstanding+' To Do'+(outstanding===1?'':'s')+' left after visit</div></div>';
-  }).join('');
-}
-
-function addVisitTodoText(text){
-  var j=activeJob();if(!j||j.completed)return false;
-  var t=String(text||'').trim();if(!t)return false;
-  var duplicate=j.todos.some(function(x){return !x.done&&x.text.toLowerCase()===t.toLowerCase()});
-  if(!duplicate)j.todos.push({id:'t_'+Date.now()+'_'+Math.random(),text:t,done:false,scope:'visit',source:'fieldbook'});
-  save();renderJob();return true;
-}
-window.addTodoFromInput=function(){
-  var input=document.getElementById('todoQuickInput');if(!input)return;
-  if(addVisitTodoText(input.value))input.value='';
+window.doneTodo=function(i){
+var j=jobs[activeIdx],text=j.todos[i];
+runShortcut('QGC Complete To-Do',JSON.stringify({job:j.title,todo:text}));
+j.todos.splice(i,1);saveSession();renderTodos();refreshDraft();
 };
 window.addTodo=function(){
-  var t=prompt('Add To Do');
-  if(t)addVisitTodoText(t);
-};
-window.finishTodo=function(id){
-  var j=activeJob();if(!j||j.completed)return;
-  var t=j.todos.find(function(x){return x.id===id});if(!t)return;
-  t.done=true;j.completedWorks.push(t.text);save();renderJob();
-};
-window.undoWork=function(i){
-  var j=activeJob();if(!j||j.completed)return;
-  var text=j.completedWorks.splice(i,1)[0],t=j.todos.find(function(x){return x.text===text&&x.done});
-  if(t)t.done=false;else j.todos.push({id:'t_'+Date.now(),text:text,done:false,scope:'visit',source:'fieldbook'});
-  save();renderJob();
+var v=document.getElementById('newTodo').value.trim();if(!v)return;
+var j=jobs[activeIdx];
+runShortcut('QGC Add To-Do',JSON.stringify({job:j.title,todo:v}));
+j.todos.push(v);document.getElementById('newTodo').value='';saveSession();renderTodos();
 };
 window.appendSiteNote=function(){
-  var j=activeJob();if(!j)return;
-  var n=prompt('Append site note');
-  if(n&&n.trim()){pushUnique(j.siteNotes,n.trim());save();renderJob()}
+var n=prompt('Site note to append');if(!n)return;
+var j=jobs[activeIdx];
+runShortcut('QGC Append Site Note',JSON.stringify({job:j.title,note:n}));
 };
 
-function calendarTodoText(j){
-  if(!j)return 'TO DO:\n- No outstanding To Dos';
-  var items=(j.todos||[]).filter(function(t){return !t.done}).map(function(t){return t.text});
-  var lines=['TO DO:'];
-  if(items.length)items.forEach(function(t){lines.push('- '+t)});
-  else lines.push('- No outstanding To Dos');
-  return lines.join('\n');
+function syncCharges(){
+var j=jobs[activeIdx];
+j.personnel=+document.getElementById('jPersonnel').value||1;
+j.start=document.getElementById('jStart').value;
+j.end=document.getElementById('jEnd').value;
+j.waste=document.getElementById('jWaste').value;
+j.km=+document.getElementById('jKm').value||0;
+j.ride=+document.getElementById('jRide').value||0;
+j.spray=+document.getElementById('jSpray').value||0;
+saveSession();
 }
-function fullCalendarNotesText(j){
-  if(!j)return '';
-  var lines=[String(j.personnel||2)+' personnel','',calendarTodoText(j)];
-  var notes=(j.siteNotes||[]).filter(Boolean);
-  if(notes.length){
-    lines.push('');
-    lines.push('SITE NOTES:');
-    notes.forEach(function(n){lines.push('- '+n)});
-  }
-  return lines.join('\n');
-}
-function refreshCalendarTodoPreview(){
-  var el=document.getElementById('calendarTodoPreview');
-  if(!el)return;
-  el.textContent=calendarTodoText(activeJob());
-}
-window.copyCalendarTodos=async function(){
-  var text=calendarTodoText(activeJob());
-  try{await navigator.clipboard.writeText(text);alert('Calendar To Dos copied')}
-  catch(e){alert('Select the Calendar To Do output and copy manually.')}
-};
-window.copyFullCalendarNotes=async function(){
-  var text=fullCalendarNotesText(activeJob());
-  if(!text)return;
-  try{await navigator.clipboard.writeText(text);alert('Full Calendar notes copied')}
-  catch(e){alert('Select the Calendar notes output and copy manually.')}
-};
+['jPersonnel','jStart','jEnd','jWaste','jKm','jRide','jSpray'].forEach(id=>
+document.getElementById(id).addEventListener('input',()=>{syncCharges();refreshDraft()}));
 
-function presetText(){
-  var base=document.getElementById('presetTask').value||'',detail=(document.getElementById('presetDetail').value||'').trim();
-  if(!detail)return base;
-  if(/\b(to|in|at|on|around|throughout)$/i.test(base))return base+' '+detail;
-  return base+' — '+detail;
+var DUMP_ADDR='110 Glenda Drive, Frankton, Queenstown 9300, New Zealand';
+var geoCache=JSON.parse(sessionStorage.getItem('qgcGeo')||'{}');
+async function geocode(addr){
+var q=/new zealand/i.test(addr)?addr:addr+', New Zealand';
+if(geoCache[q])return geoCache[q];
+var r=await fetch('https://photon.komoot.io/api/?limit=1&lat=-45.0312&lon=168.6626&q='+encodeURIComponent(q));
+var d=await r.json();
+if(!d.features||!d.features.length)throw new Error('not found');
+var p={lon:d.features[0].geometry.coordinates[0],lat:d.features[0].geometry.coordinates[1]};
+geoCache[q]=p;sessionStorage.setItem('qgcGeo',JSON.stringify(geoCache));return p;
 }
-window.applyPreset=function(mode){
-  var j=activeJob();if(!j||j.completed)return;
-  var text=presetText().trim();if(!text)return;
-  if(mode==='description'){
-    if(!j.completedWorks.some(function(x){return x.toLowerCase()===text.toLowerCase()}))j.completedWorks.push(text);
-  }else{
-    var existing=j.todos.find(function(x){return !x.done&&x.text.toLowerCase()===text.toLowerCase()});
-    if(!existing)j.todos.push({id:'t_'+Date.now()+'_'+Math.random(),text:text,done:false,scope:'visit',source:'fieldbook'});
-  }
-  document.getElementById('presetDetail').value='';save();renderJob();
+window.autoDumpKm=async function(){
+var j=jobs[activeIdx],st=document.getElementById('routeStatus');
+if(!j.address){st.textContent='No address on this job — enter km manually.';return}
+st.textContent='Calculating…';
+try{
+var a=await geocode(j.address),b=await geocode(DUMP_ADDR);
+var r=await fetch('https://router.project-osrm.org/route/v1/driving/'+a.lon+','+a.lat+';'+b.lon+','+b.lat+'?overview=false');
+var d=await r.json();
+if(d.code!=='Ok')throw new Error('route');
+var km=Math.round(d.routes[0].distance/100)/10;
+document.getElementById('jKm').value=km;
+j.km=km;saveSession();refreshDraft();
+st.textContent=km.toFixed(1)+' km one way to 110 Glenda Drive.';
+}catch(e){st.textContent='Could not resolve that route — check the address or enter km manually.'}
 };
-
-function setRouteStatus(msg,bad){var e=document.getElementById('routeStatus');if(e){e.textContent=msg;e.style.color=bad?'#842e28':'#66716a'}}
-function routeAddress(a){var q=String(a||'').trim();if(!q)return '';if(!/new zealand/i.test(q))q+=', New Zealand';return q}
-async function geocodeAddress(address){
-  var q=routeAddress(address),key='geo:'+q.toLowerCase();if(!q)throw new Error('No address');if(state.routeCache[key])return state.routeCache[key];
-  var res=await fetch('https://photon.komoot.io/api/?limit=1&lat=-45.0312&lon=168.6626&q='+encodeURIComponent(q));if(!res.ok)throw new Error('Address lookup failed');
-  var data=await res.json();if(!data.features||!data.features.length)throw new Error('Address not found');
-  var c=data.features[0].geometry.coordinates,p={lon:+c[0],lat:+c[1]};state.routeCache[key]=p;save();return p;
-}
-window.autoDumpKm=async function(showFailure){
-  var j=activeJob();if(!j||j.completed)return false;syncFields(j);
-  if(j.waste==='none'){setRouteStatus('Select Green Waste first.',true);return false}
-  if(!j.address){setRouteStatus('No address was imported from Calendar Location.',true);if(showFailure)alert('No property address was imported from Calendar.');return false}
-  setRouteStatus('Calculating route…',false);
-  try{
-    var o=await geocodeAddress(j.address),d=await geocodeAddress(DUMP_ADDRESS);
-    var res=await fetch('https://router.project-osrm.org/route/v1/driving/'+o.lon+','+o.lat+';'+d.lon+','+d.lat+'?overview=false'),data=await res.json();
-    if(!res.ok||data.code!=='Ok'||!data.routes||!data.routes.length)throw new Error('Route failed');
-    var km=Math.round((data.routes[0].distance/1000)*10)/10;j.dumpKm=km;j.dumpKmSource='auto';document.getElementById('dumpKm').value=km.toFixed(1);save();
-    setRouteStatus(km.toFixed(1)+' km one way to 110 Glenda Drive',false);refreshJobPreview();return true;
-  }catch(e){j.dumpKmSource='manual-needed';save();setRouteStatus('Auto km could not resolve this route. Enter km manually or use Open route.',true);if(showFailure)alert('Auto km could not resolve this route. Enter km manually or use Open route.');return false}
-};
-window.openDumpRoute=function(){
-  var j=activeJob();if(!j||!j.address){alert('No property address is available.');return}
-  window.open('https://maps.apple.com/?saddr='+encodeURIComponent(routeAddress(j.address))+'&daddr='+encodeURIComponent(DUMP_ADDRESS)+'&dirflg=d','_blank');
-};
-
+function hrs(a,b){if(!a||!b)return 0;var x=a.split(':').map(Number),y=b.split(':').map(Number);
+return Math.max(0,(y[0]*60+y[1]-x[0]*60-x[1])/60)}
 function buildDraft(j){
-  var visit=hours(j.start,j.end);
-  var baseStaffHours=visit*j.personnel;
-  var rideHours=Math.max(0,Number(j.rideOn)||0);
-  var waste=j.waste!=='none';
-  var wasteRunHours=waste?0.5:0;
-  var rideOverlap=Math.min(rideHours,baseStaffHours);
-  var labourHours=Math.max(0,baseStaffHours-rideOverlap)+wasteRunHours;
-  var lines=[];
-  lines.push('Personnel: '+j.personnel);
-  lines.push('Time: '+(j.start||'')+'–'+(j.end||''));
-  if(waste){lines.push('Green waste: '+j.waste);lines.push('Waste run: 0.50 hr')}
-  if(rideHours)lines.push('Ride-on: '+rideHours.toFixed(2)+' hrs');
-  lines.push('Labour: '+labourHours.toFixed(2)+' hrs');
-  if(waste)lines.push('Dump travel: '+Number(j.dumpKm||0).toFixed(1)+' km');
-  if(j.spray)lines.push('Spray: '+j.spray+' × 15 L application');
-  lines.push('');lines.push('Description of works:');
-  if(j.completedWorks.length)j.completedWorks.forEach(function(w){lines.push('- '+w)});else lines.push('- No completed works recorded');
-  return lines.join('\n');
+var visitHrs=hrs(j.start,j.end),labour=visitHrs*(j.personnel||1);
+var waste=j.waste&&j.waste!=='none';
+if(waste)labour+=0.5;
+var lines=['Personnel: '+(j.personnel||1),'Time: '+(j.start||'')+'–'+(j.end||''),'Labour: '+labour.toFixed(2)+' hrs'];
+if(waste){lines.push('Green waste: '+j.waste);lines.push('Dump travel: '+(j.km||0).toFixed(1)+' km')}
+if(j.ride)lines.push('Ride-on: '+j.ride+' hrs');
+if(j.spray)lines.push('Spray: '+j.spray+' × 15L');
+lines.push('','Description of works:');
+if(j.todos.length===0)lines.push('- See completed Reminders for this visit');
+lines.push('(Completed items are ticked off in Reminders — refer there for the exact list.)');
+return lines.join('\n');
 }
-window.refreshJobPreview=function(){
-  var j=activeJob(),el=document.getElementById('jobDraftPreview');if(!el)return;if(!j){el.textContent='No active job.';return}
-  if(!j.completed)syncFields(j);el.textContent=j.completed&&j.lastDraft?j.lastDraft:buildDraft(j);
+function refreshDraft(){
+if(activeIdx<0)return;
+document.getElementById('draftPreview').textContent=buildDraft(jobs[activeIdx]);
+}
+window.sendToXero=function(){
+syncCharges();
+var j=jobs[activeIdx],text=buildDraft(j);
+sentLog.unshift({title:j.title,text:text,at:new Date().toLocaleString()});
+saveSession();
+runShortcut('QGC Send Xero Draft',text);
 };
-window.copyJobPreview=async function(){var el=document.getElementById('jobDraftPreview');if(!el)return;try{await navigator.clipboard.writeText(el.textContent);alert('Draft preview copied')}catch(e){alert('Select the preview text and copy manually.')}};
-
-window.completeJob=async function(){
-  var j=activeJob();if(!j||j.completed)return;
-  syncFields(j);
-  if(j.waste!=='none'&&!j.dumpKm){await autoDumpKm(false);syncFields(j);if(!j.dumpKm){alert('Green waste is selected. Confirm dump km before completing the job.');return}}
-  j.completed=true;j.completedAt=new Date().toISOString();j.lastDraft=buildDraft(j);state.lastDraft=j.lastDraft;
-  var rec={id:'draft_'+j.id,jobId:j.id,propertyKey:j.propertyKey,date:j.date,title:j.title,address:j.address,text:j.lastDraft,completedAt:j.completedAt,start:j.start||''};
-  var ix=state.drafts.findIndex(function(d){return d.jobId===j.id});if(ix>=0)state.drafts[ix]=rec;else state.drafts.push(rec);
-  save();renderToday();renderDrafts();renderPerformance();showPage('today');
-};
-
-function draftsForDay(){return state.drafts.filter(function(d){return d.date===state.date}).sort(function(a,b){return String(a.start||'').localeCompare(String(b.start||''))})}
 function renderDrafts(){
-  var title=document.getElementById('draftDayTitle');if(title)title.textContent=pretty(state.date);
-  var box=document.getElementById('draftList');if(!box)return;
-  var arr=draftsForDay();
-  if(!arr.length){box.innerHTML='<div class="card empty">No completed Xero drafts for this date.</div>';return}
-  box.innerHTML=arr.map(function(d){return '<div class="card draftCard"><div class="row"><div><strong>'+esc(d.title)+'</strong><div class="small">'+esc(d.address||'')+'</div></div><span class="badge">'+esc(d.start||'')+'</span></div><pre>'+esc(d.text)+'</pre><div class="actions"><button class="btn light" onclick="copyOneDraft(\''+d.id+'\')">Copy</button></div></div>'}).join('');
+var box=document.getElementById('draftList');
+box.innerHTML=sentLog.length?sentLog.map(d=>
+'<div class="card"><b>'+esc(d.title)+'</b><div class="small">'+esc(d.at)+'</div><pre>'+esc(d.text)+'</pre></div>').join(''):
+'<div class="card small">Nothing sent yet this session.</div>';
 }
-window.copyOneDraft=async function(id){var d=state.drafts.find(function(x){return x.id===id});if(!d)return;try{await navigator.clipboard.writeText(d.text);alert('Draft copied')}catch(e){}}
-function dayDraftText(){return draftsForDay().map(function(d){return d.title+'\n'+d.text}).join('\n\n----------------\n\n')}
-window.copyDayDrafts=async function(){var t=dayDraftText();if(!t){alert('No drafts for this day.');return}try{await navigator.clipboard.writeText(t);alert('Day drafts copied')}catch(e){}}
-window.exportDayDrafts=function(){var t=dayDraftText();if(!t){alert('No drafts for this day.');return}var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([t],{type:'text/plain'}));a.download='QGC-Xero-drafts-'+state.date+'.txt';a.click();setTimeout(function(){URL.revokeObjectURL(a.href)},500)}
-
-
-function performanceWeekBounds(){
-  var d=dateObj(state.performanceAnchor)||dateObj(state.date)||new Date();
-  d.setHours(12,0,0,0);
-  var day=(d.getDay()+6)%7;
-  var start=new Date(d);start.setDate(d.getDate()-day);
-  var end=new Date(start);end.setDate(start.getDate()+6);
-  return {start:isoDate(start),end:isoDate(end)};
-}
-function performanceJobs(){
-  var b=performanceWeekBounds();
-  return state.jobs.filter(function(j){return j.completed&&j.date>=b.start&&j.date<=b.end});
-}
-function performanceWasteJobs(){
-  return performanceJobs().filter(function(j){return j.waste&&j.waste!=='none'});
-}
-function wasteFixedCharge(j){
-  var p=state.performanceSettings;
-  if(j.waste==='small')return Number(p.smallWasteCharge)||0;
-  if(j.waste==='medium')return Number(p.mediumWasteCharge)||0;
-  if(j.waste==='large')return Number(p.largeWasteCharge)||0;
-  return 0;
-}
-function billedWasteRecovery(j){
-  var p=state.performanceSettings;
-  return wasteFixedCharge(j)+(Number(j.dumpKm)||0)*(Number(p.kmRate)||0)+(Number(p.wasteRunHours)||0)*(Number(p.labourRate)||0);
-}
-function weekRuns(){
-  var b=performanceWeekBounds();
-  var ids=new Set(performanceWasteJobs().map(function(j){return j.id}));
-  return state.dumpRuns.filter(function(r){
-    return (r.jobIds||[]).some(function(id){return ids.has(id)})||(r.date&&r.date>=b.start&&r.date<=b.end);
-  });
-}
-function actualRunMinutes(run){
-  return Math.max(0,Number(run.actualMinutes==null?30:run.actualMinutes)||0);
-}
-function performanceMetrics(){
-  var jobs=performanceJobs(),waste=performanceWasteJobs(),runs=weekRuns();
-  var groupedIds=new Set();
-  runs.forEach(function(r){
-    (r.jobIds||[]).forEach(function(id){
-      if(waste.some(function(j){return j.id===id}))groupedIds.add(id);
-    });
-  });
-  var unassigned=waste.filter(function(j){return !groupedIds.has(j.id)});
-  var activeRuns=runs.filter(function(r){
-    return (r.jobIds||[]).some(function(id){return waste.some(function(j){return j.id===id})});
-  });
-  var actualRuns=activeRuns.length+unassigned.length;
-  var actualHours=activeRuns.reduce(function(sum,r){return sum+actualRunMinutes(r)/60},0)
-    +unassigned.length*(Number(state.performanceSettings.wasteRunHours)||0.5);
-  var billedHours=waste.length*(Number(state.performanceSettings.wasteRunHours)||0.5);
-  var recovery=waste.reduce(function(sum,j){return sum+billedWasteRecovery(j)},0);
-  var receipts=activeRuns.reduce(function(sum,r){return sum+(Number(r.receiptCost)||0)},0);
-  return {
-    jobs:jobs,waste:waste,runs:runs,activeRuns:activeRuns,unassigned:unassigned,
-    actualRuns:actualRuns,
-    clientsPerRun:actualRuns?waste.length/actualRuns:0,
-    avoided:Math.max(0,waste.length-actualRuns),
-    billedHours:billedHours,
-    actualHours:actualHours,
-    consolidatedHours:Math.max(0,billedHours-actualHours),
-    recovery:recovery,
-    receipts:receipts
-  };
-}
-function perfMoney(v){
-  return String.fromCharCode(36)+Number(v||0).toFixed(2);
-}
-function renderPerformance(){
-  var b=performanceWeekBounds(),m=performanceMetrics();
-  var weekTitle=document.getElementById('perfWeekTitle');
-  if(!weekTitle)return;
-  weekTitle.textContent=pretty(b.start)+' – '+pretty(b.end);
-  document.getElementById('perfVisits').textContent=m.jobs.length;
-  document.getElementById('perfWasteClients').textContent=m.waste.length;
-  document.getElementById('perfRuns').textContent=m.actualRuns;
-  document.getElementById('perfClientsPerRun').textContent=m.clientsPerRun?m.clientsPerRun.toFixed(1):'0';
-  document.getElementById('perfAvoided').textContent=m.avoided;
-  document.getElementById('perfHoursSaved').textContent=m.consolidatedHours.toFixed(2)+' h';
-  document.getElementById('perfRecovery').textContent=perfMoney(m.recovery);
-  document.getElementById('perfReceipts').textContent=perfMoney(m.receipts);
-
-  var summary=document.getElementById('perfSummary');
-  if(!m.waste.length){
-    summary.innerHTML='No completed waste clients in this week yet.';
-  }else{
-    var net=m.recovery-m.receipts;
-    summary.innerHTML=
-      '<strong>'+m.waste.length+' waste client'+(m.waste.length===1?'':'s')+'</strong> serviced through '+
-      '<strong>'+m.actualRuns+' actual run'+(m.actualRuns===1?'':'s')+'</strong>. '+
-      'That is <strong>'+m.clientsPerRun.toFixed(1)+' clients/run</strong>, with <strong>'+m.avoided+
-      ' avoided separate trip'+(m.avoided===1?'':'s')+'</strong>. '+
-      'Client waste-run recovery represents '+m.billedHours.toFixed(2)+' billed hours versus '+
-      m.actualHours.toFixed(2)+' actual run hours entered/assumed. '+
-      'Recovery less entered dump receipts: <strong>'+perfMoney(net)+'</strong>.';
-  }
-
-  var p=state.performanceSettings;
-  document.getElementById('perfSmallCharge').value=p.smallWasteCharge;
-  document.getElementById('perfMediumCharge').value=p.mediumWasteCharge;
-  document.getElementById('perfLargeCharge').value=p.largeWasteCharge||'';
-  document.getElementById('perfLabourRate').value=p.labourRate;
-  document.getElementById('perfKmRate').value=p.kmRate;
-  document.getElementById('perfWasteHours').value=p.wasteRunHours;
-
-  var un=document.getElementById('unassignedWaste');
-  if(!m.unassigned.length){
-    un.innerHTML='<div class="card small">All completed waste clients for this week are assigned to a consolidated run.</div>';
-  }else{
-    un.innerHTML=m.unassigned.map(function(j){
-      var options='<option value="">Assign to run…</option><option value="new">+ New dump run</option>'+
-        m.runs.map(function(r){
-          return '<option value="'+esc(r.id)+'">'+esc(r.label||('Dump run '+(r.date||'')))+'</option>';
-        }).join('');
-      return '<div class="card">'+
-        '<div class="row"><div><strong>'+esc(j.title)+'</strong>'+
-        '<div class="small">'+esc(pretty(j.date))+' · '+esc(j.waste)+' · '+Number(j.dumpKm||0).toFixed(1)+' km</div>'+
-        '<div class="small">Recovery: '+perfMoney(billedWasteRecovery(j))+'</div></div>'+
-        '<span class="badge">UNGROUPED</span></div>'+
-        '<select data-job="'+esc(j.id)+'" style="margin-top:9px" onchange="assignWasteJob(this.dataset.job,this.value)">'+options+'</select>'+
-        '</div>';
-    }).join('');
-  }
-
-  var list=document.getElementById('dumpRunList');
-  if(!m.runs.length){
-    list.innerHTML='<div class="card small">No consolidated dump runs created for this week yet. Assign an ungrouped waste client to “+ New dump run”.</div>';
-  }else{
-    list.innerHTML=m.runs.map(function(r,idx){
-      var jobs=(r.jobIds||[]).map(function(id){
-        return state.jobs.find(function(j){return j.id===id});
-      }).filter(Boolean);
-      var rec=jobs.reduce(function(sum,j){return sum+billedWasteRecovery(j)},0);
-      var jobRows=jobs.length?jobs.map(function(j){
-        return '<div class="runJob"><div><strong>'+esc(j.title)+'</strong>'+
-          '<div class="small">'+esc(pretty(j.date))+' · '+esc(j.waste)+' · '+Number(j.dumpKm||0).toFixed(1)+' km · recovery '+perfMoney(billedWasteRecovery(j))+'</div></div>'+
-          '<button class="btn light" style="padding:6px 8px" data-job="'+esc(j.id)+'" onclick="unassignWasteJob(this.dataset.job)">Remove</button></div>';
-      }).join(''):'<div class="small">No clients assigned.</div>';
-      return '<div class="runCard">'+
-        '<div class="row"><div><strong>'+esc(r.label||('Dump run '+(idx+1)))+'</strong>'+
-        '<div class="small">'+jobs.length+' client'+(jobs.length===1?'':'s')+' · recovery '+perfMoney(rec)+'</div></div>'+
-        '<button class="btn light" style="padding:6px 8px" data-run="'+esc(r.id)+'" onclick="deleteDumpRun(this.dataset.run)">Delete</button></div>'+
-        '<div style="margin-top:8px">'+jobRows+'</div>'+
-        '<div class="grid" style="margin-top:10px">'+
-        '<div><label>Actual dump receipt $</label><input type="number" step=".01" data-run="'+esc(r.id)+'" data-field="receiptCost" value="'+(Number(r.receiptCost)||'')+'" onchange="updateDumpRun(this.dataset.run,this.dataset.field,this.value)"></div>'+
-        '<div><label>Actual load weight kg</label><input type="number" step="1" data-run="'+esc(r.id)+'" data-field="weightKg" value="'+(Number(r.weightKg)||'')+'" onchange="updateDumpRun(this.dataset.run,this.dataset.field,this.value)"></div>'+
-        '<div><label>Actual run minutes</label><input type="number" step="5" data-run="'+esc(r.id)+'" data-field="actualMinutes" value="'+actualRunMinutes(r)+'" onchange="updateDumpRun(this.dataset.run,this.dataset.field,this.value)"></div>'+
-        '<div><label>Run label</label><input data-run="'+esc(r.id)+'" data-field="label" value="'+esc(r.label||'')+'" placeholder="e.g. Friday combined run" onchange="updateDumpRun(this.dataset.run,this.dataset.field,this.value)"></div>'+
-        '</div></div>';
-    }).join('');
-  }
-}
-window.renderPerformance=renderPerformance;
-window.performanceUseSelectedDate=function(){
-  state.performanceAnchor=state.date;save();renderPerformance();
-};
-window.shiftPerformanceWeek=function(n){
-  var d=dateObj(state.performanceAnchor)||dateObj(state.date)||new Date();
-  d.setDate(d.getDate()+(n*7));
-  state.performanceAnchor=isoDate(d);save();renderPerformance();
-};
-window.assignWasteJob=function(jobId,runId){
-  if(!runId)return;
-  state.dumpRuns.forEach(function(r){
-    r.jobIds=(r.jobIds||[]).filter(function(id){return id!==jobId});
-  });
-  var j=state.jobs.find(function(x){return x.id===jobId});if(!j)return;
-  if(runId==='new'){
-    state.dumpRuns.push({
-      id:'run_'+Date.now(),
-      date:j.date,
-      label:'Combined dump run '+pretty(j.date),
-      jobIds:[jobId],
-      receiptCost:0,
-      weightKg:0,
-      actualMinutes:30
-    });
-  }else{
-    var target=state.dumpRuns.find(function(r){return r.id===runId});
-    if(target){
-      if(!target.jobIds)target.jobIds=[];
-      if(target.jobIds.indexOf(jobId)<0)target.jobIds.push(jobId);
-    }
-  }
-  save();renderPerformance();
-};
-window.unassignWasteJob=function(jobId){
-  state.dumpRuns.forEach(function(r){
-    r.jobIds=(r.jobIds||[]).filter(function(id){return id!==jobId});
-  });
-  save();renderPerformance();
-};
-window.deleteDumpRun=function(id){
-  state.dumpRuns=state.dumpRuns.filter(function(r){return r.id!==id});
-  save();renderPerformance();
-};
-window.updateDumpRun=function(id,field,value){
-  var r=state.dumpRuns.find(function(x){return x.id===id});if(!r)return;
-  if(['receiptCost','weightKg','actualMinutes'].indexOf(field)>=0)r[field]=Number(value)||0;
-  else r[field]=String(value||'');
-  save();renderPerformance();
-};
-function savePerformanceSettings(){
-  var p=state.performanceSettings;
-  p.smallWasteCharge=Number(document.getElementById('perfSmallCharge').value)||0;
-  p.mediumWasteCharge=Number(document.getElementById('perfMediumCharge').value)||0;
-  p.largeWasteCharge=Number(document.getElementById('perfLargeCharge').value)||0;
-  p.labourRate=Number(document.getElementById('perfLabourRate').value)||0;
-  p.kmRate=Number(document.getElementById('perfKmRate').value)||0;
-  p.wasteRunHours=Number(document.getElementById('perfWasteHours').value)||0;
-  save();renderPerformance();
-}
-
-function parseScreenshotSchedule(text){
-  var lines=String(text||'').replace(/\r/g,'').split('\n').map(function(x){return x.trim()}).filter(Boolean),events=[];
-  for(var i=0;i<lines.length;i++){
-    var m=lines[i].match(/\b(\d{1,2})[:.](\d{2})\s*(AM|PM)?\b/i);
-    if(!m)continue;
-    var start=normaliseImportedTime(m[0]),title=lines[i].replace(m[0],'').replace(/^[-–—\s]+/,'').trim();
-    if(!title&&lines[i+1])title=lines[++i];
-    if(!title||/^\d{1,2}[:.]\d{2}/.test(title))continue;
-    var address='';
-    if(lines[i+1]&&/\d+\s+.+\b(street|st|road|rd|drive|dr|lane|ln|avenue|ave|crescent|court|ct|place|pl|way|terrace|tce)\b/i.test(lines[i+1]))address=lines[++i];
-    var next='';
-    for(var k=i+1;k<Math.min(lines.length,i+6);k++){var n=lines[k].match(/\b(\d{1,2})[:.](\d{2})\s*(AM|PM)?\b/i);if(n){next=normaliseImportedTime(n[0]);break}}
-    events.push({title:title,start:start,end:next,address:address,personnel:2,todos:[],siteNotes:[],calendarNotes:['Imported from screenshot OCR'],date:state.date});
-  }
-  return events;
-}
-function renderOcrPreview(events){
-  var box=document.getElementById('ocrPreviewBox');
-  if(!events.length){box.className='notice bad';box.textContent='No time/title pairs detected. Edit the OCR text and try again.';return}
-  box.className='notice';box.innerHTML='<strong>'+events.length+' possible event(s)</strong><br>'+events.map(function(e){return esc(e.start+' · '+e.title+(e.address?' · '+e.address:''))}).join('<br>');
-}
-window.previewScreenshotText=function(){var events=parseScreenshotSchedule(document.getElementById('ocrText').value);window._ocrEvents=events;renderOcrPreview(events)}
-window.loadScreenshotEvents=function(){
-  var date=selectedIso();if(!date)return;
-  var events=window._ocrEvents||parseScreenshotSchedule(document.getElementById('ocrText').value);if(!events.length){alert('No OCR events detected.');return}
-  events.forEach(function(e){e.date=date;var existing=sameVisit(e,date);if(!existing){var v=makeVisitFromEvent(e,date);v.source='screenshot';state.jobs.push(v)}});
-  state.date=date;save();renderToday();showPage('today');
-}
-function loadScript(src){
-  return new Promise(function(resolve,reject){if(window.Tesseract)return resolve();var s=document.createElement('script');s.src=src;s.onload=resolve;s.onerror=reject;document.head.appendChild(s)});
-}
-window.runScreenshotOCR=async function(){
-  var input=document.getElementById('shotFile'),status=document.getElementById('ocrStatus');if(!input.files||!input.files[0]){alert('Choose a screenshot first.');return}
-  status.className='notice';status.textContent='Loading OCR…';
-  try{
-    await loadScript('https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js');
-    status.textContent='Reading screenshot…';
-    var out=await Tesseract.recognize(input.files[0],'eng',{logger:function(m){if(m.status==='recognizing text')status.textContent='Reading screenshot… '+Math.round((m.progress||0)*100)+'%'}});
-    document.getElementById('ocrText').value=out.data.text||'';status.textContent='OCR complete. Review the text, then Preview OCR events.';previewScreenshotText();
-  }catch(e){status.className='notice bad';status.textContent='OCR could not run on this device. You can still type or paste text into the OCR box manually.'}
-};
-document.getElementById('shotFile').addEventListener('change',function(){
-  var img=document.getElementById('shotPreview');if(this.files&&this.files[0]){img.src=URL.createObjectURL(this.files[0]);img.style.display='block';document.getElementById('ocrStatus').textContent='Screenshot selected.'}
-});
-
-var lastJobScrollY=window.scrollY||0;
-var jobHeaderHidden=false;
-function setJobHeaderHidden(hidden){
-  var header=document.getElementById('jobHeader');
-  if(!header)return;
-  jobHeaderHidden=!!hidden;
-  header.classList.toggle('jobHeaderHidden',jobHeaderHidden);
-}
-window.addEventListener('scroll',function(){
-  var jobPage=document.getElementById('job');
-  if(!jobPage||!jobPage.classList.contains('active'))return;
-  var y=window.scrollY||0;
-  var delta=y-lastJobScrollY;
-  if(y<80){
-    setJobHeaderHidden(false);
-  }else if(delta>5){
-    setJobHeaderHidden(true);
-  }else if(delta<-5){
-    setJobHeaderHidden(false);
-  }
-  lastJobScrollY=y;
-},{passive:true});
-
-document.getElementById('dateText').addEventListener('change',function(){var d=dateObj(this.value);if(d){state.date=isoDate(d);save();renderToday();renderDrafts()}});
-['personnel','startTime','endTime','rideOn','spray'].forEach(function(id){
-  document.getElementById(id).addEventListener('change',function(){var j=activeJob();if(j&&!j.completed){syncFields(j);save();refreshJobPreview()}})
-});
-document.getElementById('dumpKm').addEventListener('change',function(){var j=activeJob();if(!j||j.completed)return;syncFields(j);j.dumpKmSource='manual';save();if(j.dumpKm){j.dumpKmSource='manual';save();setRouteStatus(Number(j.dumpKm).toFixed(1)+' km manual override',false)}refreshJobPreview()});
-document.getElementById('waste').addEventListener('change',async function(){
-  var j=activeJob();if(!j||j.completed)return;
-  syncFields(j);
-  if(j.waste!=='none'){
-    j.dumpKm=0;
-    j.dumpKmSource='auto-pending';
-    document.getElementById('dumpKm').value='';
-    setRouteStatus('Calculating property → 110 Glenda Drive automatically…',false);
-    save();
-    await autoDumpKm(false);
-  }else{
-    j.dumpKm=0;
-    j.dumpKmSource='';
-    document.getElementById('dumpKm').value='';
-    save();
-    setRouteStatus('Select Green Waste to calculate the one-way route to 110 Glenda Drive.',false);
-  }
-  refreshJobPreview();
-});
-
-['perfSmallCharge','perfMediumCharge','perfLargeCharge','perfLabourRate','perfKmRate','perfWasteHours'].forEach(function(id){
-  var el=document.getElementById(id);if(el)el.addEventListener('change',savePerformanceSettings);
-});
-
-var presetSelect=document.getElementById('presetTask');
-if(presetSelect)presetSelect.innerHTML=PRESET_TASKS.map(function(t){return '<option value="'+esc(t)+'">'+esc(t)+'</option>'}).join('');
-
-renderToday();renderDrafts();
-if(location.hash==='#calendar-import'){showPage('import');document.getElementById('shortcutStatus').innerHTML='<strong>Returned from Shortcuts.</strong> Tap Paste Calendar Result, check the preview, then load the jobs.'}
-})();
+renderToday();
 </script>
 </body>
 </html>
