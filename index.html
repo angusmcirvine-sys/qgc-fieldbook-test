@@ -58,6 +58,7 @@ h3{margin:0 0 3px}
     <button class="btn alt" style="width:auto;flex:1" onclick="saveBridge()">Save</button>
     <button class="btn alt" style="width:auto;flex:1" onclick="connectXero()">Connect Xero</button>
   </div>
+  <label class="todo" style="border:0;padding-bottom:0"><input id="testMode" type="checkbox"><span><b>Test Mode</b> — simulate draft creation without touching Xero</span></label>
   <div id="xeroStatus" class="small">Bridge not configured.</div>
 </div>
 <button class="btn" onclick="reloadFromTruck()">Reload from QGC Truck</button>
@@ -249,18 +250,28 @@ runShortcut('QGC Append Site Note',JSON.stringify({job:j.title,note:n}));
 
 var bridgeUrl=(localStorage.getItem('qgcXeroBridge')||'').replace(/\/$/,'');
 document.getElementById('bridgeUrl').value=bridgeUrl;
+var testMode=(localStorage.getItem('qgcXeroTestMode')!=='off');
+document.getElementById('testMode').checked=testMode;
+document.getElementById('testMode').addEventListener('change',function(){
+  testMode=this.checked;
+  localStorage.setItem('qgcXeroTestMode',testMode?'on':'off');
+  checkXeroStatus();
+});
 window.saveBridge=function(){
 bridgeUrl=(document.getElementById('bridgeUrl').value||'').trim().replace(/\/$/,'');
 if(bridgeUrl)localStorage.setItem('qgcXeroBridge',bridgeUrl);else localStorage.removeItem('qgcXeroBridge');
 checkXeroStatus();
 };
 window.connectXero=function(){
+if(document.getElementById('testMode').checked){alert('Turn off Test Mode before connecting live Xero.');return}
 saveBridge();
 if(!bridgeUrl){alert('Enter the secure Xero bridge URL first.');return}
 location.href=bridgeUrl+'/connect';
 };
 async function checkXeroStatus(){
 var el=document.getElementById('xeroStatus');
+testMode=document.getElementById('testMode').checked;
+if(testMode){el.textContent='TEST MODE — drafts are simulated locally and no Xero data is changed.';return}
 bridgeUrl=(localStorage.getItem('qgcXeroBridge')||'').replace(/\/$/,'');
 if(!bridgeUrl){el.textContent='Bridge not configured.';return}
 el.textContent='Checking Xero…';
@@ -347,15 +358,55 @@ function refreshDraft(){
 if(activeIdx<0)return;
 document.getElementById('draftPreview').textContent=buildDraft(jobs[activeIdx]);
 }
+function buildTestInvoice(p){
+var items=[];
+if(p.description)items.push({description:'Work completed:\n'+p.description,quantity:1,unitAmount:0,amount:0,noteOnly:true});
+if(+p.labourHours>0)items.push({description:'Labour',quantity:+p.labourHours,unitAmount:65,amount:+(+p.labourHours*65).toFixed(2)});
+if(+p.wasteRunHours>0)items.push({description:'Green waste run',quantity:+p.wasteRunHours,unitAmount:65,amount:+(+p.wasteRunHours*65).toFixed(2)});
+if(p.waste&&p.waste!=='none'){
+  var fee=p.waste==='small'?37:p.waste==='medium'?74:0;
+  var label=p.waste==='small'?'Green waste disposal ≤100kg':p.waste==='medium'?'Green waste disposal 100–200kg':'Green waste disposal 200kg+';
+  items.push({description:label+(p.waste==='large'?' — rate to confirm':''),quantity:1,unitAmount:fee,amount:fee,warning:p.waste==='large'});
+}
+if(+p.dumpKm>0)items.push({description:'Dump travel',quantity:+p.dumpKm,unitAmount:2,amount:+(+p.dumpKm*2).toFixed(2)});
+if(+p.rideOnHours>0)items.push({description:'Ride-on mower',quantity:+p.rideOnHours,unitAmount:95,amount:+(+p.rideOnHours*95).toFixed(2)});
+if(+p.spray15L>0)items.push({description:'Spray application (15L)',quantity:+p.spray15L,unitAmount:16,amount:+(+p.spray15L*16).toFixed(2)});
+var total=items.reduce((s,x)=>s+(x.amount||0),0);
+return {
+  test:true,
+  status:'DRAFT',
+  invoiceId:'TEST-'+Date.now(),
+  invoiceNumber:'TEST-DRAFT',
+  contactName:'Address match simulation',
+  siteAddress:p.siteAddress,
+  date:p.date,
+  reference:p.siteAddress,
+  description:p.description,
+  lineItems:items,
+  subtotal:+total.toFixed(2),
+  total:+total.toFixed(2)
+};
+}
 window.sendToXero=async function(){
 syncCharges();
 var j=jobs[activeIdx],status=document.getElementById('sendStatus');
 bridgeUrl=(localStorage.getItem('qgcXeroBridge')||'').replace(/\/$/,'');
-if(!bridgeUrl){status.textContent='Set the Xero bridge URL first.';show('today');return}
+testMode=document.getElementById('testMode').checked;
+if(!testMode&&!bridgeUrl){status.textContent='Set the Xero bridge URL first, or turn on Test Mode.';show('today');return}
 if(!j.address){status.textContent='This job needs a site address before it can be matched to Xero.';return}
 j.description=(document.getElementById('jDescription').value||'').trim();
 if(!j.description){status.textContent='Add at least one completed-work description before creating the draft.';return}
 var payload=JSON.parse(buildDraft(j));
+testMode=document.getElementById('testMode').checked;
+if(testMode){
+  var simulated=buildTestInvoice(payload);
+  localStorage.setItem('qgcTestInvoice',JSON.stringify(simulated));
+  sentLog.unshift({title:j.title,text:JSON.stringify(simulated,null,2),at:new Date().toLocaleString()});
+  saveSession();
+  status.textContent='Test draft created. Opening review…';
+  location.href='test-invoice.html';
+  return;
+}
 status.textContent='Creating Xero draft…';
 try{
 var r=await fetch(bridgeUrl+'/api/create-draft',{
