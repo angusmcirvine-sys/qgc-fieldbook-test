@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>QGC Truck 1 Import</title>
+<title>QGC Fieldbook Xero</title>
 <style>
 :root{--g:#173d2c;--lime:#b8d36b;--bg:#f4f6f1;--card:#fff;--ink:#16221c;--muted:#66716a;--line:#dce3dc}
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#12160f;--card:#1b241c;--ink:#eef1ea;--muted:#9aa79c;--line:#2a352b}}
@@ -37,7 +37,7 @@ h3{margin:0 0 3px}
 </head>
 <body>
 <header>
-<b>QGC Truck 1 Import</b>
+<b>QGC Fieldbook Xero</b>
 <nav>
 <button class="on" data-p="today">Today</button>
 <button data-p="job">Job</button>
@@ -95,10 +95,10 @@ h3{margin:0 0 3px}
 </div>
 </div>
 <div class="card">
-<b>Xero draft (live)</b>
+<b>Xero draft payload (live)</b>
 <pre id="draftPreview"></pre>
-<button class="btn" onclick="sendToXero()">Send to Xero (Shortcut: copy + open)</button>
-<button class="btn alt" onclick="appendSiteNote()">Append site note (Shortcut)</button>
+<button class="btn" onclick="sendToXero()">Send Xero Draft Payload</button>
+<div class="small" style="margin-top:6px">Address is the primary client key. The Xero bridge should match this address to a Xero ContactID and stop for confirmation if there is no unique match.</div><button class="btn alt" onclick="appendSiteNote()">Append site note (Shortcut)</button>
 </div>
 </div>
 </section>
@@ -267,14 +267,23 @@ function buildDraft(j){
 var visitHrs=hrs(j.start,j.end),labour=visitHrs*(j.personnel||1);
 var waste=j.waste&&j.waste!=='none';
 if(waste)labour+=0.5;
-var lines=['Personnel: '+(j.personnel||1),'Time: '+(j.start||'')+'–'+(j.end||''),'Labour: '+labour.toFixed(2)+' hrs'];
-if(waste){lines.push('Green waste: '+j.waste);lines.push('Dump travel: '+(j.km||0).toFixed(1)+' km')}
-if(j.ride)lines.push('Ride-on: '+j.ride+' hrs');
-if(j.spray)lines.push('Spray: '+j.spray+' × 15L');
-lines.push('','Description of works:');
-if(j.todos.length===0)lines.push('- See completed Reminders for this visit');
-lines.push('(Completed items are ticked off in Reminders — refer there for the exact list.)');
-return lines.join('\n');
+var d=document.getElementById('dateIn').value||new Date().toISOString().slice(0,10);
+var payload={
+  clientKey:{type:'address',value:j.address||''},
+  siteAddress:j.address||'',
+  jobTitle:j.title||'',
+  date:d,
+  personnel:j.personnel||1,
+  start:j.start||'',
+  end:j.end||'',
+  labourHours:+labour.toFixed(2),
+  waste:waste?(j.waste||'none'):'none',
+  dumpKm:+(j.km||0),
+  rideOnHours:+(j.ride||0),
+  spray15L:+(j.spray||0),
+  openTodos:Array.isArray(j.todos)?j.todos.slice():[]
+};
+return JSON.stringify(payload,null,2);
 }
 function refreshDraft(){
 if(activeIdx<0)return;
