@@ -50,6 +50,16 @@ h3{margin:0 0 3px}
 <div class="card">
 <div class="small">Calendar + Reminders are the source of truth. This view is a working copy only — nothing here is saved as the record.</div>
 <div class="row" style="margin-top:8px"><input id="dateIn" type="date"></div>
+<div class="card" style="margin:10px 0 0;padding:10px">
+  <b>Xero connection</b>
+  <div class="small">One-time setup: enter the secure bridge URL, then connect the QGC Xero organisation.</div>
+  <div class="row" style="margin-top:7px"><input id="bridgeUrl" placeholder="https://your-xero-bridge.example.workers.dev"></div>
+  <div class="row" style="margin-top:5px">
+    <button class="btn alt" style="width:auto;flex:1" onclick="saveBridge()">Save</button>
+    <button class="btn alt" style="width:auto;flex:1" onclick="connectXero()">Connect Xero</button>
+  </div>
+  <div id="xeroStatus" class="small">Bridge not configured.</div>
+</div>
 <button class="btn" onclick="reloadFromTruck()">Reload from QGC Truck</button>
 <button class="btn alt" onclick="pasteImport()">Paste Result</button>
 <button class="btn alt" onclick="clearLoaded()">Clear loaded tasks</button>
@@ -82,6 +92,11 @@ h3{margin:0 0 3px}
 <div class="small" style="margin-top:4px">Ticking or adding a to-do fires a Shortcut that edits Reminders directly — nothing is duplicated here.</div>
 </div>
 <div class="card">
+<b>Completed work / Xero description</b>
+<textarea id="jDescription" placeholder="Tick completed tasks or edit the invoice description here."></textarea>
+<div class="small">Checked tasks are added here automatically. Edit freely before creating the Xero draft.</div>
+</div>
+<div class="card">
 <b>Charges</b>
 <div class="row" style="margin-top:8px">
 <select id="jWaste"><option value="none">No waste</option><option value="small">Waste ≤100kg</option><option value="medium">Waste 100-200kg</option><option value="large">Waste 200kg+</option></select>
@@ -95,10 +110,10 @@ h3{margin:0 0 3px}
 </div>
 </div>
 <div class="card">
-<b>Xero draft payload (live)</b>
+<b>Xero draft preview</b>
 <pre id="draftPreview"></pre>
-<button class="btn" onclick="sendToXero()">Send Xero Draft Payload</button>
-<div class="small" style="margin-top:6px">Address is the primary client key. The Xero bridge should match this address to a Xero ContactID and stop for confirmation if there is no unique match.</div><button class="btn alt" onclick="appendSiteNote()">Append site note (Shortcut)</button>
+<button class="btn" onclick="sendToXero()">Create Xero Draft & Open Xero</button>
+<div id="sendStatus" class="small" style="margin-top:6px">Address is the client key. Nothing is sent until you tap Create Xero Draft.</div><button class="btn alt" onclick="appendSiteNote()">Append site note (Shortcut)</button>
 </div>
 </div>
 </section>
@@ -156,7 +171,7 @@ function parseAndLoad(text){
 var events=[],cur=null;
 text.replace(/\r/g,'').split('\n').forEach(line=>{
 line=line.trim();if(!line)return;
-if(/^EVENT$/i.test(line)){cur={title:'',start:'',end:'',address:'',personnel:2,todos:[]};return}
+if(/^EVENT$/i.test(line)){cur={title:'',start:'',end:'',address:'',personnel:2,todos:[],completed:[],description:''};return}
 if(/^END_EVENT$/i.test(line)){if(cur&&cur.title)events.push(cur);cur=null;return}
 if(!cur)return;
 var m;
@@ -195,7 +210,10 @@ document.getElementById('jWaste').value=j.waste||'none';
 document.getElementById('jKm').value=j.km||'';
 document.getElementById('jRide').value=j.ride||'';
 document.getElementById('jSpray').value=j.spray||'';
-renderTodos();show('job');
+j.completed=Array.isArray(j.completed)?j.completed:[];
+j.description=j.description||j.completed.join('\n');
+document.getElementById('jDescription').value=j.description||'';
+renderTodos();refreshDraft();show('job');
 };
 
 function renderTodos(){
@@ -206,6 +224,14 @@ document.getElementById('jTodos').innerHTML=j.todos.length?j.todos.map((t,i)=>
 }
 window.doneTodo=function(i){
 var j=jobs[activeIdx],text=j.todos[i];
+j.completed=Array.isArray(j.completed)?j.completed:[];
+if(!j.completed.includes(text))j.completed.push(text);
+var manual=(document.getElementById('jDescription').value||'').trim();
+var lines=manual?manual.split('\n').map(x=>x.trim()).filter(Boolean):[];
+if(!lines.includes(text))lines.push(text);
+j.description=lines.join('\n');
+document.getElementById('jDescription').value=j.description;
+saveSession();renderTodos();refreshDraft();
 runShortcut('QGC Complete To-Do',JSON.stringify({job:j.title,todo:text}));
 j.todos.splice(i,1);saveSession();renderTodos();refreshDraft();
 };
@@ -220,6 +246,35 @@ var n=prompt('Site note to append');if(!n)return;
 var j=jobs[activeIdx];
 runShortcut('QGC Append Site Note',JSON.stringify({job:j.title,note:n}));
 };
+
+var bridgeUrl=(localStorage.getItem('qgcXeroBridge')||'').replace(/\/$/,'');
+document.getElementById('bridgeUrl').value=bridgeUrl;
+window.saveBridge=function(){
+bridgeUrl=(document.getElementById('bridgeUrl').value||'').trim().replace(/\/$/,'');
+if(bridgeUrl)localStorage.setItem('qgcXeroBridge',bridgeUrl);else localStorage.removeItem('qgcXeroBridge');
+checkXeroStatus();
+};
+window.connectXero=function(){
+saveBridge();
+if(!bridgeUrl){alert('Enter the secure Xero bridge URL first.');return}
+location.href=bridgeUrl+'/connect';
+};
+async function checkXeroStatus(){
+var el=document.getElementById('xeroStatus');
+bridgeUrl=(localStorage.getItem('qgcXeroBridge')||'').replace(/\/$/,'');
+if(!bridgeUrl){el.textContent='Bridge not configured.';return}
+el.textContent='Checking Xero…';
+try{
+var r=await fetch(bridgeUrl+'/api/status');
+var d=await r.json();
+el.textContent=d.connected?'Connected to '+(d.tenantName||'Xero'):'Bridge saved — Xero not connected yet.';
+}catch(e){el.textContent='Bridge saved, but it could not be reached.'}
+}
+document.getElementById('jDescription').addEventListener('input',()=>{
+if(activeIdx<0)return;
+jobs[activeIdx].description=document.getElementById('jDescription').value;
+saveSession();refreshDraft();
+});
 
 function syncCharges(){
 var j=jobs[activeIdx];
@@ -264,9 +319,10 @@ st.textContent=km.toFixed(1)+' km one way to 110 Glenda Drive.';
 function hrs(a,b){if(!a||!b)return 0;var x=a.split(':').map(Number),y=b.split(':').map(Number);
 return Math.max(0,(y[0]*60+y[1]-x[0]*60-x[1])/60)}
 function buildDraft(j){
-var visitHrs=hrs(j.start,j.end),labour=visitHrs*(j.personnel||1);
+var visitHrs=hrs(j.start,j.end);
+var labourRaw=visitHrs*(j.personnel||1);
+var labourBillable=Math.max(0,labourRaw-(+j.ride||0));
 var waste=j.waste&&j.waste!=='none';
-if(waste)labour+=0.5;
 var d=document.getElementById('dateIn').value||new Date().toISOString().slice(0,10);
 var payload={
   clientKey:{type:'address',value:j.address||''},
@@ -276,12 +332,14 @@ var payload={
   personnel:j.personnel||1,
   start:j.start||'',
   end:j.end||'',
-  labourHours:+labour.toFixed(2),
+  description:(j.description||'').trim(),
+  completedWorks:Array.isArray(j.completed)?j.completed.slice():[],
+  labourHours:+labourBillable.toFixed(2),
   waste:waste?(j.waste||'none'):'none',
+  wasteRunHours:waste?0.5:0,
   dumpKm:+(j.km||0),
   rideOnHours:+(j.ride||0),
-  spray15L:+(j.spray||0),
-  openTodos:Array.isArray(j.todos)?j.todos.slice():[]
+  spray15L:+(j.spray||0)
 };
 return JSON.stringify(payload,null,2);
 }
@@ -289,13 +347,32 @@ function refreshDraft(){
 if(activeIdx<0)return;
 document.getElementById('draftPreview').textContent=buildDraft(jobs[activeIdx]);
 }
-window.sendToXero=function(){
+window.sendToXero=async function(){
 syncCharges();
-var j=jobs[activeIdx],text=buildDraft(j);
-sentLog.unshift({title:j.title,text:text,at:new Date().toLocaleString()});
+var j=jobs[activeIdx],status=document.getElementById('sendStatus');
+bridgeUrl=(localStorage.getItem('qgcXeroBridge')||'').replace(/\/$/,'');
+if(!bridgeUrl){status.textContent='Set the Xero bridge URL first.';show('today');return}
+if(!j.address){status.textContent='This job needs a site address before it can be matched to Xero.';return}
+j.description=(document.getElementById('jDescription').value||'').trim();
+if(!j.description){status.textContent='Add at least one completed-work description before creating the draft.';return}
+var payload=JSON.parse(buildDraft(j));
+status.textContent='Creating Xero draft…';
+try{
+var r=await fetch(bridgeUrl+'/api/create-draft',{
+method:'POST',
+headers:{'Content-Type':'application/json'},
+body:JSON.stringify(payload)
+});
+var d=await r.json().catch(()=>({}));
+if(!r.ok)throw new Error(d.error||('Xero bridge returned '+r.status));
+sentLog.unshift({title:j.title,text:JSON.stringify(d,null,2),at:new Date().toLocaleString()});
 saveSession();
-runShortcut('QGC Send Xero Draft',text);
+status.textContent='Draft created. Opening Xero…';
+if(d.deepLink){location.href=d.deepLink;return}
+status.textContent='Draft created in Xero. Invoice ID: '+(d.invoiceId||'created');
+}catch(e){status.textContent='Could not create draft: '+e.message}
 };
+
 function renderDrafts(){
 var box=document.getElementById('draftList');
 box.innerHTML=sentLog.length?sentLog.map(d=>
@@ -304,6 +381,7 @@ box.innerHTML=sentLog.length?sentLog.map(d=>
 }
 clearLoaded(false);
 document.getElementById('impStatus').textContent='Fresh page — no tasks loaded.';
+checkXeroStatus();
 renderToday();
 </script>
 </body>
