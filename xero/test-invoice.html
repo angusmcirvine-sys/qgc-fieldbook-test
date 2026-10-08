@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>QGC Xero Test Draft</title>
+<style>
+:root{--g:#173d2c;--lime:#b8d36b;--bg:#f4f6f1;--card:#fff;--ink:#16221c;--muted:#66716a;--line:#dce3dc}
+@media (prefers-color-scheme:dark){:root{--bg:#12160f;--card:#1b241c;--ink:#eef1ea;--muted:#9aa79c;--line:#2a352b}}
+*{box-sizing:border-box} body{margin:0;font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg);color:var(--ink)}
+header{background:var(--g);color:#fff;padding:14px;position:sticky;top:0} main{max-width:640px;margin:auto;padding:12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;margin:9px 0}
+.badge{display:inline-block;font-size:11px;font-weight:800;padding:4px 8px;border-radius:99px;background:var(--lime);color:#18311f}
+.small{font-size:12px;color:var(--muted)} .row{display:flex;gap:8px;align-items:center;justify-content:space-between}
+.line{display:grid;grid-template-columns:1fr 64px 76px 82px;gap:6px;padding:9px 0;border-bottom:1px solid var(--line);font-size:13px}
+.line.head{font-weight:800;font-size:11px;color:var(--muted)} .money{text-align:right}.warn{font-size:12px;font-weight:700}
+pre{white-space:pre-wrap;background:var(--bg);padding:9px;border-radius:8px;border:1px solid var(--line);font:12px/1.4 monospace}
+.btn{border:0;border-radius:10px;padding:12px;font-weight:800;background:var(--g);color:#fff;width:100%;margin:5px 0}
+.btn.alt{background:#e9efe9;color:var(--g)}
+</style>
+</head>
+<body>
+<header><b>QGC Xero — Test Draft Review</b></header>
+<main>
+<div class="card"><span class="badge">TEST ONLY — NOTHING SENT TO XERO</span><h3 id="addr"></h3><div id="meta" class="small"></div></div>
+<div class="card"><b>Description of works</b><pre id="desc"></pre></div>
+<div class="card">
+<div class="line head"><div>Line item</div><div>Qty</div><div class="money">Rate</div><div class="money">Amount</div></div>
+<div id="lines"></div>
+<div class="row" style="padding-top:12px"><b>Total</b><b id="total"></b></div>
+</div>
+<div id="warning" class="card warn" style="display:none">200kg+ green-waste rate is not configured yet, so this test line is shown at $0.00 for checking only.</div>
+<button class="btn" onclick="location.href='./'">Back to Fieldbook Xero</button>
+<button class="btn alt" onclick="clearTest()">Clear test draft</button>
+</main>
+<script>
+function money(n){return '$'+Number(n||0).toFixed(2)}
+var d=JSON.parse(localStorage.getItem('qgcTestInvoice')||'null');
+if(!d){
+ document.querySelector('main').innerHTML='<div class="card">No test draft found.</div><button class="btn" onclick="location.href=\'./\'">Back</button>';
+}else{
+ document.getElementById('addr').textContent=d.siteAddress||'No address';
+ document.getElementById('meta').textContent=(d.status||'DRAFT')+' · '+(d.date||'')+' · '+(d.invoiceId||'');
+ document.getElementById('desc').textContent=d.description||'';
+ var warn=false;
+ document.getElementById('lines').innerHTML=(d.lineItems||[]).filter(x=>!x.noteOnly).map(x=>{
+   if(x.warning)warn=true;
+   return '<div class="line"><div>'+esc(x.description)+'</div><div>'+Number(x.quantity||0).toFixed(2)+'</div><div class="money">'+money(x.unitAmount)+'</div><div class="money">'+money(x.amount)+'</div></div>';
+ }).join('');
+ document.getElementById('total').textContent=money(d.total);
+ if(warn)document.getElementById('warning').style.display='block';
+}
+function esc(s){return String(s||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]))}
+function clearTest(){localStorage.removeItem('qgcTestInvoice');location.href='./'}
+</script>
+</body></html>
