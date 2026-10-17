@@ -1,0 +1,1 @@
+import{cors,json,xeroAuthorizeUrl}from"./_lib.js";export default async function handler(req,res){cors(res);if(req.method==="OPTIONS")return res.status(204).end();try{return res.redirect(302,xeroAuthorizeUrl(req))}catch(e){return json(res,500,{error:e.message})}}
