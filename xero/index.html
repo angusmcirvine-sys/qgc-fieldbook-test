@@ -248,8 +248,15 @@ var j=jobs[activeIdx];
 runShortcut('QGC Append Site Note',JSON.stringify({job:j.title,note:n}));
 };
 
-var bridgeUrl=(localStorage.getItem('qgcXeroBridge')||'').replace(/\/$/,'');
+var bridgeUrl=(localStorage.getItem('qgcXeroBridge')||'https://qgc-xero-bridge.vercel.app').replace(/\/$/,'');
+localStorage.setItem('qgcXeroBridge',bridgeUrl);
 document.getElementById('bridgeUrl').value=bridgeUrl;
+var xeroSession=localStorage.getItem('qgcXeroSession')||'';
+if(location.hash.startsWith('#xero_session=')){
+  xeroSession=decodeURIComponent(location.hash.slice('#xero_session='.length));
+  localStorage.setItem('qgcXeroSession',xeroSession);
+  history.replaceState(null,'',location.pathname+location.search);
+}
 var testMode=(localStorage.getItem('qgcXeroTestMode')!=='off');
 document.getElementById('testMode').checked=testMode;
 document.getElementById('testMode').addEventListener('change',function(){
@@ -266,7 +273,7 @@ window.connectXero=function(){
 if(document.getElementById('testMode').checked){alert('Turn off Test Mode before connecting live Xero.');return}
 saveBridge();
 if(!bridgeUrl){alert('Enter the secure Xero bridge URL first.');return}
-location.href=bridgeUrl+'/connect';
+location.href=bridgeUrl+'/api/connect';
 };
 async function checkXeroStatus(){
 var el=document.getElementById('xeroStatus');
@@ -276,7 +283,8 @@ bridgeUrl=(localStorage.getItem('qgcXeroBridge')||'').replace(/\/$/,'');
 if(!bridgeUrl){el.textContent='Bridge not configured.';return}
 el.textContent='Checking Xero…';
 try{
-var r=await fetch(bridgeUrl+'/api/status');
+xeroSession=localStorage.getItem('qgcXeroSession')||'';
+var r=await fetch(bridgeUrl+'/api/status',{headers:xeroSession?{'Authorization':'Bearer '+xeroSession}:{}});
 var d=await r.json();
 el.textContent=d.connected?'Connected to '+(d.tenantName||'Xero'):'Bridge saved — Xero not connected yet.';
 }catch(e){el.textContent='Bridge saved, but it could not be reached.'}
@@ -409,13 +417,18 @@ if(testMode){
 }
 status.textContent='Creating Xero draft…';
 try{
+xeroSession=localStorage.getItem('qgcXeroSession')||'';
 var r=await fetch(bridgeUrl+'/api/create-draft',{
 method:'POST',
-headers:{'Content-Type':'application/json'},
+headers:{
+  'Content-Type':'application/json',
+  ...(xeroSession?{'Authorization':'Bearer '+xeroSession}:{})
+},
 body:JSON.stringify(payload)
 });
 var d=await r.json().catch(()=>({}));
 if(!r.ok)throw new Error(d.error||('Xero bridge returned '+r.status));
+if(d.session){xeroSession=d.session;localStorage.setItem('qgcXeroSession',xeroSession);}
 sentLog.unshift({title:j.title,text:JSON.stringify(d,null,2),at:new Date().toLocaleString()});
 saveSession();
 status.textContent='Draft created. Opening Xero…';
