@@ -1,0 +1,15 @@
+name = "qgc-xero-bridge"
+main = "worker.js"
+compatibility_date = "2026-10-01"
+
+[vars]
+FRONTEND_ORIGIN = "https://angusmcirvine-sys.github.io"
+FRONTEND_URL = "https://angusmcirvine-sys.github.io/qgc-fieldbook-test/xero/"
+
+[[kv_namespaces]]
+binding = "XERO_STORE"
+id = "REPLACE_WITH_KV_NAMESPACE_ID"
+
+# Optional. Leave blank initially: Xero permits incomplete line items on DRAFT invoices.
+# SALES_ACCOUNT_CODE = "200"
+# WASTE_LARGE_RATE = "0"

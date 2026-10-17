@@ -50,8 +50,9 @@ h3{margin:0 0 3px}
 <div class="card">
 <div class="small">Calendar + Reminders are the source of truth. This view is a working copy only — nothing here is saved as the record.</div>
 <div class="row" style="margin-top:8px"><input id="dateIn" type="date"></div>
-<button class="btn" onclick="runImport()">Run "QGC Truck" Shortcut</button>
+<button class="btn" onclick="reloadFromTruck()">Reload from QGC Truck</button>
 <button class="btn alt" onclick="pasteImport()">Paste Result</button>
+<button class="btn alt" onclick="clearLoaded()">Clear loaded tasks</button>
 <div id="impStatus" class="small" style="margin-top:6px">No day loaded yet.</div>
 <details style="margin-top:8px"><summary class="small">Raw paste box</summary>
 <textarea id="raw" placeholder="Shortcut output appears here"></textarea>
@@ -109,7 +110,8 @@ h3{margin:0 0 3px}
 
 </main>
 <script>
-var jobs=JSON.parse(sessionStorage.getItem('qgcJobs')||'[]');
+sessionStorage.removeItem('qgcJobs');
+var jobs=[];
 var sentLog=JSON.parse(sessionStorage.getItem('qgcSent')||'[]');
 var activeIdx=-1;
 function saveSession(){sessionStorage.setItem('qgcJobs',JSON.stringify(jobs));sessionStorage.setItem('qgcSent',JSON.stringify(sentLog))}
@@ -123,10 +125,24 @@ document.getElementById('dateIn').value=new Date().toISOString().slice(0,10);
 function runShortcut(name,payload){
 location.href='shortcuts://run-shortcut?name='+encodeURIComponent(name)+'&input=text&text='+encodeURIComponent(payload);
 }
+window.clearLoaded=function(showStatus=true){
+jobs=[];activeIdx=-1;
+sessionStorage.removeItem('qgcJobs');
+document.getElementById('raw').value='';
+document.getElementById('jobList').innerHTML='';
+document.getElementById('jobEmpty').style.display='block';
+document.getElementById('jobBox').style.display='none';
+if(showStatus)document.getElementById('impStatus').textContent='Loaded tasks cleared.';
+show('today');
+};
 window.runImport=function(){
 var d=document.getElementById('dateIn').value;
-document.getElementById('impStatus').textContent='Opening Shortcuts for '+d+'…';
+clearLoaded(false);
+document.getElementById('impStatus').textContent='Opening QGC Truck for '+d+'…';
 runShortcut('QGC Truck',d);
+};
+window.reloadFromTruck=function(){
+runImport();
 };
 window.pasteImport=async function(){
 try{
@@ -277,6 +293,8 @@ box.innerHTML=sentLog.length?sentLog.map(d=>
 '<div class="card"><b>'+esc(d.title)+'</b><div class="small">'+esc(d.at)+'</div><pre>'+esc(d.text)+'</pre></div>').join(''):
 '<div class="card small">Nothing sent yet this session.</div>';
 }
+clearLoaded(false);
+document.getElementById('impStatus').textContent='Fresh page — no tasks loaded.';
 renderToday();
 </script>
 </body>
